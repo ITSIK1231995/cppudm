@@ -1,0 +1,73 @@
+{
+		"defaultExecutionOptions":
+			["Errinj Mode",
+			"Legacy Mode Host Pc",
+			"Legacy Mode Exerciser"
+			],
+			
+			
+						
+		"defaultExecutionMode" : "Errinj Mode",
+		"resultPath" : "PATH",
+		"legacyModePath" : "legacyModeConfigFiles\\testsByGroups",
+		"errinjModePath" : "errinjModeConfigFiles\\experiment",
+		"analyzerMinVersion" : "VERSION",
+		"hostPCs":
+					[
+						{
+							"IP" : "10.100.102.15",
+							"groupName" : "Calypso",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : true
+						},
+						{
+							"IP" : "10.100.102.14",
+							"groupName" : "555",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : true
+						},
+						{
+							"IP" : "10.100.102.46",
+							"groupName" : "GROUP",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : false
+						}
+						,
+						{
+							"IP" : "10.100.102.55",
+							"groupName" : "GROUP",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : true
+						}
+						,
+						{
+							"IP" : "10.100.102.145",
+							"groupName" : "GROUP",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : true
+						}
+						,
+						{
+							"IP" : "10.100.102.144",
+							"groupName" : "GROUP",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : true
+						}
+						,
+						{
+							"IP" : "10.100.102.111",
+							"groupName" : "GROUP",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : true
+						}
+						,
+						{
+							"IP" : "10.100.102.123",
+							"groupName" : "GROUP",
+							"tests" :	["test1", "test2", "test3"],
+							"checked" : true
+						}
+						
+					]
+								
+}

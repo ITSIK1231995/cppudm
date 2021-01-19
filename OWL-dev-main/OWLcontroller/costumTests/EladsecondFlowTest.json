@@ -1,0 +1,13 @@
+{
+		"operationsList":
+			[
+				"powerOn",
+			{
+				"operation" : "runDM",
+				"param" : "test relative path"
+			},
+				"powerOff"
+
+			]
+			
+}
