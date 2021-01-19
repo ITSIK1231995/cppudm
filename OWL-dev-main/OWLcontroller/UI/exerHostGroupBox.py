@@ -16,16 +16,25 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
     def __init__(self, centralwidget,configs):
         super(exerHostGroupBox, self).__init__( centralwidget)
 
-        # self.selectGroupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.setGeometry(QtCore.QRect(20, 150, 220, 180))
         self.setObjectName("hostExercisersGroupBox")
-
-        self.scroll = QScrollArea()
-        self.widget = QWidget()
         self.vbox = QVBoxLayout()
 
         self.hotPcs = configs.defaultConfContent['hostPCs']
-        posX = 1
+
+        self.hostPCTableSetup()
+        self.scrollSetup()
+        self.addHostBtnSetup()
+
+
+    def addHostBtnSetup(self):
+        self.addHostPc = QtWidgets.QPushButton(self)
+        self.addHostPc.setGeometry(QtCore.QRect(145, 5, 75, 23))
+        self.addHostPc.setObjectName("addHostPc")
+        self.addHostPc.clicked.connect(self.addHostPcBtnClicked)
+
+    def hostPCTableSetup(self):
+
         self.hostPcRows = {}
         for hostPc in self.hotPcs:
 
@@ -58,22 +67,17 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
 
             hostPcRowNamedtuple = namedtuple('hostPcRow', ['checkBox', 'onOffLbl','showButton','editButton'])
             self.hostPcRows[hostPc['IP']] = hostPcRowNamedtuple(checkBox,onOffLbl,showButton,editButton)
-            # posX+=1
 
+    def scrollSetup(self):
+        self.widget = QWidget()
         self.widget.setLayout(self.vbox)
-
-        self.scroll = QScrollArea(self)             # Scroll Area which contains the widgets, set as the centralWidget
-        #Scroll Area Properties
+        self.scroll = QScrollArea(self)  # Scroll Area which contains the widgets, set as the centralWidget
+        # Scroll Area Properties
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.widget)
         self.scroll.setGeometry(QtCore.QRect(0, 30, 220, 150))
-
-        self.addHostPc = QtWidgets.QPushButton(self)
-        self.addHostPc.setGeometry(QtCore.QRect(145, 5, 75, 23))
-        self.addHostPc.setObjectName("addHostPc")
-        self.addHostPc.clicked.connect(self.addHostPcBtnClicked)
 
     def getIPFromBtnName(self,btn):
         return btn.objectName().split('_')[1]
