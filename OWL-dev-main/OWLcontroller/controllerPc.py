@@ -1,8 +1,5 @@
-import configparser
 from configControl.confParser import confParser
-from configControl.confParserLM import confParserLM
-from hostPcTestEnvClient import hostPcTestEnvClient
-from UI.viewGui import *
+from UI.GUI.viewGui import *
 
 class controllerPc():
     def __init__(self):

@@ -13,14 +13,15 @@ import sys
 #TODO : another screen for editing and adding
 
 class exerHostGroupBox(QtWidgets.QGroupBox):
-    def __init__(self, centralwidget,configs):
+    def __init__(self, centralwidget,configs,mainWindowRef):
         super(exerHostGroupBox, self).__init__( centralwidget)
 
-        self.setGeometry(QtCore.QRect(20, 150, 220, 180))
+        self.mainWindowRef = mainWindowRef
+        self.setGeometry(QtCore.QRect(10, 150, 220, 280))
         self.setObjectName("hostExercisersGroupBox")
         self.vbox = QVBoxLayout()
 
-        self.hotPcs = configs.defaultConfContent['hostPCs']
+        self.hostPcs = configs.defaultConfContent['hostPCs']
 
         self.hostPCTableSetup()
         self.scrollSetup()
@@ -36,7 +37,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
     def hostPCTableSetup(self):
 
         self.hostPcRows = {}
-        for hostPc in self.hotPcs:
+        for hostPc in self.hostPcs:
 
             groupBox = QtWidgets.QGroupBox()
             # groupBox.setGeometry(QtCore.QRect(50, 50, 50, 50))
@@ -77,28 +78,30 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.widget)
-        self.scroll.setGeometry(QtCore.QRect(0, 30, 220, 150))
+        self.scroll.setGeometry(QtCore.QRect(0, 30, 220, 250))
 
-    def getIPFromBtnName(self,btn):
-        return btn.objectName().split('_')[1]
+    def getHostPCFromBtnName(self, btn):
+        hostPcIp =  btn.objectName().split('_')[1]
+        return next((hostPc for hostPc in self.hostPcs if hostPc['IP'] == hostPcIp), None)
 
     def editBtnClicked(self):
-        hostPcIp = self.getIPFromBtnName(self.sender())
-        print(hostPcIp)
+        hostPc = self.getHostPCFromBtnName(self.sender())
+        print(hostPc)
 
     def showBtnClicked(self):
-        hostPcIp = self.getIPFromBtnName(self.sender())
-        print(hostPcIp)
+        hostPc = self.getHostPCFromBtnName(self.sender())
+        self.mainWindowRef.setNewHostPC(hostPc)
 
     def addHostPcBtnClicked(self):
         print("addHostPcBtnClicked")
 
 
 
-    def retranslateUi(self, skippedTestsNumber,_translate):
+    def retranslateUi(self):
+        _translate = QtCore.QCoreApplication.translate
         self.setToolTip(_translate("skippedTestsNumber", "Hosts list"))
         self.setTitle(_translate("skippedTestsNumber", "Exerciser / Host"))
-        for hostPc in self.hotPcs:#TODO: is this needed?
+        for hostPc in self.hostPcs:#TODO: is this needed?
             self.hostPcRows[hostPc['IP']].checkBox.setText(_translate("skippedTestsNumber", hostPc['IP']))
             self.hostPcRows[hostPc['IP']].checkBox.setChecked(hostPc['checked'])
             self.hostPcRows[hostPc['IP']].onOffLbl.setText(_translate("skippedTestsNumber", "ON"))
