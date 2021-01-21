@@ -95,7 +95,7 @@ class confParserLM():
         testConfiguration.flowoperations = []
         for operation in sequenceFile['operationsList']:
             testConfiguration.flowoperations.append(operation)
-        print(testConfiguration.flowoperations)
+        # print(testConfiguration.flowoperations)
         return testConfiguration
 
     def addingParamsToConf(self, sectionParams,testConf,sectionName):

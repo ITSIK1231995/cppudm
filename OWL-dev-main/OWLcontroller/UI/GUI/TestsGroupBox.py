@@ -30,15 +30,17 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         #     self.hostPc = hostPc
         # else:
         self.hostPc = configs.defaultConfContent['hostPCs'][0] # TODO: alter so gets the currect hostpc that was selected in hostpcgroup box
+
         # self.tests = configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc['groupName']]
         self.testTableSetup()
         self.scrollSetup()
 
 
-    def setHostPc(self,newHostPc):
-        self.hostPc = newHostPc
-        self.tests = self.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc['groupName']]
-        print(newHostPc["IP"])
+
+    # def setHostPc(self,newHostPc):
+    #     self.hostPc = newHostPc
+    #     self.tests = self.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc['groupName']]
+    #     print(newHostPc["IP"])
 
     def testTableSetup(self):
 
@@ -52,10 +54,14 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             checkBox = QtWidgets.QCheckBox(groupBox)
             checkBox.setGeometry(QtCore.QRect(0, 1, 200, 21))
             checkBox.setObjectName("testCheckBox_"+test.testname)
+            checkBox.clicked.connect(self.onCheckBoxClicked)
+
 
             repeatTestBox = QtWidgets.QSpinBox(groupBox)
             repeatTestBox.setGeometry(QtCore.QRect(200, 0, 47, 23))
             repeatTestBox.setObjectName("repeatTestBox_"+test.testname)
+            repeatTestBox.setRange(0,1000)
+            repeatTestBox.valueChanged.connect(self.repeatTestBoxChanged)
 
             statusLbl = QtWidgets.QLabel(groupBox)
             statusLbl.setGeometry(QtCore.QRect(270, 3, 47, 14))
@@ -68,6 +74,24 @@ class TestsGroupBox(QtWidgets.QGroupBox):
 
             TestRowNamedtuple = namedtuple('TestRow', ['checkBox', 'repeatTestBox','statusLbl'])
             self.testsRows[test.testname] = TestRowNamedtuple(checkBox, repeatTestBox, statusLbl)
+
+    def repeatTestBoxChanged(self):
+        repeatTestBox = self.sender()
+        testName = repeatTestBox.objectName().split('_')[1]
+        if testName in self.hostPc['tests'].keys():
+            self.hostPc['tests'][testName]['repeatAmount'] = repeatTestBox.value()
+        else:
+            self.hostPc['tests'][testName] = {"repeatAmount" : repeatTestBox.value(),"checked" : False}
+
+
+    def onCheckBoxClicked(self):
+        clickedCheckBox = self.sender()
+        testName = clickedCheckBox.objectName().split('_')[1]
+        if testName in self.hostPc['tests'].keys():
+            self.hostPc['tests'][testName]['checked'] = clickedCheckBox.isChecked()
+        else:
+            self.hostPc['tests'][testName] = {"repeatAmount" : 0,"checked" : clickedCheckBox.isChecked()}
+
 
     def scrollSetup(self):
         self.widget = QWidget()
@@ -90,6 +114,10 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             self.testsRows[test.testname].statusLbl.setText(_translate("skippedTestsNumber", "ready"))
 
 
+
+
+    # def setDefultHostPc(self):
+    #     self.setHostPCSavedTestParams(self.configs.defaultConfContent['hostPCs'][0])
 
 
     def setHostPCSavedTestParams(self,hostPc):

@@ -46,6 +46,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
             checkBox = QtWidgets.QCheckBox(groupBox)
             checkBox.setGeometry(QtCore.QRect(0, 0, 100, 21))
             checkBox.setObjectName("groupCheckBox_"+hostPc['IP'])
+            checkBox.clicked.connect(self.onCheckBoxClicked)
 
             onOffLbl = QtWidgets.QLabel(groupBox)
             onOffLbl.setGeometry(QtCore.QRect(100, 3, 47, 14))
@@ -68,6 +69,11 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
 
             hostPcRowNamedtuple = namedtuple('hostPcRow', ['checkBox', 'onOffLbl','showButton','editButton'])
             self.hostPcRows[hostPc['IP']] = hostPcRowNamedtuple(checkBox,onOffLbl,showButton,editButton)
+
+    def onCheckBoxClicked(self):
+        clickedCheckBox = self.sender()
+        hostPc = self.getHostPCFromBtnName(clickedCheckBox)
+        hostPc['checked'] = clickedCheckBox.isChecked()
 
     def scrollSetup(self):
         self.widget = QWidget()

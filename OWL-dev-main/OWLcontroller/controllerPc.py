@@ -27,6 +27,14 @@ class controllerPc():
         QMainWindow.show()
         app.exec_()
 
+    def startExecution(self):
+        print("runing tests")
+
+    def stopExecution(self):
+        print("stoping tests")
+
+
+
 
 
 

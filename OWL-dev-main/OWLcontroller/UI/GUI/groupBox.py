@@ -1,7 +1,7 @@
 
 from collections import namedtuple
 from PyQt5.QtWidgets import (QWidget, QSlider, QLineEdit, QLabel, QPushButton, QScrollArea,QApplication,
-                             QHBoxLayout, QVBoxLayout, QMainWindow)
+                             QHBoxLayout, QVBoxLayout, QMessageBox)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
 
@@ -41,16 +41,28 @@ class groupBox(QtWidgets.QGroupBox):
     def onChacked(self):
         clickedCheckBox = self.sender()
         if clickedCheckBox.isChecked():
+            if self.displaySwitchGroupWarningPopUp():
+                for checkBox in self.groupCheckBoxArr.values():
+                    if checkBox is not clickedCheckBox and checkBox.isChecked():
+                        checkBox.setChecked(False)
 
-            for checkBox in self.groupCheckBoxArr.values():
-                if checkBox is not clickedCheckBox and checkBox.isChecked():
-                    checkBox.setChecked(False)
 
-
-            groupName = clickedCheckBox.objectName().split('_')[1]
-            self.mainWindowRef.setDisplayedTestGroup(groupName)
+                groupName = clickedCheckBox.objectName().split('_')[1]
+                self.mainWindowRef.setDisplayedTestGroup(groupName)
+            else:
+                clickedCheckBox.setChecked(False)
         else:
             clickedCheckBox.setChecked(True)
+
+    def displaySwitchGroupWarningPopUp(self):
+
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Information)
+        msgBox.setText("are you sure you want to switch group?\n "
+                       "switching well delete all tests configured for current host Pc")
+        msgBox.setWindowTitle("Warning")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        return msgBox.exec() == QMessageBox.Ok
 
     def cahngeSelected(self,groupName):
         for checkBox in self.groupCheckBoxArr.values():

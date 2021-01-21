@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QStackedLayout,
     QVBoxLayout,
-    QWidget,
+    QWidget,QMessageBox
 )
 
 from collections import OrderedDict
@@ -34,122 +34,15 @@ class mainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.currentHostPc = None
 
-#############################################
-        # self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        # self.scrollArea.setGeometry(QtCore.QRect(240, 150, 550, 280))
-        # self.scrollArea.setWidgetResizable(True)
-        # self.scrollArea.setObjectName("scrollArea")
-        # self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        # self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 449, 239))
-        # self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
-        # self.testNum3 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_2)
-        # self.testNum3.setGeometry(QtCore.QRect(50, 110, 221, 18))
-        # self.testNum3.setObjectName("testNum3")
-        # self.testNum2 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_2)
-        # self.testNum2.setGeometry(QtCore.QRect(50, 80, 221, 20))
-        # self.testNum2.setObjectName("testNum2")
-        # self.testNum1 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_2)
-        # self.testNum1.setGeometry(QtCore.QRect(50, 50, 221, 18))
-        # self.testNum1.setObjectName("testNum1")
-        # self.scrollTests = QtWidgets.QScrollBar(self.scrollAreaWidgetContents_2)
-        # self.scrollTests.setGeometry(QtCore.QRect(20, 40, 16, 141))
-        # self.scrollTests.setOrientation(QtCore.Qt.Vertical)
-        # self.scrollTests.setObjectName("scrollTests")
-        # self.selectedGroup = QtWidgets.QLabel(self.scrollAreaWidgetContents_2)
-        # self.selectedGroup.setGeometry(QtCore.QRect(10, -10, 111, 61))
-        # self.selectedGroup.setObjectName("selectedGroup")
-        # self.repeatTest = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_2)
-        # self.repeatTest.setGeometry(QtCore.QRect(240, 50, 42, 22))
-        # self.repeatTest.setObjectName("repeatTest")
-        # self.repeatTest2 = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_2)
-        # self.repeatTest2.setGeometry(QtCore.QRect(240, 80, 42, 22))
-        # self.repeatTest2.setObjectName("repeatTest2")
-        # self.repeatTest3 = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_2)
-        # self.repeatTest3.setGeometry(QtCore.QRect(240, 110, 42, 22))
-        # self.repeatTest3.setObjectName("repeatTest3")
-        # self.progressBar = QtWidgets.QProgressBar(self.scrollAreaWidgetContents_2)
-        # self.progressBar.setGeometry(QtCore.QRect(130, 210, 201, 23))
-        # self.progressBar.setProperty("value", 24)
-        # self.progressBar.setObjectName("progressBar")
-        # self.passedTestsLabel_2 = QtWidgets.QLabel(self.scrollAreaWidgetContents_2)
-        # self.passedTestsLabel_2.setGeometry(QtCore.QRect(310, 50, 47, 14))
-        # self.passedTestsLabel_2.setLayoutDirection(QtCore.Qt.LeftToRight)
-        # self.passedTestsLabel_2.setAutoFillBackground(False)
-        # self.passedTestsLabel_2.setObjectName("passedTestsLabel_2")
-        # self.passedTestsLabel_3 = QtWidgets.QLabel(self.scrollAreaWidgetContents_2)
-        # self.passedTestsLabel_3.setGeometry(QtCore.QRect(310, 80, 47, 14))
-        # self.passedTestsLabel_3.setLayoutDirection(QtCore.Qt.LeftToRight)
-        # self.passedTestsLabel_3.setAutoFillBackground(False)
-        # self.passedTestsLabel_3.setObjectName("passedTestsLabel_3")
-        # self.passedTestsLabel_4 = QtWidgets.QLabel(self.scrollAreaWidgetContents_2)
-        # self.passedTestsLabel_4.setGeometry(QtCore.QRect(310, 110, 47, 14))
-        # self.passedTestsLabel_4.setLayoutDirection(QtCore.Qt.LeftToRight)
-        # self.passedTestsLabel_4.setAutoFillBackground(False)
-        # self.passedTestsLabel_4.setObjectName("passedTestsLabel_4")
-        #
-        #
-        # self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
-
-
-#################################
-        # self.testsGroupBox = testsGroupBox(self.centralwidget,controller.configs,None)
         self.createTestScreens()
-
-
 
         self.terminal = QtWidgets.QColumnView(self.centralwidget)
         self.terminal.setGeometry(QtCore.QRect(240, 440, 550, 180))
         self.terminal.setObjectName("terminal")
 
 
-        #################################
-        # self.hostExercisersGroupBox = QtWidgets.QGroupBox(self.centralwidget)
-        # self.hostExercisersGroupBox.setGeometry(QtCore.QRect(20, 190, 120, 101))
-        # self.hostExercisersGroupBox.setObjectName("hostExercisersGroupBox")
-        # self.hostPcCheckBox_3 = QtWidgets.QCheckBox(self.hostExercisersGroupBox)
-        # self.hostPcCheckBox_3.setGeometry(QtCore.QRect(0, 80, 64, 21))
-        # self.hostPcCheckBox_3.setObjectName("hostPcCheckBox_3")
-        # self.hostPcCheckBox_2 = QtWidgets.QCheckBox(self.hostExercisersGroupBox)
-        # self.hostPcCheckBox_2.setGeometry(QtCore.QRect(0, 50, 64, 21))
-        # self.hostPcCheckBox_2.setObjectName("hostPcCheckBox_2")
-        # self.hostPcCheckBox_1 = QtWidgets.QCheckBox(self.hostExercisersGroupBox)
-        # self.hostPcCheckBox_1.setGeometry(QtCore.QRect(0, 20, 64, 21))
-        # self.hostPcCheckBox_1.setObjectName("hostPcCheckBox_1")
-        # self.hostPcState = QtWidgets.QLabel(self.hostExercisersGroupBox)
-        # self.hostPcState.setGeometry(QtCore.QRect(80, 20, 47, 14))
-        # self.hostPcState.setObjectName("hostPcState")
-        # self.hostPcState_2 = QtWidgets.QLabel(self.hostExercisersGroupBox)
-        # self.hostPcState_2.setGeometry(QtCore.QRect(80, 50, 47, 14))
-        # self.hostPcState_2.setObjectName("hostPcState_2")
-        # self.hostPcState_3 = QtWidgets.QLabel(self.hostExercisersGroupBox)
-        # self.hostPcState_3.setGeometry(QtCore.QRect(80, 80, 47, 14))
-        # self.hostPcState_3.setObjectName("hostPcState_3")
-
         self.hostExercisersGroupBox = exerHostGroupBox(self.centralwidget,controller.configs,self)
-
-        #######################
-
-        # self.selectGroupBox = QtWidgets.QGroupBox(self.centralwidget)
-        # self.selectGroupBox.setGeometry(QtCore.QRect(10, 350, 131, 131))
-        # self.selectGroupBox.setObjectName("selectGroupBox")
-        #
-        # self.groupCheckBox_2 = QtWidgets.QCheckBox(self.selectGroupBox)
-        # self.groupCheckBox_2.setGeometry(QtCore.QRect(20, 30, 64, 18))
-        # self.groupCheckBox_2.setObjectName("groupCheckBox_2")
-        # self.groupCheckBox2_2 = QtWidgets.QCheckBox(self.selectGroupBox)
-        # self.groupCheckBox2_2.setGeometry(QtCore.QRect(20, 60, 64, 18))
-        # self.groupCheckBox2_2.setObjectName("groupCheckBox2_2")
-        # self.groupCheckBox3_2 = QtWidgets.QCheckBox(self.selectGroupBox)
-        # self.groupCheckBox3_2.setGeometry(QtCore.QRect(20, 90, 64, 18))
-        # self.groupCheckBox3_2.setObjectName("groupCheckBox3_2")
-
         self.selectGroupBox = groupBox(self.centralwidget,controller.configs,self)
-        #####################
-
-        # self.addHostPc = QtWidgets.QPushButton(self.centralwidget)
-        # self.addHostPc.setGeometry(QtCore.QRect(70, 300, 75, 23))
-        # self.addHostPc.setObjectName("addHostPc")
-
 
 
         self.scrollArea_2 = QtWidgets.QScrollArea(self.centralwidget)
@@ -225,15 +118,6 @@ class mainWindow(object):
         self.skippedTestsNumber_2.setObjectName("skippedTestsNumber_2")
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_4)
 
-        # self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        # self.tabWidget.setGeometry(QtCore.QRect(20, 550, 127, 80))
-        # self.tabWidget.setObjectName("tabWidget")
-        # self.tab_3 = QtWidgets.QWidget()
-        # self.tab_3.setObjectName("tab_3")
-        # self.tabWidget.addTab(self.tab_3, "")
-        # self.tab_4 = QtWidgets.QWidget()
-        # self.tab_4.setObjectName("tab_4")
-        # self.tabWidget.addTab(self.tab_4, "")
 
         skippedTestsNumber.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(skippedTestsNumber)
@@ -289,42 +173,9 @@ class mainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         skippedTestsNumber.setWindowTitle(_translate("skippedTestsNumber", "OWL"))
 
-        # self.testNum3.setText(_translate("skippedTestsNumber", "Hermes - Power On Ready 2"))
-        # self.testNum2.setText(_translate("skippedTestsNumber", "Hermes - Power On Ready 2"))
-        # self.testNum1.setText(_translate("skippedTestsNumber", "Hermes - Power On Ready"))
-        # self.selectedGroup.setToolTip(_translate("skippedTestsNumber", "<html><head/><body><p>hosts list</p></body></html>"))
-
-
-        # self.selectedGroup.setText(_translate("skippedTestsNumber", "         Hermes"))
-        # self.passedTestsLabel_2.setText(_translate("skippedTestsNumber", "Passed"))
-        # self.passedTestsLabel_3.setText(_translate("skippedTestsNumber", "Passed"))
-        # self.passedTestsLabel_4.setText(_translate("skippedTestsNumber", "Skipped"))
-
-
-        # self.hostExercisersGroupBox.setToolTip(_translate("skippedTestsNumber", "Hosts list"))
-        # self.hostExercisersGroupBox.setTitle(_translate("skippedTestsNumber", "Exerciser/Host"))
-        # self.hostPcCheckBox_3.setText(_translate("skippedTestsNumber", "Host Pc 3"))
-        # self.hostPcCheckBox_2.setText(_translate("skippedTestsNumber", "Host Pc 2"))
-        # self.hostPcCheckBox_1.setText(_translate("skippedTestsNumber", "Host Pc 1"))
-        # self.hostPcState.setText(_translate("skippedTestsNumber", "On"))
-        # self.hostPcState_2.setText(_translate("skippedTestsNumber", "On"))
-        # self.hostPcState_3.setText(_translate("skippedTestsNumber", "Off"))
-
         self.selectGroupBox.retranslateUi()
         self.hostExercisersGroupBox.retranslateUi()
-        # self.testsGroupBox.retranslateUi()
         self.retranslateUiTestsGroupBoxs()
-
-        # self.selectGroupBox.setToolTip(_translate("skippedTestsNumber", "Hosts list"))
-        # self.selectGroupBox.setTitle(_translate("skippedTestsNumber", "Select Group"))
-        # self.groupCheckBox_2.setText(_translate("skippedTestsNumber", "Calypso"))
-        # self.groupCheckBox2_2.setText(_translate("skippedTestsNumber", "Pheonix"))
-        # self.groupCheckBox3_2.setText(_translate("skippedTestsNumber", "Hermes"))
-
-        # self.addHostPc.setText(_translate("skippedTestsNumber", "Add Host PC"))
-
-
-
 
         self.runTests.setText(_translate("skippedTestsNumber", "Run"))
         self.stopButton.setText(_translate("skippedTestsNumber", "Stop"))
@@ -338,10 +189,6 @@ class mainWindow(object):
         self.skippedTestsNumber_2.setText(_translate("skippedTestsNumber", "7"))
 
 
-
-
-        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("skippedTestsNumber", "Tab 1"))
-        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("skippedTestsNumber", "Tab 2"))
         self.menufiles.setTitle(_translate("skippedTestsNumber", "Files"))
         self.menuHelp.setTitle(_translate("skippedTestsNumber", "Help"))
         self.menuTools.setTitle(_translate("skippedTestsNumber", "Tools"))
@@ -356,12 +203,10 @@ class mainWindow(object):
         self.actionErrinj_Mode.setText(_translate("skippedTestsNumber", "Errinj Mode"))
 
     def runBtnPressed(self):
-        # self.stackedLayout.setCurrentIndex(0)
-        self.setDisplayedTestGroup("Hermes")
+        self.controller.startExecution()
 
     def stopBtnPressed(self):
-        # self.stackedLayout.setCurrentIndex(0)
-        self.setDisplayedTestGroup("calypso")
+        self.controller.stopExecution()
 
 
     def createTestScreens(self):
@@ -379,40 +224,41 @@ class mainWindow(object):
             self.stackedLayout.addWidget(self.testsGroupBoxs[groupName].testsGroupBox)
             stackLevel+=1
 
-        # self.stackedLayout.setCurrentIndex(0)
+    def retranslateUiTestsGroupBoxs(self):
+        for groupName, testsGroupBoxWithLevelTuple in self.testsGroupBoxs.items():
+            testsGroupBoxWithLevelTuple.testsGroupBox.retranslateUi()
+        self.setDefultHostPc()
+
+    def setDefultHostPc(self):
+        defaultHostPC = self.controller.configs.defaultConfContent['hostPCs'][0]
+        self.currentHostPc = defaultHostPC
+        self.setNewHostPC(defaultHostPC)
+
+    def getCurrentTestsGroupBoxWithLevelTuple(self):
+        currentTGBStackLevel = self.stackedLayout.currentIndex()
+        return next((TGB for TGB in self.testsGroupBoxs.values() if TGB.stackLevel == currentTGBStackLevel), None)
+
+
+    def setNewHostPC(self,hostPc):
+
+        self.currentHostPc = hostPc
+        self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[hostPc['groupName']].stackLevel)
+        self.selectGroupBox.cahngeSelected(hostPc['groupName'])
+        testsGroupBoxWithLevelTuple = self.getCurrentTestsGroupBoxWithLevelTuple()
+        testsGroupBoxWithLevelTuple.testsGroupBox.setHostPCSavedTestParams(hostPc)
+
+
 
 
     def setDisplayedTestGroup(self, groupName):
 
         if self.currentHostPc is not None:
-            print("are you sure you want to switch without saving?") #TODO: make a pop up that asks for premision, if answer is yes, remove test data
+
             self.currentHostPc['groupName'] = groupName
             self.currentHostPc['tests'] = {}
             self.setNewHostPC(self.currentHostPc)
         else:
             self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[groupName].stackLevel)
-
-    def retranslateUiTestsGroupBoxs(self):
-        for groupName, TestsGroupBoxWithLeveltuple in self.testsGroupBoxs.items():
-            TestsGroupBoxWithLeveltuple.testsGroupBox.retranslateUi()
-
-
-    def setNewHostPC(self,hostPc):
-        # self.testsGroupBox.hide()
-        # self.testsGroupBox = testsGroupBox(self.centralwidget,self.controller.configs,hostPc)
-        # self.testsGroupBox.hostPc = hostPc
-        self.currentHostPc = hostPc
-        self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[hostPc['groupName']].stackLevel)
-        self.selectGroupBox.cahngeSelected(hostPc['groupName'])
-
-        currentTGBStackLevel = self.stackedLayout.currentIndex()
-
-        currentGroupBox = next((TGB for TGB in self.testsGroupBoxs.values() if TGB.stackLevel == currentTGBStackLevel), None)
-
-        currentGroupBox.testsGroupBox.setHostPCSavedTestParams(hostPc)
-
-
-        # self.testsGroupBox.setHostPCSavedTestParams(hostPc)
 
 
 
