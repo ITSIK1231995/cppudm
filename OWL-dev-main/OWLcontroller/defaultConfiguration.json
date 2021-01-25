@@ -1,4 +1,5 @@
 {
+		"hostPcServerPort" : 5000,
 		"defaultExecutionOptions":
 			["Errinj Mode",
 			"Legacy Mode Host Pc",
@@ -17,6 +18,10 @@
 						{
 							"IP" : "10.100.102.15",
 							"groupName" : "Hermes",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  2
+                            },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
 								"hermes - power on ready 0": {"repeatAmount" :5,"checked" : false},
@@ -31,16 +36,24 @@
 						{
 							"IP" : "10.100.102.14",
 							"groupName" : "Hermes",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 4,"checked" : true},
 								"hermes - power on ready 2": {"repeatAmount" : 25,"checked" : true}
 							},
 
-							"checked" : true
+							"checked" : false
 						},
 						{
 							"IP" : "10.100.102.46",
 							"groupName" : "Hermes",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
 								"hermes - power on ready 5": {"repeatAmount" :5,"checked" : true},
@@ -56,6 +69,10 @@
 						{
 							"IP" : "10.100.102.55",
 							"groupName" : "Hermes",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
 								"hermes - power on ready 0": {"repeatAmount" :5,"checked" : false},
@@ -63,12 +80,16 @@
 								"hermes - power on ready 2": {"repeatAmount" : 50,"checked" : false}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						,
 						{
 							"IP" : "10.100.102.145",
 							"groupName" : "Hermes",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
 								"hermes - power on ready 0": {"repeatAmount" :5,"checked" : false},
@@ -76,12 +97,16 @@
 								"hermes - power on ready 5": {"repeatAmount" : 50,"checked" : false}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						,
 						{
 							"IP" : "10.100.102.144",
 							"groupName" : "Hermes",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
 								"hermes - power on ready 5": {"repeatAmount" :50,"checked" : true},
@@ -89,12 +114,16 @@
 								"hermes - power on ready 2": {"repeatAmount" : 50,"checked" : false}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						,
 						{
 							"IP" : "10.100.102.111",
 							"groupName" : "Hermes",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"hermes - power on ready 5": {"repeatAmount" : 88,"checked" : true},
 								"hermes - power on ready 0": {"repeatAmount" :5,"checked" : false},
@@ -102,12 +131,16 @@
 								"hermes - power on ready 2": {"repeatAmount" : 50,"checked" : false}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						,
 						{
 							"IP" : "10.100.102.123",
 							"groupName" : "calypso",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
 								"calypso - power on ready 0": {"repeatAmount" :55,"checked" : true},
@@ -115,12 +148,16 @@
 								"calypso - power on ready 25": {"repeatAmount" : 50,"checked" : true}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						,
 						{
 							"IP" : "10.100.102.124",
 							"groupName" : "calypso",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
 								"calypso - power on ready 0": {"repeatAmount" :55,"checked" : true},
@@ -128,12 +165,16 @@
 								"calypso - power on ready 25": {"repeatAmount" : 50,"checked" : true}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						,
 						{
 							"IP" : "10.100.102.125",
 							"groupName" : "calypso",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
 								"calypso - power on ready 0": {"repeatAmount" :55,"checked" : true},
@@ -141,12 +182,16 @@
 								"calypso - power on ready 25": {"repeatAmount" : 50,"checked" : true}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						,
 						{
 							"IP" : "10.100.102.126",
 							"groupName" : "calypso",
+                            "clicker" : {
+                                "COM" :  "COM4",
+                                "chanel" :  "2"
+                            },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
 								"calypso - power on ready 0": {"repeatAmount" :55,"checked" : true},
@@ -154,7 +199,7 @@
 								"calypso - power on ready 25": {"repeatAmount" : 50,"checked" : true}
 
 							},
-							"checked" : true
+							"checked" : false
 						}
 						
 					]

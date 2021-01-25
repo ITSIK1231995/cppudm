@@ -12,5 +12,5 @@ class shutdown(object):
     @staticmethod
     def runOp(userCommand):
         print(userCommand)
-        return userCommand
-        # os.system("shutdown /s /t 1")
+        #return userCommand
+        os.system("shutdown /s /t 1")

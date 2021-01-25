@@ -1,3 +1,5 @@
+from datetime import time
+import time
 from operations.operation import operation
 import json
 
@@ -23,12 +25,11 @@ class runCommandViaCmd(object):
     #     return ('Received from server: ' + data)  # show the response in terminal
 
     @staticmethod
-    def runOp(client_socket, cmdCommand='ipconfig'):
+    def runOp(hostPc,opParams):
 
-        df1 = {"operation": "runCommandViaCmd", "param": cmdCommand}
-        client_socket.sendall(json.dumps(df1).encode('utf-8'))  # encode the dict to JSON
-        data = client_socket.recv(1024).decode()  # receive response from the server
-
+        df1 = {"operation": "runCommandViaCmd", "param": opParams.paramForOperation}
+        opParams.socket.sendall(json.dumps(df1).encode('utf-8'))  # encode the dict to JSON
+        data = opParams.socket.recv(1024).decode()  # receive response from the server
         return ('Received from server: ' + data)  # show the response in terminal
 
         #message = input(" -> ")  # again send a messege to the server

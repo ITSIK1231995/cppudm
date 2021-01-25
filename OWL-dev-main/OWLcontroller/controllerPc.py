@@ -1,22 +1,24 @@
+import configparser
 from configControl.confParser import confParser
+from configControl.confParserLM import confParserLM
+from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
+import _thread
 
-class controllerPc():
+
+class ControllerPc():
     def __init__(self):
-        parserResults = (confParser().parseAll())
-        # self.legacyTestsByGroup = parserResults.legacyMode.legacyTestsByGroup
-        # self.legacyFlowOperationsTestsByGroups = parserResults.legacyMode.legacyFlowOperationsTestsByGroups
-        # self.testsByGroupErrinj = parserResults.ErrinjMode.testsByGroupErrinj
-        # self.defaultConfContent = parserResults.defaultConfContent
-        self.configs = parserResults
-        # # #  Host Pc server case
-        # hostPcTestEnvClient().runSequanceOfOperations([{'operation': 'runCommandViaCmd', 'param': "ipconfig"}
-        #                                      , 'shutdown', 'sleep', 'hibernate',
-        #                                      {'operation': 'wait', 'param': "5"}])
-
-
-        #hostPcTestEnvClient().runSequanceOfOperations(self.legacyFlowOperationsTestsByGroups['Hermes'][1].flowoperations)
+        self.configs = confParser().parseAll()
         self.GUIInit()
+
+    def threadMain(self,hostPc):
+        hostPcTestsRunner(self, hostPc).runAllTests()
+    #for eatch hostPc we create a thread that well manage the execution of its tests
+    def dispatchThreads(self):
+        hostPcs = self.configs.defaultConfContent['hostPCs']
+        for hostPc in hostPcs:
+            if hostPc["checked"]:
+                _thread.start_new_thread(self.threadMain,(hostPc,))
 
 
     def GUIInit(self):
@@ -28,6 +30,7 @@ class controllerPc():
         app.exec_()
 
     def startExecution(self):
+        self.dispatchThreads()
         print("runing tests")
 
     def stopExecution(self):
@@ -35,9 +38,4 @@ class controllerPc():
 
 
 
-
-
-
-
-
-controllerPc()
+controllerPc = ControllerPc()

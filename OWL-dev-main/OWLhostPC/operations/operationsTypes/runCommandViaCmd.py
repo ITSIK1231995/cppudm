@@ -12,5 +12,7 @@ class runCommandViaCMD(object):
 
     @staticmethod
     def runOp(userCommand):
-        return subprocess.run([userCommand], stdout=subprocess.PIPE).stdout.decode('utf-8')
+
+        return  subprocess.run([userCommand], stdout=subprocess.PIPE).stdout.decode('utf-8')
+
         # os.system("shutdown /s /t 1")

@@ -1,0 +1,49 @@
+DIM StartLba;
+
+NVM_CMD_NSID = 0
+PATZ "writeA"
+// Disable APST
+NVM_SETF_AUTOPWRT 0
+// Disable NOPPME
+NVM_SETF 11h, 0
+
+// Perform 10k x 128k random writes 
+// before we go to low power
+logoff;
+echo off;
+turbo on;
+fullspeed on;
+
+NVM_IDFY
+
+PATI "Write"
+NVM_CMD_NSID = 1
+StartLba = 0;
+// 10000 x 4K Random
+REP 1000(NVM_WRITE rand%totallba, 7)
+
+//10000 x 128K Sequential
+//REP 10000(NVM_WRITE StartLba, 255; StartLba+=256)
+
+NVM_CMD_NSID = 0
+
+log2;
+echo on;
+turbo off;
+fullspeed off;
+
+wait 1000
+NVM_SETF_PWRMGT 4
+PRNS "\n ============================="
+PRNF "\n PS4 Entry Time %dus", interval;
+PRNS "\n ============================="
+PRNF "\n"
+wait 1000
+NVM_CMD_NSID = 1
+NVM_READ 0, 7; // Send a 4K READ
+PRNS "\n ============================="
+PRNF "\n PS4 Exit Time %dus", interval;
+PRNS "\n ============================="
+PRNF "\n"
+NVM_CMD_NSID = 0
+NVM_SETF_PWRMGT 0

@@ -12,5 +12,5 @@ class hibernate(object):
     @staticmethod
     def runOp(userCommand):
         print(userCommand)
-        return userCommand
-        #os.system(CMD_COMMAND + userCommand)
+        #return userCommand
+        os.system(CMD_COMMAND + userCommand)

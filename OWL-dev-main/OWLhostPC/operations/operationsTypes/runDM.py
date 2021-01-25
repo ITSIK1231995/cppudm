@@ -1,5 +1,28 @@
+import os
+import subprocess
 import psutil
+CMD_COMMAND = 'cmd /k '
+DM_SCRIPT_NAME = 'L1.2_Entry_Exit_PS4_Calypso.srt'
+DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC\DM_scripts\\'
+EXECUTE_DM = r'DriveMaster.exe /s:'
+LOG_PATH = ' /1:log.txt /e'
+RUN_DM = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
+
 class runDM():
+
+    @staticmethod
+    def runOp(userPath):
+        #os.system(CMD_COMMAND + RUN_DM)
+        runDM = EXECUTE_DM + userPath + LOG_PATH
+        command = RUN_DM
+        run = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stdin=None, stderr=subprocess.PIPE,
+                               env=os.environ, universal_newlines=True)
+        returncode = run.communicate()  ## HANGS HERE ##
+
+        if runDM().checkIfProcessRunning('DriveMaster'):
+            print('A DriveMaster process is running')
+        else:
+            print('A DriveMaster process is not running')
 
     @staticmethod
     def checkIfProcessRunning(processName):
@@ -17,12 +40,5 @@ class runDM():
         return False
 
 
-# Check if any chrome process was running or not.
-
-if runDM().checkIfProcessRunning('chrome'):
-    print('Yes a chrome process was running')
-else:
-    print('No chrome process is not running')
-
-
+# runDM.runOp()
 

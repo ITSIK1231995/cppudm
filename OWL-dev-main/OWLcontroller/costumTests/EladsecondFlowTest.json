@@ -1,12 +1,12 @@
 {
 		"operationsList":
 			[
-				"powerOn",
+				"powerOnWithClicker",
 			{
-				"operation" : "runDM",
-				"param" : "test relative path"
+				"name" : "runDM",
+				"params" : ["test relative path"]
 			},
-				"powerOff"
+				"shutdown"
 
 			]
 			

@@ -1,58 +1,79 @@
-# import os
-# import time
-# import socket
-# import subprocess
-#
-# hostname = "10.100.102.29"
-#
-# while 1:
-#     sp = subprocess.Popen(["ping.exe", hostname], stdout = subprocess.PIPE)
-#
-#     sp.wait() # Wait for ping.exe to terminate.
-#
-#     return_code = sp.returncode # Get the return code
-#
-#     if return_code != 0:
-#         print (hostname, 'is down.')
-#         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#         #I'm not that familiar with this part.assuming yours is correct.
-#         s.sendto(b'\xff'*6 + b'\x00\x21\x6A\xC7\x1A\x42'*16, ('10.100.102.29', 80))
-#     else:
-#         print (hostname, 'is up.')
-#
-#
-
-
 import socket
 import subprocess
 import platform
+from operations.operation import operation
 
-HOST_NAME = '10.100.102.14'
-MAC_ADRESS = b'\x10\x65\x30\x2B\xE5\x87'
-def ping_ip(current_ip_address):
-    try:
-        output = subprocess.check_output("ping -{} 1 {}".format('n' if platform.system().lower(
-        ) == "windows" else 'c', current_ip_address), shell=True, universal_newlines=True)
-        if 'unreachable' in output:
+class turnOnWithLan(operation):
+
+
+    def getKey(self):
+        ''' Returns operation's name '''
+        return (type(self).__name__)
+
+    @staticmethod
+    def pingIP(current_ip_address):
+        try:
+            output = subprocess.check_output("ping -{} 1 {}".format('n' if platform.system().lower(
+            ) == "windows" else 'c', current_ip_address), shell=True, universal_newlines=True)
+            if 'unreachable' in output:
+                return False
+            else:
+                return True
+        except Exception:
             return False
-        else:
-            return True
-    except Exception:
-        return False
+    # @staticmethod
+    # def getMacAdress():
+    #     import subprocess
+    #     import sys
+    #
+    #     ip = '10.100.102.22'
+    #
+    #     # ping ip
+    #     p = subprocess.Popen(['ping', ip, '-c1'], stdout=subprocess.PIPE,
+    #                          stderr=subprocess.PIPE)
+    #
+    #     out, err = p.communicate()
+    #
+    #     # arp list
+    #     p = subprocess.Popen(['arp', '-n'], stdout=subprocess.PIPE,
+    #                          stderr=subprocess.PIPE)
+    #
+    #     out, err = p.communicate()
+    #
+    #     try:
+    #
+    #         arp = [x for x in out.split('\n') if ip in x][0]
+    #     except IndexError:
+    #         sys.exit(1)  # no arp entry found
+    #     else:
+    #         # get the mac address from arp list
+    #         # bug: when the IP does not exists on the local network
+    #         # this will print out the interface name
+    #         print(
+    #         ' '.join(arp.split()).split()[2])
 
 
-if __name__ == '__main__':
-    # pinging the host for checking if its on
-    current_ip_address = [HOST_NAME]
-    for each in current_ip_address:
-        if ping_ip(each):
-            print(f"{each} Host Pc is available")
-        else:
-            print(f"{each}  HOST Pc is not available")
-            #  Working wake on lan!!!
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.sendto(b'\xff' * 6 + MAC_ADRESS * 16,  #Host Pc MAC adress
-                     (HOST_NAME, 80)) # Host Pc IP
-            # Wake on lan Working
+    @staticmethod
+    def runOp(hostPc,opParams):
+        opParams.macAdress = b'\x10\x65\x30\x2B\xE5\x87'
+        # pinging the host for checking if its on
+        currentIpAdress = [opParams.hostIP]
+        for each in currentIpAdress:
+            if turnOnWithLan.pingIP(each):
+                print("Host Pc is available")
+            else:
+                print(" HOST Pc is not available")
+                # wake on lan
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.sendto(b'\xff' * 6 + opParams.macAdress * 16,  #Host Pc MAC adress
+                         (opParams.hostIP, 80)) # Host Pc IP
+                # Wake on lan Working
+
+
+# turnOnWithLan.runOp()
+
+
+
+
 
 

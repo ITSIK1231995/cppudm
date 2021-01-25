@@ -12,5 +12,5 @@ class sleep(object):
     @staticmethod
     def runOp(userCommand):
         print(userCommand)
-        return userCommand
-        #os.system(userCommand)
+        #return userCommand
+        os.system(userCommand)
