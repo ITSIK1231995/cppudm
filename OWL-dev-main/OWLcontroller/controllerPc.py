@@ -6,7 +6,7 @@ from UI.GUI.viewGui import *
 import _thread
 
 class ControllerPc():
-    
+
     def __init__(self):
         self.configs = confParser().parseAll()
         self.GUIInit()

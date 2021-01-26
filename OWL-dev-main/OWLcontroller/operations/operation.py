@@ -4,7 +4,7 @@ import socket
 class operation(object):
 
     def getKey(self):
-        pass
+        pass\
 
     @staticmethod
     def runOp(controllerPc,hostPc,opParams):
