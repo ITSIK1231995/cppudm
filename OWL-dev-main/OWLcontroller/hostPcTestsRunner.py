@@ -30,7 +30,7 @@ class hostPcTestsRunner():
                     numOfPass += 1
                 else:
                     numOfFails += 1
-            print (test.testname , "Passed: ", numOfPass, " Failed:" , numOfFails)
+            print (test.testname , " >>> Passed: ", numOfPass, " Failed:" , numOfFails)
             # todo : add stop on failure here - need to get from GUI if the stop on failure mode is on and if it is need to stop after this test if it failled once or mroe
 
 
