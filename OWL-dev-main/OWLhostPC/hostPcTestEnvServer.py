@@ -32,18 +32,16 @@ class hostPcTestEnvServer():
 
             # receive data stream. it won't accept data packet greater than 1024 bytes
             data = conn.recv(1024)
-            if not data:
-                # if data is not received break
-                break
+            if data and data != "Test":
 
-            data = json.loads(data.decode('utf-8'))
-            if isinstance(data, dict):
-                mappedOperations = allOperations()
-                data = mappedOperations.operationsImplement[data['operation']].runOp(data['param'],conn)
+                data = json.loads(data.decode('utf-8'))
+                if isinstance(data, dict):
+                    mappedOperations = allOperations()
+                    mappedOperations.operationsImplement[data['operation']].runOp(data['param'],conn)
 
-            elif isinstance(data, str):
-                        mappedOperations = allOperations()
-                        data = mappedOperations.operationsImplement[data].runOp()
+                elif isinstance(data, str):
+                    mappedOperations = allOperations()
+                    mappedOperations.operationsImplement[data].runOp()
 
 
             #print("from connected user: " + str(data))
