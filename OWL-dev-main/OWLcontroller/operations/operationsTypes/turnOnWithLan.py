@@ -1,6 +1,8 @@
 import socket
 import subprocess
 import platform
+import time
+
 from operations.operation import operation
 import os
 import subprocess # CMD commands and outputs
@@ -53,6 +55,8 @@ class turnOnWithLan(operation):
         print("\n turn on with lan command has started \n ")
         #macAdress = turnOnWithLan.getMacAdress(hostPc)
         macAdress = b'\x10\x65\x30\x2B\xE5\x87'
+        time.sleep(7)
+        
         # wake on lan
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
