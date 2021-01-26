@@ -35,7 +35,7 @@ class hostPcTestEnvServer():
                 data = json.loads(data.decode('utf-8'))
                 # if isinstance(data, dict):
                 mappedOperations = allOperations()
-                if 'param' in data.key():
+                if 'param' in data.keys():
                     mappedOperations.operationsImplement[data['operation']].runOp(scoket,data['param'])
                 else:
                     mappedOperations.operationsImplement[data['operation']].runOp(scoket,[])
@@ -58,13 +58,15 @@ class hostPcTestEnvServer():
 
 
 if __name__ == '__main__':
-    while True:
-        try:
-            hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-        except Exception as e:
-            print(e)
-            continue
+    hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
 
+    # while True:
+    #     try:
+    #         hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+    #     except Exception as e:
+    #         print(e)
+    #         continue
+    #
 
 
 
