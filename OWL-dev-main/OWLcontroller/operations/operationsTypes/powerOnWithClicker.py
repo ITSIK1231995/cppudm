@@ -1,4 +1,5 @@
 import os
+import socket
 import time
 from operations.operation import operation
 PING = 'ping '
@@ -14,24 +15,28 @@ class powerOnWithClicker(operation):
         ''' Returns operation's name '''
         return (type(self).__name__)
 
-    @staticmethod
-    def runOp(hostPc,opParams):
+    # @staticmethod
+    # def checkIfPcisOn(self,controllerPc,hostPc):
+    #     clientSocket = socket.socket()  # instantiate
+    #     port = controllerPc.configs.defaultConfContent['hostPcServerPort']
+    #     try:
+    #         clientSocket.connect((hostPc["IP"], port))  # connect to the server
+    #     except socket.error as e:
+    #         print(e)
+    #         return False
+    #     return clientSocket
+
+
+    def runOp(self,controllerPc,hostPc,opParams):
         os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
                   " > " + hostPc['clicker']['COM'])
         time.sleep(0.5)
         os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][1] +
                   " > " + hostPc['clicker']['COM'])
 
-        #check if the host turned on
-        pingCommand = PING + hostPc["IP"]
-        while (os.system(pingCommand)) != 0:
-            print ("Host is not  alive")
-        if (os.system(pingCommand)) == 0:
-            print ("host is up")
+        # check if the host is on
+        hostStatus = operation.checkIfPcisOn(self,controllerPc,hostPc)
+        return hostStatus # if the host is up the clicker done well, and should return True
 
-        return True
-# powerOnWithClicker.runOp('COM4', 1)
-# powerOnWithClicker.runOp('COM4', 2)
-# powerOnWithClicker.runOp('COM4', 3)
-# powerOnWithClicker.runOp('COM4', 4)
+
 

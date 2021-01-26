@@ -2,26 +2,25 @@ import os
 
 from operations.operation import operation
 import json
+
+from operations.operationWithSocket import operationWithSocket
+
 PING = 'ping '
 #SLEEP_COMMAND ="hibernate command request from client new"
-SLEEP_COMMAND = 'shutdown /h'
+HIBERNATE_COMMAND = 'shutdown /h'
 
-class hibernate(operation):
+class hibernate(operationWithSocket):
     def getKey(self):
         pass
 
-    @staticmethod
-    def runOp(hostPc,opParams):
 
-        messegeToServer = {"operation": "hibernate", "param": SLEEP_COMMAND}
-        opParams.socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
-        messegeFromServer = opParams.socket.recv(1024).decode()  # receive response from the server
-        opParams.socket.close()
+    def runOp(self,controllerPc,hostPc,opParams):
+        port = controllerPc.configs.defaultConfContent['hostPcServerPort']
+        socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
 
-        # sending a ping in order to verify the shutdown
-        pingCommand = PING + opParams.hostIP
-        while (os.system(pingCommand)) == 0:
-            print ("Host still alive")
-        if (os.system(pingCommand)) != 0:
-            print ("hibernate was done")
-            return True
+        messegeToServer = {"operation": "hibernate", "param": HIBERNATE_COMMAND}
+        socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
+        socket.close()
+
+        hostPcIsOn = operation.checkIfPcisOn(self, controllerPc, hostPc) # Verify the host is down
+        return not hostPcIsOn

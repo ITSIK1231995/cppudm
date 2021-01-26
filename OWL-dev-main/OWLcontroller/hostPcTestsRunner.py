@@ -22,10 +22,16 @@ class hostPcTestsRunner():
 
     def runAllTests(self):
         for test in self.testToRun:
+            numOfPass = 0
+            numOfFails = 0
             for x in range(self.hostPc["tests"][test.testname]['repeatAmount']): #repeat tests acurding to repeatAmount
-                self.runSequanceOfOperations(test)
-
-            # todo : add stop on failure here
+                testResult = self.runSequanceOfOperations(test, self.controllerPc)
+                if (testResult):
+                    numOfPass += 1
+                else:
+                    numOfFails += 1
+            print (test.testname , "Passed: ", numOfPass, " Failed:" , numOfFails)
+            # todo : add stop on failure here - need to get from GUI if the stop on failure mode is on and if it is need to stop after this test if it failled once or mroe
 
 
 
@@ -48,17 +54,19 @@ class hostPcTestsRunner():
 
 
 
-    def runSequanceOfOperations(self, test):
+    def runSequanceOfOperations(self, test, controllPc):
         mappedOperations = allOperations()
         for operation in test.flowoperations:
             if isinstance(operation, dict):
-                operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self.hostPc,operation['params'])
+                operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self,self.controllerPc,self.hostPc,operation['params'])
                 if operationOutPut == False:
-                    print("op failed") #todo : update GUI
+                    print(operation , " op failed") #todo : update GUI
+                    return False
             elif isinstance(operation, str):
-                operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self.hostPc,[])
+                operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self,self.controllerPc,self.hostPc,[])
                 if operationOutPut == False:
-                    print("op failed") #todo : update GUI
-
+                    print(operation, " op failed")  # todo : update GUI
+                    return False
+        return True
 
 

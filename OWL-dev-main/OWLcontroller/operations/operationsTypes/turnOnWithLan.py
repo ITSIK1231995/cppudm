@@ -2,7 +2,11 @@ import socket
 import subprocess
 import platform
 from operations.operation import operation
+import os
+import subprocess # CMD commands and outputs
 
+
+PING = 'ping '
 class turnOnWithLan(operation):
 
 
@@ -21,55 +25,40 @@ class turnOnWithLan(operation):
                 return True
         except Exception:
             return False
-    # @staticmethod
-    # def getMacAdress():
-    #     import subprocess
-    #     import sys
-    #
-    #     ip = '10.100.102.22'
-    #
-    #     # ping ip
-    #     p = subprocess.Popen(['ping', ip, '-c1'], stdout=subprocess.PIPE,
-    #                          stderr=subprocess.PIPE)
-    #
-    #     out, err = p.communicate()
-    #
-    #     # arp list
-    #     p = subprocess.Popen(['arp', '-n'], stdout=subprocess.PIPE,
-    #                          stderr=subprocess.PIPE)
-    #
-    #     out, err = p.communicate()
-    #
-    #     try:
-    #
-    #         arp = [x for x in out.split('\n') if ip in x][0]
-    #     except IndexError:
-    #         sys.exit(1)  # no arp entry found
-    #     else:
-    #         # get the mac address from arp list
-    #         # bug: when the IP does not exists on the local network
-    #         # this will print out the interface name
-    #         print(
-    #         ' '.join(arp.split()).split()[2])
 
 
     @staticmethod
-    def runOp(hostPc,opParams):
-        opParams.macAdress = b'\x10\x65\x30\x2B\xE5\x87'
-        # pinging the host for checking if its on
-        currentIpAdress = [opParams.hostIP]
-        for each in currentIpAdress:
-            if turnOnWithLan.pingIP(each):
-                print("Host Pc is available")
-            else:
-                print(" HOST Pc is not available")
-                # wake on lan
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.sendto(b'\xff' * 6 + opParams.macAdress * 16,  #Host Pc MAC adress
-                         (opParams.hostIP, 80)) # Host Pc IP
-                # Wake on lan Working
+    def getMacAdress(hostPc):
+        def getMac():
+            return subprocess.run("arp -a 10.100.102.22", stdout=subprocess.PIPE).stdout.decode('utf-8')
+
+        from subprocess import Popen, PIPE
+        import re
+        IP = hostPc["IP"]
+    # do_ping(IP)
+        pingCommand = "arp -a" + hostPc["IP"]
+        print(getMac())
+        subprocess.run(["arp -a 10.100.102.22"], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        os.system(pingCommand)
+        # The time between ping and arp check must be small, as ARP may not cache long
+
+        pid = Popen(["arp", "-n", IP], stdout=PIPE)
+        s = pid.communicate()[0]
+        mac = re.search(r"(([a-f\d]{1,2}\:){5}[a-f\d]{1,2})", str(s)).groups()[0]
+        print(mac)
 
 
+
+    def runOp(self,controllerPc,hostPc,opParams):
+        macAdress = turnOnWithLan.getMacAdress(hostPc)
+        #macAdress = b'\x10\x65\x30\x2B\xE5\x87'
+        # wake on lan
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
+                         (hostPc["IP"], 80)) # Host Pc IP
+
+        hostPcIsOn = operation.checkIfPcisOn(self,controllerPc,hostPc)
+        return hostPcIsOn
 # turnOnWithLan.runOp()
 
 

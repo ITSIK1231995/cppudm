@@ -2,13 +2,13 @@ import time
 
 from operations.operation import operation
 
-class wait(object):
+class wait(operation):
     def getKey(self):
         pass
 
-    @staticmethod
-    def runOp(hostPc,opParams):
-        print (" number of seconds to wait is " , opParams.paramForOperation)
-        time.sleep(int(opParams.paramForOperation))
+
+    def runOp(self,controllerPc,hostPc,opParams):
+        print (" number of seconds to wait is " , opParams[0])
+        time.sleep(int(opParams[0]))
         return True
 

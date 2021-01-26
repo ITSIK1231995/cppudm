@@ -1,17 +1,14 @@
 {
 		"operationsList":
 			[
-			
 			{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]
-			},
-			"shutdown"
-			
+			}
 
-			
-		
 
 			]
 			
 }
+
+

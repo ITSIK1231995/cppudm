@@ -1,5 +1,6 @@
 {
 		"hostPcServerPort" : 5000,
+		"attempsToCreateSocket" : 5,
 		"defaultExecutionOptions":
 			["Errinj Mode",
 			"Legacy Mode Host Pc",
@@ -16,11 +17,11 @@
 		"hostPCs":
 					[
 						{
-							"IP" : "10.100.102.15",
+							"IP" : "10.100.102.22",
 							"groupName" : "Hermes",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  2
+                                "chanel" :  1
                             },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
@@ -38,7 +39,7 @@
 							"groupName" : "Hermes",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  2
                             },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 4,"checked" : true},
@@ -52,7 +53,7 @@
 							"groupName" : "Hermes",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  2
                             },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
@@ -71,7 +72,7 @@
 							"groupName" : "Hermes",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  2
                             },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
@@ -88,7 +89,7 @@
 							"groupName" : "Hermes",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  2
                             },
 							"tests" :{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
@@ -105,7 +106,7 @@
 							"groupName" : "Hermes",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  3
                             },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
@@ -122,7 +123,7 @@
 							"groupName" : "Hermes",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  3
                             },
 							"tests" :	{
 								"hermes - power on ready 5": {"repeatAmount" : 88,"checked" : true},
@@ -139,7 +140,7 @@
 							"groupName" : "calypso",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  3
                             },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
@@ -156,7 +157,7 @@
 							"groupName" : "calypso",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  4
                             },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
@@ -173,7 +174,7 @@
 							"groupName" : "calypso",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  4
                             },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
@@ -190,7 +191,7 @@
 							"groupName" : "calypso",
                             "clicker" : {
                                 "COM" :  "COM4",
-                                "chanel" :  "2"
+                                "chanel" :  2
                             },
 							"tests" :	{
 								"calypso - power on ready": {"repeatAmount" : 8,"checked" : true},
