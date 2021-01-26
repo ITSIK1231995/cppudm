@@ -32,7 +32,7 @@ class hostPcTestEnvServer():
 
             # receive data stream. it won't accept data packet greater than 1024 bytes
             data = conn.recv(1024)
-            if data and data != "Test":
+            if data and data.decode('utf-8') != "Test":
 
                 data = json.loads(data.decode('utf-8'))
                 if isinstance(data, dict):
