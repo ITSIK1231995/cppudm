@@ -6,24 +6,26 @@ DM_SCRIPT_NAME = 'L1.2_Entry_Exit_PS4_Calypso.srt'
 DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC\DM_scripts\\'
 EXECUTE_DM = r'DriveMaster.exe /s:'
 LOG_PATH = ' /1:log.txt /e'
-RUN_DM = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
+RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
 
 class runDM():
 
     @staticmethod
-    def runOp(userPath):
+    def runOp(userPath,conn):
         #os.system(CMD_COMMAND + RUN_DM)
-        runDM = EXECUTE_DM + userPath + LOG_PATH
-        command = RUN_DM
+        runDMCmd = EXECUTE_DM + userPath + LOG_PATH
+        command = runDMCmd
         run = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stdin=None, stderr=subprocess.PIPE,
                                env=os.environ, universal_newlines=True)
         returncode = run.communicate()  ## HANGS HERE ##
 
-        if runDM().checkIfProcessRunning('DriveMaster'):
+        if runDM.checkIfProcessRunning("DriveMaster"):
             print('A DriveMaster process is running')
         else:
             print('A DriveMaster process is not running')
 
+        data = "Run dm log"
+        conn.send(data.encode())  # send data to the client
     @staticmethod
     def checkIfProcessRunning(processName):
         '''
@@ -42,3 +44,4 @@ class runDM():
 
 # runDM.runOp()
 
+# print (runDM.checkIfProcessRunning("DriveMaster"))
