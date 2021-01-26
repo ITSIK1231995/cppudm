@@ -23,8 +23,7 @@ class turnOnWithLan(operation):
             ) == "windows" else 'c', current_ip_address), shell=True, universal_newlines=True)
             if 'unreachable' in output:
                 return False
-            else:
-                return True
+            return True
         except Exception:
             return False
 
@@ -54,17 +53,19 @@ class turnOnWithLan(operation):
     def runOp(self,controllerPc,hostPc,opParams):
         print("\n turn on with lan command has started \n ")
         #macAdress = turnOnWithLan.getMacAdress(hostPc)
-        macAdress = b'\x10\x65\x30\x2b\xe5\x87'
-        time.sleep(7)
-        
-        # wake on lan
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
-                         (hostPc["IP"], 80)) # Host Pc IP
+        hostPcIsOFf = operation.waitForPcToTurnOff(hostPc["IP"])
+        if hostPcIsOFf:
+            macAdress = b'\x10\x65\x30\x2b\xe5\x87'
 
-        hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
-        print("\n turn on with lan command has ended \n ")
-        return hostPcIsOn
+
+            # wake on lan
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
+                             (hostPc["IP"], 80)) # Host Pc IP
+
+            hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
+            print("\n turn on with lan command has ended \n ")
+            return hostPcIsOn
 # turnOnWithLan.runOp()
 
 
