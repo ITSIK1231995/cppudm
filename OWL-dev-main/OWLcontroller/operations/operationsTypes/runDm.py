@@ -12,6 +12,7 @@ class runDM(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
+        print ("\n Run Dm command has started \n ")
         socket = operationWithSocket.createCommunication(self, hostPc["IP"],
                                                 controllerPc.configs.defaultConfContent['hostPcServerPort'])
         if (socket == False):
@@ -21,7 +22,7 @@ class runDM(operationWithSocket):
         messegeFromServer = socket.recv(1024).decode()  # receive response from the server
         socket.close()
         print (messegeFromServer)
-
+        print("\n Run Dm command has started \n ")
 # TODO implement runDM - bug  after 3 times in a row of running this with the server socket is failling
 
 

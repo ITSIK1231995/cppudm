@@ -29,6 +29,7 @@ class powerOnWithClicker(operation):
 
     #TODO : add first line from matan script
     def runOp(self,controllerPc,hostPc,opParams):
+        print (" \n Power on with clicker has started \n ")
         os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
                   " > " + hostPc['clicker']['COM'])
         time.sleep(0.5)
@@ -37,6 +38,7 @@ class powerOnWithClicker(operation):
 
         # check if the host is on
         hostStatus = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
+        print(" \n Power on with clicker has ended \n ")
         return hostStatus # if the host is up the clicker done well, and should return True
 
 

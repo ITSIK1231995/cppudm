@@ -20,6 +20,7 @@ class shutdown(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
+        print("\n shutdown command has started \n ")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
 
@@ -29,6 +30,7 @@ class shutdown(operationWithSocket):
 
         # Verify the host is down
         hostPcIsOn = operation.checkIfPcisOn(self,controllerPc,hostPc)
+        print("\n shutdown command has ended \n ")
         return not hostPcIsOn
 
 

@@ -50,6 +50,7 @@ class turnOnWithLan(operation):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
+        print("\n turn on with lan command has started \n ")
         #macAdress = turnOnWithLan.getMacAdress(hostPc)
         macAdress = b'\x10\x65\x30\x2B\xE5\x87'
         # wake on lan
@@ -58,6 +59,7 @@ class turnOnWithLan(operation):
                          (hostPc["IP"], 80)) # Host Pc IP
 
         hostPcIsOn = operation.checkIfPcisOn(self,controllerPc,hostPc)
+        print("\n turn on with lan command has ended \n ")
         return hostPcIsOn
 # turnOnWithLan.runOp()
 

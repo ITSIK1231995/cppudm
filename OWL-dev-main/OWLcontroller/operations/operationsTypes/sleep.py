@@ -15,10 +15,12 @@ class sleep(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
+        print("\n sleep command has started \n ")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
         messegeToServer = {"operation": "sleep"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
         hostPcIsOff = operation.waitForPcToTurnOff(self, controllerPc, hostPc) # Verify the host is down
+        print("\n sleep command has ended \n ")
         return hostPcIsOff
