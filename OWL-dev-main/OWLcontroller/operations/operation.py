@@ -22,10 +22,10 @@ class operation(object):
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
                 clientSocket.close()
-                print("PC is ON")
+                print("waitForPcToTurnOn - PC is ON")
                 return True
             except socket.error as e:
-                print("PC is OFF atempt "+ str(i))
+                print("waitForPcToTurnOn - PC is OFF atempt "+ str(i))
                 pass
         return False
 
@@ -38,9 +38,9 @@ class operation(object):
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
                 clientSocket.close()
-                print("PC is ON atempt "+ str(i))
+                print("waitForPcToTurnOff - PC is ON atempt "+ str(i))
             except socket.error as e:
-                print("PC is OFF")
+                print("waitForPcToTurnOff - PC is OFF")
                 return True
         return False
 
