@@ -19,6 +19,7 @@ class operation(object):
         while True:
             try:
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
+                clientSocket.send("Test".encode())
             except socket.error as e:
                 if i < attempsToConnectSocket:
                     i += 1

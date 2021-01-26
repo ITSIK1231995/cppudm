@@ -9,9 +9,9 @@ import json
 
 from operations.operationWithSocket import operationWithSocket
 
-PING = 'ping '
+# PING = 'ping '
 #SHUTDOWN_COMMAND = "shutdown command request from client"
-SHUTDOWN_COMMAND = "shutdown /s /t 1"
+# SHUTDOWN_COMMAND = "shutdown /s /t 1"
 class shutdown(operationWithSocket):
     def getKey(self):
         pass
@@ -23,7 +23,7 @@ class shutdown(operationWithSocket):
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
 
-        messegeToServer = {"operation": "shutdown", "param": SHUTDOWN_COMMAND}
+        messegeToServer = {"operation": "shutdown"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
 

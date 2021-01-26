@@ -18,7 +18,7 @@ class hibernate(operationWithSocket):
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
 
-        messegeToServer = {"operation": "hibernate", "param": HIBERNATE_COMMAND}
+        messegeToServer = {"operation": "hibernate"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
 

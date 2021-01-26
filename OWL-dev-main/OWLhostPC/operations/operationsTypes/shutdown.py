@@ -10,7 +10,7 @@ class shutdown(object):
         return (type(self).__name__)
 
     @staticmethod
-    def runOp(userCommand):
-        print(userCommand)
+    def runOp(socket,parm):
+        print("shutdown")
         #return userCommand
         os.system("shutdown /s /t 1")

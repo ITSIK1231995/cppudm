@@ -11,7 +11,7 @@ RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
 class runDM():
 
     @staticmethod
-    def runOp(userPath,conn):
+    def runOp(socket,userPath):
         #os.system(CMD_COMMAND + RUN_DM)
         runDMCmd = EXECUTE_DM + userPath + LOG_PATH
         command = runDMCmd
@@ -25,7 +25,8 @@ class runDM():
             print('A DriveMaster process is not running')
 
         data = "Run dm log"
-        conn.send(data.encode())  # send data to the client
+        print("RUN DM")
+        socket.send(data.encode())  # send data to the client
     @staticmethod
     def checkIfProcessRunning(processName):
         '''

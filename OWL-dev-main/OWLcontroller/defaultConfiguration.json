@@ -17,16 +17,16 @@
 		"hostPCs":
 					[
 						{
-							"IP" : "10.100.102.22",
+							"IP" : "10.100.102.23",
 							"groupName" : "Hermes",
                             "clicker" : {
-                                "COM" :  "COM4",
+                                "COM" :  "COM6",
                                 "chanel" :  1
                             },
 							"tests" :	{
-								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
+								"hermes - power on ready": {"repeatAmount" : 88,"checked" : false},
 								"hermes - power on ready 0": {"repeatAmount" :5,"checked" : false},
-								"hermes - power on ready 3": {"repeatAmount" : 44,"checked" : true},
+								"hermes - power on ready 3": {"repeatAmount" : 1,"checked" : true},
 								"hermes - power on ready 2": {"repeatAmount" : 50,"checked" : false}
 
 							},

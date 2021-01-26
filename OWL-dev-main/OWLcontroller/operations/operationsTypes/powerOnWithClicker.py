@@ -27,6 +27,7 @@ class powerOnWithClicker(operation):
     #     return clientSocket
 
 
+    #TODO : add first line from matan script
     def runOp(self,controllerPc,hostPc,opParams):
         os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
                   " > " + hostPc['clicker']['COM'])

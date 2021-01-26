@@ -25,21 +25,25 @@ class hostPcTestEnvServer():
     @staticmethod
     def server(server_socket):
         while True:
-            conn, address = server_socket.accept()  # accept new connection
+            scoket, address = server_socket.accept()  # accept new connection
             print("Connection from: " + str(address))
 
             # receive data stream. it won't accept data packet greater than 1024 bytes
-            data = conn.recv(1024)
+            data = scoket.recv(1024)
             if data and data.decode('utf-8') != "Test":
 
                 data = json.loads(data.decode('utf-8'))
-                if isinstance(data, dict):
-                    mappedOperations = allOperations()
-                    mappedOperations.operationsImplement[data['operation']].runOp(data['param'],conn)
+                # if isinstance(data, dict):
+                mappedOperations = allOperations()
+                if 'param' in data.key():
+                    mappedOperations.operationsImplement[data['operation']].runOp(scoket,data['param'])
+                else:
+                    mappedOperations.operationsImplement[data['operation']].runOp(scoket,[])
 
-                elif isinstance(data, str):
-                    mappedOperations = allOperations()
-                    mappedOperations.operationsImplement[data].runOp()
+
+                # elif isinstance(data, str):
+                #     mappedOperations = allOperations()
+                #     mappedOperations.operationsImplement[data].runOp()
 
 
             #print("from connected user: " + str(data))
