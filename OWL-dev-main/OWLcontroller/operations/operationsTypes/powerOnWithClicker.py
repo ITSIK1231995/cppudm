@@ -37,9 +37,9 @@ class powerOnWithClicker(operation):
                   " > " + hostPc['clicker']['COM'])
 
         # check if the host is on
-        hostStatus = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
+        hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
         print(" \n Power on with clicker has ended \n ")
-        return hostStatus # if the host is up the clicker done well, and should return True
+        return hostPcIsOn # if the host is up the clicker done well, and should return True
 
 
 

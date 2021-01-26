@@ -22,5 +22,5 @@ class hibernate(operationWithSocket):
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
 
-        hostPcIsOn = operation.checkIfPcisOn(self, controllerPc, hostPc) # Verify the host is down
-        return not hostPcIsOn
+        hostPcIsOff = operation.waitForPcToTurnOff(self, controllerPc, hostPc) # Verify the host is down
+        return hostPcIsOff

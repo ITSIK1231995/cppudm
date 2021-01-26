@@ -29,9 +29,9 @@ class shutdown(operationWithSocket):
         socket.close()
 
         # Verify the host is down
-        hostPcIsOn = operation.checkIfPcisOn(self,controllerPc,hostPc)
+        hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc)
         print("\n shutdown command has ended \n ")
-        return not hostPcIsOn
+        return hostPcIsOFf
 
 
 

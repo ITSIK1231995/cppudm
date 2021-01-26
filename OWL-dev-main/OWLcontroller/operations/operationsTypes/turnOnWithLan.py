@@ -58,7 +58,7 @@ class turnOnWithLan(operation):
         s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
                          (hostPc["IP"], 80)) # Host Pc IP
 
-        hostPcIsOn = operation.checkIfPcisOn(self,controllerPc,hostPc)
+        hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
         print("\n turn on with lan command has ended \n ")
         return hostPcIsOn
 # turnOnWithLan.runOp()
