@@ -50,8 +50,8 @@ class turnOnWithLan(operation):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
-        macAdress = turnOnWithLan.getMacAdress(hostPc)
-        #macAdress = b'\x10\x65\x30\x2B\xE5\x87'
+        #macAdress = turnOnWithLan.getMacAdress(hostPc)
+        macAdress = b'\x10\x65\x30\x2B\xE5\x87'
         # wake on lan
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
