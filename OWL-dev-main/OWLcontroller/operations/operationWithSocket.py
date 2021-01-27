@@ -10,7 +10,7 @@ class operationWithSocket(operation):
     def runOp(self,controllerPc,hostPc,opParams):
         pass
 
-    def createCommunication(self, hostIp, hostPort): #TODO : move  to oprationWithSocet - Done
+    def createCommunication(self, hostIp, hostPort): #
         port = hostPort  # socket server port number
         clientSocket = socket.socket()  # instantiate
         try:

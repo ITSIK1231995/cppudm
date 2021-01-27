@@ -13,9 +13,9 @@ class hostPcTestsRunner():
 
     def getRelevantTestForHostPc(self):
         allTests = self.controllerPc.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc["groupName"]]
-        relevantTests=[]
+        relevantTests = []
         for test in allTests:
-            if  test.testname in self.hostPc["tests"].keys() and \
+            if test.testname in self.hostPc["tests"].keys() and \
                     self.hostPc["tests"][test.testname]['checked']:
                 relevantTests.append(test)
         return relevantTests
@@ -28,9 +28,11 @@ class hostPcTestsRunner():
                 testResult = self.runSequanceOfOperations(test, self.controllerPc)
                 if (testResult):
                     numOfPass += 1
+                    print ("\n" , test.testname, " Has Passed !!! \n")
                 else:
                     numOfFails += 1
-            print (test.testname , " >>> Passed: ", numOfPass, " Failed:" , numOfFails)
+                    print("\n", test.testname, " Has Failed !!! \n")
+            print(test.testname, "\n >>> Passed: ", numOfPass, " Failed:", numOfFails, "\n")
             # todo : add stop on failure here - need to get from GUI if the stop on failure mode is on and if it is need to stop after this test if it failled once or mroe
 
 
