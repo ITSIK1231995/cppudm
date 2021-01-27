@@ -34,18 +34,8 @@ class mainWindow(object):
         self.currentHostPc = None
 
         self.createTestScreens()
+        self.createTerminal(skippedTestsNumber)
 
-
-        self.terminalLbl = ScrollLabel(skippedTestsNumber)
-        self.terminalLbl.setGeometry(QtCore.QRect(240, 470, 550, 180))
-        self.terminalLbl.setObjectName("TestState_")
-        self.terminalLbl.setText("tipesh \n pyqt")
-
-        # self.terminalLbl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        # self.terminalLbl.setWordWrap(True)
-
-        # self.textbox.move(550, 180)
-        # self.textbox.resize(240, 240)
 
 
 
@@ -274,6 +264,12 @@ class mainWindow(object):
         if self.currentHostPc == hostPc:
             self.terminalLbl.setText(self.controller.runtimeHostPcsData[hostPc["IP"]]['terminal'])
 
+
+    def createTerminal(self,skippedTestsNumber):
+        self.terminalLbl = ScrollLabel(skippedTestsNumber)
+        self.terminalLbl.setGeometry(QtCore.QRect(240, 470, 550, 180))
+        self.terminalLbl.setObjectName("Terminal")
+        self.terminalLbl.setText("tipesh \n pyqt")
 
     def setDisplayedTestGroup(self, groupName):
 
