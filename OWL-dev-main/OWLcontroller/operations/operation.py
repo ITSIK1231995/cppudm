@@ -14,6 +14,7 @@ class operation(object):
     #todo: if expacting pc to turnOff - test conection untill pc is off or threashhold exceded then return true
     #todo: if expacting pc to turnOn - test conection untill pc is ON or threashhold exceded then return true
     def waitForPcToTurnOn(self,controllerPc,hostPc): # when PC is ON output is True
+        controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's On  \n ")
         clientSocket = socket.socket()
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
@@ -22,14 +23,15 @@ class operation(object):
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
                 clientSocket.close()
-                print("waitForPcToTurnOn - PC is ON")
+                controllerPc.updateRunTimeState(hostPc,"\nwaitForPcToTurnOn - PC is ON")
                 return True
             except socket.error as e:
-                print("waitForPcToTurnOn - PC is OFF atempt "+ str(i))
+                controllerPc.updateRunTimeState(hostPc,"\nwaitForPcToTurnOn - PC is OFF atempt "+ str(i))
                 pass
         return False
 
     def waitForPcToTurnOff(self,controllerPc,hostPc): # when PC is off output is True
+        controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's off  \n ")
         clientSocket = socket.socket()
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
@@ -38,9 +40,9 @@ class operation(object):
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
                 clientSocket.close()
-                print("waitForPcToTurnOff - PC is ON atempt "+ str(i))
+                controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
             except socket.error as e:
-                print("waitForPcToTurnOff - PC is OFF")
+                controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is OFF")
                 return True
         return False
 

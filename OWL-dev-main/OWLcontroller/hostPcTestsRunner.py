@@ -25,14 +25,16 @@ class hostPcTestsRunner():
             numOfPass = 0
             numOfFails = 0
             for x in range(self.hostPc["tests"][test.testname]['repeatAmount']): #repeat tests acurding to repeatAmount
+                self.controllerPc.updateRunTimeState(self.hostPc,"\n" + test.testname + " Has started !!! \n")
                 testResult = self.runSequanceOfOperations(test, self.controllerPc)
                 if (testResult):
                     numOfPass += 1
-                    print ("\n" , test.testname, " Has Passed !!! \n")
+                    self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Passed !!! \n")
                 else:
                     numOfFails += 1
-                    print("\n", test.testname, " Has Failed !!! \n")
-            print(test.testname, "\n >>> Passed: ", numOfPass, " Failed:", numOfFails, "\n")
+                    self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Failed !!! \n")
+
+            self.controllerPc.updateRunTimeState(self.hostPc,  "\n >>> Passed: "+ str(numOfPass) + " Failed:"+ str(numOfFails) + "\n")
             # todo : add stop on failure here - need to get from GUI if the stop on failure mode is on and if it is need to stop after this test if it failled once or mroe
 
 
@@ -62,12 +64,13 @@ class hostPcTestsRunner():
             if isinstance(operation, dict):
                 operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self,self.controllerPc,self.hostPc,operation['params'])
                 if operationOutPut == False:
-                    print(operation , " op failed") #todo : update GUI
+                    self.controllerPc.updateRunTimeState(self.hostPc, (operation['name'] + " op failed"))  # todo : update GUI
                     return False
             elif isinstance(operation, str):
                 operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self,self.controllerPc,self.hostPc,[])
                 if operationOutPut == False:
-                    print(operation, " op failed")  # todo : update GUI
+                    self.controllerPc.updateRunTimeState(self.hostPc, (operation + " op failed")) # todo : update GUI
+                    print (operation + " op failed")
                     return False
         return True
 

@@ -14,8 +14,9 @@ class ControllerPc():
 
     def __init__(self):
         self.configs = confParser().parseAll()
-        self.GUIInit()
         self.runtimeHostPcsData = {}
+        self.GUIInit()
+
 
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()
@@ -26,11 +27,16 @@ class ControllerPc():
         hostPcs = self.configs.defaultConfContent['hostPCs']
         for hostPc in hostPcs:
             if hostPc["checked"]:
-                port = self.configs.defaultConfContent['hostPcServerPort']['min']
-                self.runtimeHostPcsData[hostPc["IP"]] = {"Port": port, "terminal": ""}
-                port += 1
+                self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
 
+    def updateRunTimeState(self,hostPc,update):
+        print (update)
+        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += update.strip() +"\n"
+        self.updateguiTerminal(hostPc)
+
+    def updateguiTerminal(self,hostPc):
+        self.view.updateCurrentTernimal(hostPc)
 
     def GUIInit(self):
         app = QtWidgets.QApplication(sys.argv)

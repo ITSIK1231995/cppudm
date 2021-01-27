@@ -13,17 +13,17 @@ class runCommandViaCmd(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
-        print(" \n runCommandViaCmd started \n ")
+        controllerPc.updateRunTimeState(hostPc, " \n run Command Via Cmd started \n ")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-        socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
+        socket = operationWithSocket.createCommunication(self,controllerPc,hostPc)
         if socket == False:
             return False
         df1 = {"operation": "runCommandViaCmd", "param": opParams[0]}
         socket.sendall(json.dumps(df1).encode('utf-8'))  # encode the dict to JSON
         data = socket.recv(1024).decode()  # receive response from the server
         socket.close()
-        print ("Wun command via cmd has done with the following data: \n ",data)
-        return data != ""  # show the response in terminal
+        controllerPc.updateRunTimeState(hostPc, "run command via cmd has done with the following data: \n " +data) # show the response in terminal
+        return data != ""
 
 
 

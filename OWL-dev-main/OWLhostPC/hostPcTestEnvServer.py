@@ -58,15 +58,15 @@ class hostPcTestEnvServer():
 
 
 if __name__ == '__main__':
-    hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+    #hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
 
-    # while True:
-    #     try:
-    #         hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-    #     except Exception as e:
-    #         print(e)
-    #         continue
-    #
+    while True:
+        try:
+            hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+        except Exception as e:
+            print(e)
+            continue
+
 
 
 

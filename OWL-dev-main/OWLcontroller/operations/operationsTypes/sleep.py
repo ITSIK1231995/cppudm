@@ -17,7 +17,10 @@ class sleep(operationWithSocket):
     def runOp(self,controllerPc,hostPc,opParams):
         print("\n sleep command has started \n ")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-        socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
+        socket = operationWithSocket.createCommunication(self,controllerPc,hostPc)
+        if not socket:
+            print ("\n sleep could not being made as socket creating has failed")
+            return False
         messegeToServer = {"operation": "sleep"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()

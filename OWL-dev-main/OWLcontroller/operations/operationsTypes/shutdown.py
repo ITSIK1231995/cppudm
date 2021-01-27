@@ -20,17 +20,22 @@ class shutdown(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
-        print("\n shutdown command has started \n ")
+        controllerPc.updateRunTimeState(hostPc, "\n shutdown command has started \n ")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-        socket = operationWithSocket.createCommunication(self, hostPc["IP"], port)
-
+        socket = operationWithSocket.createCommunication(self,controllerPc,hostPc)
+        if not socket:
+            controllerPc.updateRunTimeState(hostPc, "\n sleep could not being made as socket creating has failed")
+            return False
         messegeToServer = {"operation": "shutdown"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
 
         # Verify the host is down
         hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc)
-        print("\n shutdown command has ended \n ")
+        if hostPcIsOFf:
+            controllerPc.updateRunTimeState(hostPc, "\n shutdown command has ended successfully \n ")
+        else:
+            controllerPc.updateRunTimeState(hostPc, "\n shutdown command has Failed \n ")
         return hostPcIsOFf
 
 
