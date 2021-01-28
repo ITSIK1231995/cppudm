@@ -1,8 +1,7 @@
 {
 		"operationsList":
 			[
-				"sleep",
-				"turnOnWithLan",
+
 			{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]
