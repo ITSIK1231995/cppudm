@@ -30,6 +30,12 @@ class ControllerPc():
                 self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
 
+    def updateTestStatusInRunTime(self,hostPc,test,testStatus):
+        self.runtimeHostPcsData[hostPc["IP"]][test.testname] = testStatus
+        self.view.updateTestStatusLblInRunTime(hostPc,test,testStatus)
+
+
+
     def updateRunTimeState(self,hostPc,update):
         print (update)
         self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += update.strip() +"\n"

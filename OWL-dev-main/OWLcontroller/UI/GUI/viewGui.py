@@ -234,7 +234,7 @@ class mainWindow(object):
         for groupName,groupTests in self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.items():
             self.testsGroupBoxs[groupName] = TestsGroupBoxWithLeveltuple(TestsGroupBox(self.centralwidget,
                                                                                        self.controller.configs,
-                                                                                       groupName, groupTests),stackLevel)
+                                                                                       groupName, groupTests,self.controller),stackLevel)
             self.stackedLayout.addWidget(self.testsGroupBoxs[groupName].testsGroupBox)
             stackLevel+=1
 
@@ -243,10 +243,7 @@ class mainWindow(object):
             testsGroupBoxWithLevelTuple.testsGroupBox.retranslateUi()
         self.setDefultHostPc()
 
-    # def findFirstCheckedHostPc(self):
-    #     for hostPc in self.controller.configs.defaultConfContent['hostPCs']:
-    #         if hostPc['checked'] == True:
-    #             return hostPc
+
 
     def setDefultHostPc(self):
         defaultHostPC = self.controller.configs.defaultConfContent['hostPCs'][0]
@@ -298,4 +295,6 @@ class mainWindow(object):
             self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[groupName].stackLevel)
 
 
-
+    def updateTestStatusLblInRunTime(self,hostPc,test,testStatus):
+        if self.currentHostPc == hostPc:
+            self.getCurrentTestsGroupBoxWithLevelTuple().testsGroupBox.updateTestStatusLbl(test.testname,testStatus)
