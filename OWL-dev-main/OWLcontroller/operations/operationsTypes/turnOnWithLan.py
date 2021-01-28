@@ -31,7 +31,7 @@ class turnOnWithLan(operation):
     @staticmethod
     def getMacAdress(hostIP):
         from getmac import get_mac_address
-        ip_mac = get_mac_address(ip="10.100.102.25")
+        ip_mac = get_mac_address(ip=hostIP)
         return ip_mac
 
 
@@ -46,9 +46,12 @@ class turnOnWithLan(operation):
             #macAdress = b'\x10\x65\x30\x2b\xe5\x87'
         macAdress = turnOnWithLan.getMacAdress(hostPc["IP"])
             # wake on lan
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
-                             (hostPc["IP"], 80)) # Host Pc IP
+        send_magic_packet(macAdress,
+                          ip_address=hostPc["IP"],
+                          port= controllerPc.configs.defaultConfContent['hostPcServerPort'])
+        # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # s.sendto(b'\xff' * 6 + macAdress * 16,  #Host Pc MAC adress
+        #                      (hostPc["IP"], 80)) # Host Pc IP
         controllerPc.updateRunTimeState(hostPc, "\n Wake on lan has been sent, pinging the host for checking if it's on... ")
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
 
