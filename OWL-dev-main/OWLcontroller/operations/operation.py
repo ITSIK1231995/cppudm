@@ -1,4 +1,8 @@
+import os
 import socket
+import subprocess
+import time
+import re
 
 
 class operation(object):
@@ -30,20 +34,36 @@ class operation(object):
                 pass
         return False
 
-    def waitForPcToTurnOff(self,controllerPc,hostPc): # when PC is off output is True
-        controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's off  \n ")
-        clientSocket = socket.socket()
-        port = controllerPc.configs.defaultConfContent['hostPcServerPort']
+    # def waitForPcToTurnOff(self,controllerPc,hostPc): # when PC is off output is True
+    #     controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's off  \n ")
+    #     clientSocket = socket.socket()
+    #     port = controllerPc.configs.defaultConfContent['hostPcServerPort']
+    #     attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+    #     for i in range(attempsToConnectSocket):
+    #         try:
+    #             clientSocket.connect((hostPc["IP"], port))  # connect to the server
+    #             clientSocket.send("Test".encode())
+    #             clientSocket.close()
+    #             controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
+    #         except socket.error as e:
+    #             controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is OFF")
+    #             return True
+    #     return False
+
+    def waitForPcToTurnOff(self,controllerPc,hostPc):
         attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
         for i in range(attempsToConnectSocket):
-            try:
-                clientSocket.connect((hostPc["IP"], port))  # connect to the server
-                clientSocket.send("Test".encode())
-                clientSocket.close()
-                controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
-            except socket.error as e:
+            # response = os.system("ping -n 4 " + hostPc["IP"])
+            response = subprocess.run(["ping","-n","4",hostPc["IP"]], stdout=subprocess.PIPE).stdout.decode('utf-8')
+            # and then check the response...
+            print(">>>>> ping response = " + str(response))
+            if len(re.findall("unreachable", response)) == 4 or \
+                    len(re.findall("timed out", response)) == 4:
+            # if "unreachable" in response or "timed out" in response:
+                time.sleep(5)
                 controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is OFF")
                 return True
+            controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
         return False
 
 

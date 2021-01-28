@@ -3,10 +3,10 @@ from collections import namedtuple
 
 from operations.allOperations import allOperations
 
+
 class hostPcTestsRunner():
 
-
-    def __init__(self, controllerPc,hostPc):
+    def __init__(self, controllerPc, hostPc):
         self.controllerPc = controllerPc
         self.hostPc = hostPc
         self.testToRun = self.getRelevantTestForHostPc()
@@ -21,11 +21,13 @@ class hostPcTestsRunner():
         return relevantTests
 
     def runAllTests(self):
+        stopOnFailure = True  # Todo need to take this arguemnet from default configuration for this host pc
         for test in self.testToRun:
             numOfPass = 0
             numOfFails = 0
-            for x in range(self.hostPc["tests"][test.testname]['repeatAmount']): #repeat tests acurding to repeatAmount
-                self.controllerPc.updateRunTimeState(self.hostPc,"\n" + test.testname + " Has started !!! \n")
+            for x in range(
+                    self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests acurding to repeatAmount
+                self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has started !!! \n")
                 testResult = self.runSequanceOfOperations(test, self.controllerPc)
                 if (testResult):
                     numOfPass += 1
@@ -33,14 +35,14 @@ class hostPcTestsRunner():
                 else:
                     numOfFails += 1
                     self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Failed !!! \n")
-
-            self.controllerPc.updateRunTimeState(self.hostPc,  "\n >>> Passed: "+ str(numOfPass) + " Failed:"+ str(numOfFails) + "\n")
+            if stopOnFailure == True and numOfFails >= 1:  # Stop on failure is on
+                break
+            self.controllerPc.updateRunTimeState(self.hostPc, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(
+                numOfFails) + "\n")
             # todo : add stop on failure here - need to get from GUI if the stop on failure mode is on and if it is need to stop after this test if it failled once or mroe
 
-
-
-    def createCommunication(self, hostIp, hostPort): #TODO : move  to oprationWithSocet
-        CommunicationInfo = namedtuple('CommunicationInfo' , ['socket', 'hostIP'])
+    def createCommunication(self, hostIp, hostPort):  # TODO : move  to oprationWithSocet
+        CommunicationInfo = namedtuple('CommunicationInfo', ['socket', 'hostIP'])
         port = hostPort  # socket server port number
         clientSocket = socket.socket()  # instantiate
         try:
@@ -48,30 +50,31 @@ class hostPcTestsRunner():
         except socket.error as e:
             print(e)
             return False
-        CommunicationInfo.socket =clientSocket
+        CommunicationInfo.socket = clientSocket
         CommunicationInfo.hostIP = hostIp
         return CommunicationInfo
 
-
-    def closeCommunication(self, client_socket): #TODO : move  to oprationWithSocet
+    def closeCommunication(self, client_socket):  # TODO : move  to oprationWithSocet
         client_socket.close()  # close the connection
-
-
 
     def runSequanceOfOperations(self, test, controllPc):
         mappedOperations = allOperations()
         for operation in test.flowoperations:
             if isinstance(operation, dict):
-                operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self,self.controllerPc,self.hostPc,operation['params'])
+                operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self,
+                                                                                                     self.controllerPc,
+                                                                                                     self.hostPc,
+                                                                                                     operation[
+                                                                                                         'params'])
                 if operationOutPut == False:
-                    self.controllerPc.updateRunTimeState(self.hostPc, (operation['name'] + " op failed"))  # todo : update GUI
+                    self.controllerPc.updateRunTimeState(self.hostPc,
+                                                         (operation['name'] + " op failed"))  # todo : update GUI
                     return False
             elif isinstance(operation, str):
-                operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self,self.controllerPc,self.hostPc,[])
+                operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self, self.controllerPc,
+                                                                                             self.hostPc, [])
                 if operationOutPut == False:
-                    self.controllerPc.updateRunTimeState(self.hostPc, (operation + " op failed")) # todo : update GUI
-                    print (operation + " op failed")
+                    self.controllerPc.updateRunTimeState(self.hostPc, (operation + " op failed"))  # todo : update GUI
+                    print(operation + " op failed")
                     return False
         return True
-
-

@@ -1,16 +1,12 @@
 {
 		"operationsList":
 			[
-				"hibernate",
+				"sleep",
 				"powerOnWithClicker",
 			{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]
-			},
-				"sleep",
-				"powerOnWithClicker",
-				"shutdown",
-				"powerOnWithClicker"
+			}
 			]
 
 }

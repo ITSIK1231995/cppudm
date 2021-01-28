@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
     QStackedLayout,
     QVBoxLayout,
     QWidget, QMessageBox,
-    QPlainTextEdit)
+    QPlainTextEdit, QMenu, QAction)
 
 from collections import OrderedDict
 
@@ -135,8 +135,13 @@ class mainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(skippedTestsNumber)
         self.statusbar.setObjectName("statusbar")
         skippedTestsNumber.setStatusBar(self.statusbar)
-        self.actionSave_configuration = QtWidgets.QAction(skippedTestsNumber)
+
+        self.menu = QMenu()
+        self.actionSave_configuration = QAction(skippedTestsNumber)
         self.actionSave_configuration.setObjectName("actionSave_configuration")
+        self.menu.addAction(self.actionSave_configuration)
+        self.actionSave_configuration.triggered.connect(self.saveConf)
+
         self.actionLoad_configuration = QtWidgets.QAction(skippedTestsNumber)
         self.actionLoad_configuration.setObjectName("actionLoad_configuration")
         self.actionSettings = QtWidgets.QAction(skippedTestsNumber)
@@ -167,6 +172,12 @@ class mainWindow(object):
         # self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(skippedTestsNumber)
 
+
+    def saveConf(self):
+        print ("SaveConf")
+        currentConf = self.controller.configs.defaultConfContent
+        print ("confSave")
+
     def retranslateUi(self, skippedTestsNumber):
         _translate = QtCore.QCoreApplication.translate
         skippedTestsNumber.setWindowTitle(_translate("skippedTestsNumber", "OWL"))
@@ -192,7 +203,12 @@ class mainWindow(object):
         self.menuTools.setTitle(_translate("skippedTestsNumber", "Tools"))
         self.menuAbout.setTitle(_translate("skippedTestsNumber", "About"))
         self.menuMode.setTitle(_translate("skippedTestsNumber", "Mode"))
+
+
         self.actionSave_configuration.setText(_translate("skippedTestsNumber", "Save configuration"))
+
+
+
         self.actionLoad_configuration.setText(_translate("skippedTestsNumber", "Load configuration"))
         self.actionSettings.setText(_translate("skippedTestsNumber", "Settings"))
         self.actionPreferences.setText(_translate("skippedTestsNumber", "Preferences"))

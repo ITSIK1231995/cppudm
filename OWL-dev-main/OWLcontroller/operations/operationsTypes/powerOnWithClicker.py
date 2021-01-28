@@ -31,7 +31,7 @@ class powerOnWithClicker(operation):
     def runOp(self,controllerPc,hostPc,opParams):
         controllerPc.updateRunTimeState(hostPc,"\n Power on with clicker has started \n")
         controllerPc.updateRunTimeState(hostPc, "\nActivate Clicker\n" )
-        os.system("mode" + hostPc['clicker']['COM'] + "BAUD=9600 PARITY=n DATA=8")
+        os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
         os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
                   " > " + hostPc['clicker']['COM'])
         time.sleep(0.5)
