@@ -1,38 +1,32 @@
-import socket
-import subprocess
 import platform
-import time
-
 from operations.operation import operation
-import os
-import subprocess # CMD commands and outputs
-
+import subprocess
 from wakeonlan import send_magic_packet
 from getmac import get_mac_address
-PING = 'ping '
-class turnOnWithLan(operation):
 
+class turnOnWithLan(operation):
 
     def getKey(self):
         ''' Returns operation's name '''
         return (type(self).__name__)
 
+
     @staticmethod
-    def pingIP(current_ip_address):
+    def pingIP(ipAddress):
         try:
             output = subprocess.check_output("ping -{} 1 {}".format('n' if platform.system().lower(
-            ) == "windows" else 'c', current_ip_address), shell=True, universal_newlines=True)
+            ) == "windows" else 'c', ipAddress), shell=True, universal_newlines=True)
             if 'unreachable' in output:
                 return False
             return True
         except Exception:
             return False
 
+        
     @staticmethod
     def fetchMacAddress(hostIP):
         hostPcMacAdress = get_mac_address(ip=hostIP)
         return hostPcMacAdress
-
 
 
     def runOp(self,controllerPc,hostPc,opParams):
