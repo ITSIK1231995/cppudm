@@ -22,7 +22,7 @@ class turnOnWithLan(operation):
         except Exception:
             return False
 
-        
+
     @staticmethod
     def fetchMacAddress(hostIP):
         hostPcMacAdress = get_mac_address(ip=hostIP)

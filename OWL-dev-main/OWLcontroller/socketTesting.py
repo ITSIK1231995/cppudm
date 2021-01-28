@@ -18,7 +18,7 @@ from getmac import get_mac_address
 from getmac import get_mac_address
 from wakeonlan import send_magic_packet
 
-ip_mac = get_mac_address(ip="10.100.102.14")
+ip_mac = get_mac_address(ip="10.100.102.22")
 send_magic_packet(ip_mac,
                  ip_address='10.100.102.14',
                   port=5000)

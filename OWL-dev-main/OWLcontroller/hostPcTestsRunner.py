@@ -21,7 +21,7 @@ class hostPcTestsRunner():
         return relevantTests
 
     def runAllTests(self):
-        stopOnFailure = True  # Todo need to take this arguemnet from default configuration for this host pc
+        stopOnFailure = self.hostPc['stopOnFailure']  # Todo need to take this arguemnet from default configuration for this host pc
         for test in self.testToRun:
             numOfPass = 0
             numOfFails = 0
@@ -35,7 +35,7 @@ class hostPcTestsRunner():
                 else:
                     numOfFails += 1
                     self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Failed !!! \n")
-            if stopOnFailure == True and numOfFails >= 1:  # Stop on failure is on
+            if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
                 break
             self.controllerPc.updateRunTimeState(self.hostPc, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(
                 numOfFails) + "\n")
