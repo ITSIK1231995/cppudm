@@ -18,32 +18,32 @@ class hostPcTestEnvServer():
         server_socket = socket.socket()  # get instance
         # look closely. The bind() function takes tuple as argument
         server_socket.bind((host, port))  # bind host address and port together
+        # configure how many client the server can listen simultaneously
+        server_socket.listen(1)
 
         return server_socket
     @staticmethod
     def server(server_socket):
         while True:
-
-            # configure how many client the server can listen simultaneously
-            server_socket.listen(2)
-
-            conn, address = server_socket.accept()  # accept new connection
+            scoket, address = server_socket.accept()  # accept new connection
             print("Connection from: " + str(address))
 
             # receive data stream. it won't accept data packet greater than 1024 bytes
-            data = conn.recv(1024)
-            if not data:
-                # if data is not received break
-                break
+            data = scoket.recv(1024)
+            if data and data.decode('utf-8') != "Test":
 
-            data = json.loads(data.decode('utf-8'))
-            if isinstance(data, dict):
+                data = json.loads(data.decode('utf-8'))
+                # if isinstance(data, dict):
                 mappedOperations = allOperations()
-                data = mappedOperations.operationsImplement[data['operation']].runOp(data['param'],conn)
+                if 'param' in data.keys():
+                    mappedOperations.operationsImplement[data['operation']].runOp(scoket,data['param'])
+                else:
+                    mappedOperations.operationsImplement[data['operation']].runOp(scoket,[])
 
-            elif isinstance(data, str):
-                        mappedOperations = allOperations()
-                        data = mappedOperations.operationsImplement[data].runOp()
+
+                # elif isinstance(data, str):
+                #     mappedOperations = allOperations()
+                #     mappedOperations.operationsImplement[data].runOp()
 
 
             #print("from connected user: " + str(data))
@@ -58,10 +58,13 @@ class hostPcTestEnvServer():
 
 
 if __name__ == '__main__':
+    #hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+
     while True:
         try:
             hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-        except:
+        except Exception as e:
+            print(e)
             continue
 
 

@@ -1,5 +1,6 @@
 import os
 CMD_COMMAND = 'cmd /k '
+HIBERNATE_COMMAND = 'shutdown /h'
 
 class hibernate(object):
     def __init__(self):
@@ -10,7 +11,6 @@ class hibernate(object):
         return (type(self).__name__)
 
     @staticmethod
-    def runOp(userCommand):
-        print(userCommand)
+    def runOp(socket,parm):
         #return userCommand
-        os.system(CMD_COMMAND + userCommand)
+        os.system(CMD_COMMAND + HIBERNATE_COMMAND)

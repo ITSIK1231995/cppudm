@@ -12,15 +12,15 @@ class runDM(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
-        socket = operationWithSocket.createCommunication(self, hostPc["IP"],
-                                                controllerPc.configs.defaultConfContent['hostPcServerPort'])
+        controllerPc.updateRunTimeState(hostPc, "\n Run Dm command has started \n ")
+        socket = operationWithSocket.createCommunication(self, controllerPc,hostPc)
         if (socket == False):
             return False
         messegeToServer = {"operation": "runDM", "param": opParams[0]}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         messegeFromServer = socket.recv(1024).decode()  # receive response from the server
         socket.close()
-        print (messegeFromServer)
+        controllerPc.updateRunTimeState(hostPc, "\n message from server:\n" +messegeFromServer+"\n Run Dm command has ended \n ")
 
 # TODO implement runDM - bug  after 3 times in a row of running this with the server socket is failling
 

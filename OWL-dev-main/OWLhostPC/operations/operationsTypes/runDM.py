@@ -11,21 +11,21 @@ RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
 class runDM():
 
     @staticmethod
-    def runOp(userPath,conn):
+    def runOp(socket,userPath):
         #os.system(CMD_COMMAND + RUN_DM)
         runDMCmd = EXECUTE_DM + userPath + LOG_PATH
         command = runDMCmd
         run = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stdin=None, stderr=subprocess.PIPE,
                                env=os.environ, universal_newlines=True)
         returncode = run.communicate()  ## HANGS HERE ##
-
         if runDM.checkIfProcessRunning("DriveMaster"):
             print('A DriveMaster process is running')
         else:
             print('A DriveMaster process is not running')
-
         data = "Run dm log"
-        conn.send(data.encode())  # send data to the client
+        socket.send(data.encode())  # send data to the client
+
+
     @staticmethod
     def checkIfProcessRunning(processName):
         '''
@@ -41,7 +41,3 @@ class runDM():
                 pass
         return False
 
-
-# runDM.runOp()
-
-# print (runDM.checkIfProcessRunning("DriveMaster"))

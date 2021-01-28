@@ -1,11 +1,17 @@
+
 {
 		"operationsList":
 			[
-
+				"sleep",
+				"powerOnWithClicker",
 			{
-				"name" : "runDM",
-				"params" : ["\\DM_scripts\\L1.2_Entry_Exit_PS4_Calypso.srt"]
+				"name" : "runCommandViaCmd",
+				"params" : ["ipconfig"]
 			}
 			]
-			
+
 }
+
+
+
+

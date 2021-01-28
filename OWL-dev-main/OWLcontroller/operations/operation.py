@@ -1,14 +1,70 @@
+import os
 import socket
+import subprocess
+import time
+import re
 
 
 class operation(object):
 
     def getKey(self):
-        pass
+        pass\
 
     @staticmethod
     def runOp(controllerPc,hostPc,opParams):
         pass
+
+
+    #todo: if expacting pc to turnOff - test conection untill pc is off or threashhold exceded then return true
+    #todo: if expacting pc to turnOn - test conection untill pc is ON or threashhold exceded then return true
+    def waitForPcToTurnOn(self,controllerPc,hostPc): # when PC is ON output is True
+        controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's On  \n ")
+        clientSocket = socket.socket()
+        port = controllerPc.configs.defaultConfContent['hostPcServerPort']
+        attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+        for i in range(attempsToConnectSocket):
+            try:
+                clientSocket.connect((hostPc["IP"], port))  # connect to the server
+                clientSocket.send("Test".encode())
+                clientSocket.close()
+                controllerPc.updateRunTimeState(hostPc,"\nwaitForPcToTurnOn - PC is ON")
+                return True
+            except socket.error as e:
+                controllerPc.updateRunTimeState(hostPc,"\nwaitForPcToTurnOn - PC is OFF atempt "+ str(i))
+                pass
+        return False
+
+    # def waitForPcToTurnOff(self,controllerPc,hostPc): # when PC is off output is True
+    #     controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's off  \n ")
+    #     clientSocket = socket.socket()
+    #     port = controllerPc.configs.defaultConfContent['hostPcServerPort']
+    #     attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+    #     for i in range(attempsToConnectSocket):
+    #         try:
+    #             clientSocket.connect((hostPc["IP"], port))  # connect to the server
+    #             clientSocket.send("Test".encode())
+    #             clientSocket.close()
+    #             controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
+    #         except socket.error as e:
+    #             controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is OFF")
+    #             return True
+    #     return False
+
+    def waitForPcToTurnOff(self,controllerPc,hostPc):
+        attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+        for i in range(attempsToConnectSocket):
+            # response = os.system("ping -n 4 " + hostPc["IP"])
+            response = subprocess.run(["ping","-n","4",hostPc["IP"]], stdout=subprocess.PIPE).stdout.decode('utf-8')
+            # and then check the response...
+            print(">>>>> ping response = " + str(response))
+            if len(re.findall("unreachable", response)) == 4 or \
+                    len(re.findall("timed out", response)) == 4:
+            # if "unreachable" in response or "timed out" in response:
+                time.sleep(5)
+                controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is OFF")
+                return True
+            controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
+        return False
 
 
     def checkIfPcisOn(self,controllerPc,hostPc):
@@ -19,6 +75,7 @@ class operation(object):
         while True:
             try:
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
+                clientSocket.send("Test".encode())
             except socket.error as e:
                 if i < attempsToConnectSocket:
                     i += 1

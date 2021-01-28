@@ -1,14 +1,11 @@
 {
 		"operationsList":
 			[
+
 			{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]
 			}
-
-
 			]
-			
+
 }
-
-

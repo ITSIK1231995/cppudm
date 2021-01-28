@@ -1,25 +1,42 @@
 import configparser
+
+from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
 from configControl.confParserLM import confParserLM
 from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
 import _thread
 
+from OWLcontroller.UI.GUI.viewGui import mainWindow
+
 
 class ControllerPc():
+
     def __init__(self):
         self.configs = confParser().parseAll()
+        self.runtimeHostPcsData = {}
         self.GUIInit()
+
 
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()
-    #for eatch hostPc we create a thread that well manage the execution of its tests
+
+    #for each hostPc we create a thread that well manage the execution of its tests
     def dispatchThreads(self):
+        self.runtimeHostPcsData = {}
         hostPcs = self.configs.defaultConfContent['hostPCs']
         for hostPc in hostPcs:
             if hostPc["checked"]:
+                self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
 
+    def updateRunTimeState(self,hostPc,update):
+        print (update)
+        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += update.strip() +"\n"
+        self.updateguiTerminal(hostPc)
+
+    def updateguiTerminal(self,hostPc):
+        self.view.updateCurrentTernimal(hostPc)
 
     def GUIInit(self):
         app = QtWidgets.QApplication(sys.argv)
@@ -31,10 +48,10 @@ class ControllerPc():
 
     def startExecution(self):
         self.dispatchThreads()
-        print("runing tests")
+        print("running tests")
 
     def stopExecution(self):
-        print("stoping tests")
+        print("stopping tests")
 
 
 

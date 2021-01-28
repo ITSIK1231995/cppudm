@@ -1,6 +1,6 @@
 {
 		"hostPcServerPort" : 5000,
-		"attempsToCreateSocket" : 5,
+		"attempsToCreateSocket" : 20,
 		"defaultExecutionOptions":
 			["Errinj Mode",
 			"Legacy Mode Host Pc",
@@ -17,51 +17,50 @@
 		"hostPCs":
 					[
 						{
-							"IP" : "10.100.102.22",
+							"IP" : "10.100.102.12",
 							"groupName" : "Hermes",
+							"stopOnFailure" : false,
                             "clicker" : {
-                                "COM" :  "COM4",
+                                "COM" :  "COM6",
                                 "chanel" :  1
                             },
 							"tests" :	{
-								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
+								"hermes - power on ready": {"repeatAmount" : 88,"checked" : false},
 								"hermes - power on ready 0": {"repeatAmount" :5,"checked" : false},
-								"hermes - power on ready 3": {"repeatAmount" : 44,"checked" : true},
+								"hermes - power on ready 3": {"repeatAmount" : 1,"checked" : true},
 								"hermes - power on ready 2": {"repeatAmount" : 50,"checked" : false}
 
 							},
 
 
-							"checked" : true
-						},
-						{
-							"IP" : "10.100.102.14",
-							"groupName" : "Hermes",
-                            "clicker" : {
-                                "COM" :  "COM4",
-                                "chanel" :  2
-                            },
-							"tests" :	{
-								"hermes - power on ready": {"repeatAmount" : 4,"checked" : true},
-								"hermes - power on ready 2": {"repeatAmount" : 25,"checked" : true}
-							},
-
 							"checked" : false
 						},
 						{
-							"IP" : "10.100.102.46",
+							"IP" : "10.100.102.25",
 							"groupName" : "Hermes",
+							"stopOnFailure" : false,
+                            "clicker" : {
+                                "COM" :  "COM3",
+                                "chanel" :  1
+                            },
+							"tests" :	{
+								"hermes - power on ready": {"repeatAmount" : 3,"checked" : true},
+								"hermes - power on ready 2": {"repeatAmount" : 25,"checked" : false}
+							},
+
+							"checked" : true
+						},
+						{
+							"IP" : "10.100.102.22",
+							"groupName" : "Hermes",
+							"stopOnFailure" : true,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  2
                             },
 							"tests" :	{
-								"hermes - power on ready": {"repeatAmount" : 88,"checked" : true},
-								"hermes - power on ready 5": {"repeatAmount" :5,"checked" : true},
-								"hermes - power on ready 2": {"repeatAmount" : 44,"checked" : true},
-								"hermes - power on ready 0": {"repeatAmount" : 50,"checked" : true},
-								"hermes - power on ready 25": {"repeatAmount" : 44,"checked" : true},
-								"hermes - power on ready 3": {"repeatAmount" : 50,"checked" : true}
+								"hermes - power on ready": {"repeatAmount" : 3,"checked" : true},
+								"hermes - power on ready 2": {"repeatAmount" : 25,"checked" : false}
 
 							},
 							"checked" : false
@@ -70,6 +69,7 @@
 						{
 							"IP" : "10.100.102.55",
 							"groupName" : "Hermes",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  2
@@ -87,6 +87,7 @@
 						{
 							"IP" : "10.100.102.145",
 							"groupName" : "Hermes",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  2
@@ -104,6 +105,7 @@
 						{
 							"IP" : "10.100.102.144",
 							"groupName" : "Hermes",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  3
@@ -121,6 +123,7 @@
 						{
 							"IP" : "10.100.102.111",
 							"groupName" : "Hermes",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  3
@@ -138,6 +141,7 @@
 						{
 							"IP" : "10.100.102.123",
 							"groupName" : "calypso",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  3
@@ -155,6 +159,7 @@
 						{
 							"IP" : "10.100.102.124",
 							"groupName" : "calypso",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  4
@@ -172,6 +177,7 @@
 						{
 							"IP" : "10.100.102.125",
 							"groupName" : "calypso",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  4
@@ -189,6 +195,7 @@
 						{
 							"IP" : "10.100.102.126",
 							"groupName" : "calypso",
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  2
