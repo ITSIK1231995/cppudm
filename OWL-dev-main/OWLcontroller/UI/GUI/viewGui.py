@@ -140,7 +140,7 @@ class mainWindow(object):
         self.actionSave_configuration = QAction(skippedTestsNumber)
         self.actionSave_configuration.setObjectName("actionSave_configuration")
         self.menu.addAction(self.actionSave_configuration)
-        self.actionSave_configuration.triggered.connect(self.saveConf)
+        self.actionSave_configuration.triggered.connect(self.saveConfBtnClicked)
 
         self.actionLoad_configuration = QtWidgets.QAction(skippedTestsNumber)
         self.actionLoad_configuration.setObjectName("actionLoad_configuration")
@@ -173,10 +173,8 @@ class mainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(skippedTestsNumber)
 
 
-    def saveConf(self):
-        print ("SaveConf")
-        currentConf = self.controller.configs.defaultConfContent
-        print ("confSave")
+    def saveConfBtnClicked(self):
+        self.controller.savedDefaultConfContentIntoJson()
 
     def retranslateUi(self, skippedTestsNumber):
         _translate = QtCore.QCoreApplication.translate
