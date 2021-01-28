@@ -40,7 +40,7 @@
 							"groupName" : "Hermes",
 							"stopOnFailure" : false,
                             "clicker" : {
-                                "COM" :  "COM4",
+                                "COM" :  "COM3",
                                 "chanel" :  1
                             },
 							"tests" :	{
