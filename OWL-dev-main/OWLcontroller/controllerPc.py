@@ -37,7 +37,7 @@ class ControllerPc():
         self.view.updateTestStatusLblInRunTime(hostPc,test,testStatus)
 
     def savedDefaultConfContentIntoJson(self):
-        with open('defaultConf.json', 'w') as fout:
+        with open('defaultConfiguration_New.json', 'w') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
             print(json_dumps_str, file=fout)
 

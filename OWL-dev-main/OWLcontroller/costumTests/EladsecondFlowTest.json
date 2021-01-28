@@ -2,6 +2,7 @@
 {
 		"operationsList":
 			[
+				"sleep",
 			{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]
