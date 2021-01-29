@@ -48,8 +48,8 @@ class AddAndEditHostPc(QDialog):
         stopOnFailure = QCheckBox()
         layout.addRow(QLabel("stop on failure:"), stopOnFailure)
         self.formGroupBox.setLayout(layout)
-        formObjectsNamedYuple = namedtuple('formObjects', ['IPBox', 'COMBox','chanelBox','stopOnFailure'])
-        self.formObjects = formObjectsNamedYuple(IPBox, COMBox,chanelBox,stopOnFailure)
+        formObjectsNamedTuple = namedtuple('formObjects', ['IPBox', 'COMBox','chanelBox','stopOnFailure'])
+        self.formObjects = formObjectsNamedTuple(IPBox, COMBox,chanelBox,stopOnFailure)
 
 
     def fillWithData(self):
