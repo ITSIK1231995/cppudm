@@ -3,7 +3,6 @@
 		"operationsList":
 			[
 				"sleep",
-				"powerOnWithClicker",
 			{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]

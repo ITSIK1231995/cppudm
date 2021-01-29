@@ -16,9 +16,10 @@ import sys
 
 
 class TestsGroupBox(QtWidgets.QGroupBox):
-    def __init__(self, centralwidget,configs,groupName,tests):
+    def __init__(self, centralwidget,configs,groupName,tests,controller):
         super(TestsGroupBox, self).__init__(centralwidget)
 
+        self.controller = controller
         self.configs = configs
         # self.setGeometry(QtCore.QRect(250, 150, 540, 280))
         self.setObjectName("hostExercisersGroupBox")
@@ -64,7 +65,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             repeatTestBox.valueChanged.connect(self.repeatTestBoxChanged)
 
             statusLbl = QtWidgets.QLabel(groupBox)
-            statusLbl.setGeometry(QtCore.QRect(270, 3, 47, 14))
+            statusLbl.setGeometry(QtCore.QRect(270, 3, 100, 14))
             statusLbl.setObjectName("TestState_"+test.testname)
 
             groupBox.setFixedHeight(25)
@@ -111,9 +112,11 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         self.setTitle(_translate("skippedTestsNumber", self.groupName + " tests"))
         for test in self.tests:
             self.testsRows[test.testname].checkBox.setText(_translate("skippedTestsNumber", test.testname))
-            self.testsRows[test.testname].statusLbl.setText(_translate("skippedTestsNumber", "ready"))
+            self.testsRows[test.testname].statusLbl.setText(_translate("skippedTestsNumber", "Not Started"))
 
-
+    def updateTestStatusLbl(self,testName,testStatus):
+        _translate = QtCore.QCoreApplication.translate
+        self.testsRows[testName].statusLbl.setText(_translate("skippedTestsNumber", testStatus))
 
 
     # def setDefultHostPc(self):
@@ -133,4 +136,10 @@ class TestsGroupBox(QtWidgets.QGroupBox):
                 self.testsRows[test.testname].checkBox.setChecked(False)
                 self.testsRows[test.testname].repeatTestBox.setValue(0)
 
+
+            if self.hostPc["IP"] in self.controller.runtimeHostPcsData.keys() \
+                    and test.testname in self.controller.runtimeHostPcsData[self.hostPc["IP"]].keys():
+                self.testsRows[test.testname].statusLbl.setText(self.controller.runtimeHostPcsData[self.hostPc["IP"]][test.testname])
+            else:
+                self.testsRows[test.testname].statusLbl.setText("Not Started")
 

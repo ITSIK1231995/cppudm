@@ -21,8 +21,9 @@ class hostPcTestsRunner():
         return relevantTests
 
     def runAllTests(self):
-        stopOnFailure = self.hostPc['stopOnFailure']  # Todo need to take this arguemnet from default configuration for this host pc
+        stopOnFailure = self.hostPc['stopOnFailure']
         for test in self.testToRun:
+            self.controllerPc.updateTestStatusInRunTime(self.hostPc,test,"Running")
             numOfPass = 0
             numOfFails = 0
             for x in range(
@@ -35,11 +36,13 @@ class hostPcTestsRunner():
                 else:
                     numOfFails += 1
                     self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Failed !!! \n")
+                self.controllerPc.updateTestStatusInRunTime(self.hostPc, test, " Passed: " + str(numOfPass) + " Failed: " + str(numOfFails))
             if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
                 break
+
             self.controllerPc.updateRunTimeState(self.hostPc, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(
                 numOfFails) + "\n")
-            # todo : add stop on failure here - need to get from GUI if the stop on failure mode is on and if it is need to stop after this test if it failled once or mroe
+
 
     def createCommunication(self, hostIp, hostPort):  # TODO : move  to oprationWithSocet
         CommunicationInfo = namedtuple('CommunicationInfo', ['socket', 'hostIP'])
@@ -69,6 +72,7 @@ class hostPcTestsRunner():
                 if operationOutPut == False:
                     self.controllerPc.updateRunTimeState(self.hostPc,
                                                          (operation['name'] + " op failed"))  # todo : update GUI
+
                     return False
             elif isinstance(operation, str):
                 operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self, self.controllerPc,

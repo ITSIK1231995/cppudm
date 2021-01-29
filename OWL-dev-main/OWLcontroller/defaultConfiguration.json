@@ -53,14 +53,14 @@
 						{
 							"IP" : "10.100.102.22",
 							"groupName" : "Hermes",
-							"stopOnFailure" : true,
+							"stopOnFailure" : false,
                             "clicker" : {
                                 "COM" :  "COM4",
                                 "chanel" :  2
                             },
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 3,"checked" : true},
-								"hermes - power on ready 2": {"repeatAmount" : 25,"checked" : false}
+								"hermes - power on ready 2": {"repeatAmount" : 25,"checked" : true}
 
 							},
 							"checked" : false

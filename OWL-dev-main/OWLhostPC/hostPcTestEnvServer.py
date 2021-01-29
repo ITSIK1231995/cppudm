@@ -30,14 +30,18 @@ class hostPcTestEnvServer():
 
             # receive data stream. it won't accept data packet greater than 1024 bytes
             data = scoket.recv(1024)
+            print("recv")
             if data and data.decode('utf-8') != "Test":
-
+                print("data decode")
                 data = json.loads(data.decode('utf-8'))
+                print("Json load ")
                 # if isinstance(data, dict):
                 mappedOperations = allOperations()
                 if 'param' in data.keys():
+                    print("JParam in key ")
                     mappedOperations.operationsImplement[data['operation']].runOp(scoket,data['param'])
                 else:
+                    print("JParam in key - else  ")
                     mappedOperations.operationsImplement[data['operation']].runOp(scoket,[])
 
 
@@ -58,14 +62,14 @@ class hostPcTestEnvServer():
 
 
 if __name__ == '__main__':
-    #hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+    hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
 
-    while True:
-        try:
-            hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-        except Exception as e:
-            print(e)
-            continue
+    # while True:
+    #     try:
+    #         hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+    #     except Exception as e:
+    #         print(e)
+    #         continue
 
 
 

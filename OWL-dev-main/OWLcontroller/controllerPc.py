@@ -1,4 +1,6 @@
 import configparser
+import datetime
+import json
 
 from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
@@ -6,7 +8,7 @@ from configControl.confParserLM import confParserLM
 from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
 import _thread
-
+from datetime import datetime
 from OWLcontroller.UI.GUI.viewGui import mainWindow
 
 
@@ -29,6 +31,15 @@ class ControllerPc():
             if hostPc["checked"]:
                 self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
+
+    def updateTestStatusInRunTime(self,hostPc,test,testStatus):
+        self.runtimeHostPcsData[hostPc["IP"]][test.testname] = testStatus
+        self.view.updateTestStatusLblInRunTime(hostPc,test,testStatus)
+
+    def savedDefaultConfContentIntoJson(self):
+        with open('defaultConfiguration_New.json', 'w') as fout:
+            json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
+            print(json_dumps_str, file=fout)
 
     def updateRunTimeState(self,hostPc,update):
         print (update)
