@@ -10,6 +10,7 @@ from UI.GUI.ScrollLabel import ScrollLabel
 from UI.GUI.groupBox import *
 from UI.GUI.exerHostGroupBox import *
 from UI.GUI.TestsGroupBox import *
+from UI.GUI.preferencesEditor import *
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
@@ -147,6 +148,7 @@ class mainWindow(object):
         self.actionSettings = QtWidgets.QAction(skippedTestsNumber)
         self.actionSettings.setObjectName("actionSettings")
         self.actionPreferences = QtWidgets.QAction(skippedTestsNumber)
+        self.actionPreferences.triggered.connect(self.runPreferencesEditor)
         self.actionPreferences.setObjectName("actionPreferences")
         self.actionLegacy_Mode_Host_PC = QtWidgets.QAction(skippedTestsNumber)
         self.actionLegacy_Mode_Host_PC.setObjectName("actionLegacy_Mode_Host_PC")
@@ -296,3 +298,6 @@ class mainWindow(object):
     def updateTestStatusLblInRunTime(self,hostPc,test,testStatus):
         if self.currentHostPc == hostPc:
             self.getCurrentTestsGroupBoxWithLevelTuple().testsGroupBox.updateTestStatusLbl(test.testname,testStatus)
+
+    def runPreferencesEditor(self):
+        PreferencesEditor(self).exec()

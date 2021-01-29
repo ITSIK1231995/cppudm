@@ -4,9 +4,9 @@ from PyQt5.QtWidgets import (QWidget, QSlider, QLineEdit, QLabel, QPushButton, Q
                              QHBoxLayout, QVBoxLayout, QMessageBox)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
+from UI.GUI.GUIUtills import *
 
 
-#TODO : make single select
 class groupBox(QtWidgets.QGroupBox):
     def __init__(self, centralwidget,configs,mainWindowRef):
         super(groupBox, self).__init__( centralwidget)
@@ -55,14 +55,8 @@ class groupBox(QtWidgets.QGroupBox):
             clickedCheckBox.setChecked(True)
 
     def displaySwitchGroupWarningPopUp(self):
-
-        msgBox = QMessageBox()
-        msgBox.setIcon(QMessageBox.Information)
-        msgBox.setText("are you sure you want to switch group?\n "
+        return GUIUtills.PopUpWarning("are you sure you want to switch group?\n "
                        "switching well delete all tests configured for current host Pc")
-        msgBox.setWindowTitle("Warning")
-        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        return msgBox.exec() == QMessageBox.Ok
 
     def cahngeSelected(self,groupName):
         for checkBox in self.groupCheckBoxArr.values():

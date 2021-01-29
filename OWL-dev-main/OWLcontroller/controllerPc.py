@@ -57,6 +57,7 @@ class ControllerPc():
         QMainWindow.show()
         app.exec_()
 
+
     def startExecution(self):
         self.dispatchThreads()
         print("running tests")
