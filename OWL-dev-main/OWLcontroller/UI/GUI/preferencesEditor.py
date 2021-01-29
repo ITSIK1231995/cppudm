@@ -10,8 +10,7 @@ from UI.GUI.GUIUtills import *
 from PyQt5 import QtWidgets, uic, QtCore
 
 class PreferencesEditor(QDialog):
-    NumGridRows = 3
-    NumButtons = 4
+
 
     def __init__(self,mainWindowRef):
         super(PreferencesEditor, self).__init__()
