@@ -1,6 +1,6 @@
 {
 		"hostPcServerPort" : 5000,
-		"attempsToCreateSocket" : 20,
+		"attempsToCreateSocket" : 40,
 		"defaultExecutionOptions":
 			["Errinj Mode",
 			"Legacy Mode Host Pc",
