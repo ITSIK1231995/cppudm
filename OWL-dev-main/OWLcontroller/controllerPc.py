@@ -10,15 +10,19 @@ from UI.GUI.viewGui import *
 import _thread
 from datetime import datetime
 from OWLcontroller.UI.GUI.viewGui import mainWindow
-
+from datetime import date
 
 class ControllerPc():
 
-    def __init__(self):
-        self.configs = confParser().parseAll()
+    def __init__(self,conf='defaultConfiguration.json'):
+        self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
         self.GUIInit()
 
+    def reload(self,conf):
+        self.configs = confParser().parseAll(loadConf=conf)
+        self.runtimeHostPcsData = {}
+        self.GUIInit()
 
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()
@@ -37,7 +41,11 @@ class ControllerPc():
         self.view.updateTestStatusLblInRunTime(hostPc,test,testStatus)
 
     def savedDefaultConfContentIntoJson(self):
-        with open('defaultConfiguration_New.json', 'w') as fout:
+        now = datetime.now()
+        currTime = now.strftime("%H:%M:%S")
+        currTime = currTime.replace(":","_")
+        defaultConfName = 'defaultConfiguration_New_' + currTime + ".json"
+        with open(defaultConfName, 'w+') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
             print(json_dumps_str, file=fout)
 
@@ -50,12 +58,19 @@ class ControllerPc():
         self.view.updateCurrentTernimal(hostPc)
 
     def GUIInit(self):
-        app = QtWidgets.QApplication(sys.argv)
-        QMainWindow = QtWidgets.QMainWindow()
+        self.app = QtWidgets.QApplication.instance()
+        while self.app is None:
+            try:
+                self.app = QtWidgets.QApplication(sys.argv)
+                break
+            except:
+                continue
+        self.QMainWindow = QtWidgets.QMainWindow()
         self.view = mainWindow()
-        self.view.setupUi(QMainWindow,self)
-        QMainWindow.show()
-        app.exec_()
+        self.view.setupUi(self.QMainWindow,self)
+        self.QMainWindow.show()
+        self.app.exec_()
+
 
 
     def startExecution(self):
