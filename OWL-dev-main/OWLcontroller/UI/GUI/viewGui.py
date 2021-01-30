@@ -12,6 +12,7 @@ from UI.GUI.exerHostGroupBox import exerHostGroupBox
 from UI.GUI.groupBox import *
 from UI.GUI.browser import browser
 from UI.GUI.TestsGroupBox import *
+from UI.GUI.preferencesEditor import *
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
@@ -151,6 +152,7 @@ class mainWindow(object):
         self.actionSettings.setObjectName("actionSettings")
 
         self.actionPreferences = QtWidgets.QAction(skippedTestsNumber)
+        self.actionPreferences.triggered.connect(self.runPreferencesEditor)
         self.actionPreferences.setObjectName("actionPreferences")
         self.actionPreferences.triggered.connect(self.actionPreferencesBtnClicked)
 
@@ -317,3 +319,6 @@ class mainWindow(object):
     def updateTestStatusLblInRunTime(self,hostPc,test,testStatus):
         if self.currentHostPc == hostPc:
             self.getCurrentTestsGroupBoxWithLevelTuple().testsGroupBox.updateTestStatusLbl(test.testname,testStatus)
+
+    def runPreferencesEditor(self):
+        PreferencesEditor(self).exec()

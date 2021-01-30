@@ -26,22 +26,17 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         self.vbox = QVBoxLayout()
         self.groupName = groupName
         self.tests = tests
-        #
-        # if hostPc is not None :
-        #     self.hostPc = hostPc
-        # else:
-        self.hostPc = configs.defaultConfContent['hostPCs'][0] # TODO: alter so gets the currect hostpc that was selected in hostpcgroup box
+        self.hostPc = configs.defaultConfContent['hostPCs'][0]
 
-        # self.tests = configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc['groupName']]
         self.testTableSetup()
         self.scrollSetup()
+        self.checkAllSetup()
 
-
-
-    # def setHostPc(self,newHostPc):
-    #     self.hostPc = newHostPc
-    #     self.tests = self.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc['groupName']]
-    #     print(newHostPc["IP"])
+    def checkAllSetup(self):
+        self.checkAllBox = QtWidgets.QCheckBox(self)
+        self.checkAllBox.setGeometry(QtCore.QRect(1, 13, 200, 21))
+        self.checkAllBox.setObjectName("checkAllBox")
+        self.checkAllBox.clicked.connect(self.onCheckAllClicked)
 
     def testTableSetup(self):
 
@@ -49,7 +44,6 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         for test in self.tests:
 
             groupBox = QtWidgets.QGroupBox()
-            # groupBox.setGeometry(QtCore.QRect(50, 50, 50, 50))
             groupBox.setObjectName("GroupBox_"+test.testname)
 
             checkBox = QtWidgets.QCheckBox(groupBox)
@@ -110,6 +104,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         _translate = QtCore.QCoreApplication.translate
         self.setToolTip(_translate("skippedTestsNumber", "tests list"))
         self.setTitle(_translate("skippedTestsNumber", self.groupName + " tests"))
+        self.checkAllBox.setText("check all")
         for test in self.tests:
             self.testsRows[test.testname].checkBox.setText(_translate("skippedTestsNumber", test.testname))
             self.testsRows[test.testname].statusLbl.setText(_translate("skippedTestsNumber", "Not Started"))
@@ -117,11 +112,6 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def updateTestStatusLbl(self,testName,testStatus):
         _translate = QtCore.QCoreApplication.translate
         self.testsRows[testName].statusLbl.setText(_translate("skippedTestsNumber", testStatus))
-
-
-    # def setDefultHostPc(self):
-    #     self.setHostPCSavedTestParams(self.configs.defaultConfContent['hostPCs'][0])
-
 
     def setHostPCSavedTestParams(self,hostPc):
         self.hostPc = hostPc
@@ -143,3 +133,11 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             else:
                 self.testsRows[test.testname].statusLbl.setText("Not Started")
 
+    def onCheckAllClicked(self):
+        for testRow in self.testsRows.values():
+            testRow.checkBox.setChecked(self.checkAllBox.isChecked())
+        for test in self.tests:
+            if test.testname in self.hostPc['tests'].keys():
+                self.hostPc['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()
+            else:
+                self.hostPc['tests'][test.testname] = {"repeatAmount": 0, "checked": self.checkAllBox.isChecked()}

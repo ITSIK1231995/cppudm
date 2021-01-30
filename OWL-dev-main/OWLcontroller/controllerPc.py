@@ -9,7 +9,7 @@ from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
 import _thread
 from datetime import datetime
-from OWLcontroller.UI.GUI.viewGui import mainWindow
+from UI.GUI.viewGui import mainWindow
 from datetime import date
 
 class ControllerPc():
@@ -70,6 +70,7 @@ class ControllerPc():
         self.view.setupUi(self.QMainWindow,self)
         self.QMainWindow.show()
         self.app.exec_()
+
 
 
     def startExecution(self):
