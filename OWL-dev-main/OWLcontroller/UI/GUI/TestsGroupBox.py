@@ -136,5 +136,8 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def onCheckAllClicked(self):
         for testRow in self.testsRows.values():
             testRow.checkBox.setChecked(self.checkAllBox.isChecked())
-        for test in self.hostPc["tests"].values():
-            test["checked"] = self.checkAllBox.isChecked()
+        for test in self.tests:
+            if test.testname in self.hostPc['tests'].keys():
+                self.hostPc['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()
+            else:
+                self.hostPc['tests'][test.testname] = {"repeatAmount": 0, "checked": self.checkAllBox.isChecked()}
