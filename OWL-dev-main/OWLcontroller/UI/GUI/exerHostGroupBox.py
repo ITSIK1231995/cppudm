@@ -12,6 +12,8 @@ import sys
 
 #TODO : another screen for editing and adding
 
+
+
 class exerHostGroupBox(QtWidgets.QGroupBox):
     def __init__(self, centralwidget,configs,mainWindowRef):
         super(exerHostGroupBox, self).__init__( centralwidget)
@@ -98,9 +100,9 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         hostPc = self.getHostPCFromBtnName(self.sender())
         self.mainWindowRef.setNewHostPC(hostPc)
 
+
     def addHostPcBtnClicked(self):
         print("addHostPcBtnClicked")
-
 
 
     def retranslateUi(self):

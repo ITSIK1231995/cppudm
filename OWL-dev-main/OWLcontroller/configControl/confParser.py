@@ -14,8 +14,8 @@ class confParser():
     def __init__(self):
         pass
 
-    def parseAll(self):
-        defaultConfContent = self.parseDefaultConf()
+    def parseAll(self,loadConf):
+        defaultConfContent = self.parseDefaultConf(loadConf)
 
         lMparsingResults = confParserLM(defaultConfContent).parseLMConf() # Parsing the legacy mode config files (Flow operations and trainer scripts)
         errinjModeParsingResults = confParserErrinjMode(defaultConfContent).parseErrinjConfFiles() # Parsing the Errinj Mode config files
@@ -24,15 +24,8 @@ class confParser():
         return parseResults(lMparsingResults, errinjModeParsingResults,defaultConfContent)
 
 
-    def parseDefaultConf(self, defaultConfig='..\defaultConfiguration.json'):
-        defaultConf = open(DEFAULT_CONF_FILE, encoding="utf8")
+    def parseDefaultConf(self, defaultConfig):
+        defaultConf = open(defaultConfig, encoding="utf8")
         defaultConfContent = json.load(defaultConf)
         defaultConf.close()
         return defaultConfContent
-
-if __name__ == '__main__':
-    # # Tester for all the parsing being done
-    controlPc = (confParser().parseAll())
-    print(controlPc.legacyMode.legacyTestsByGroup)
-    print(controlPc.legacyMode.legacyFlowOperationsTestsByGroups)
-    print(controlPc.ErrinjMode.testsByGroupErrinj)
