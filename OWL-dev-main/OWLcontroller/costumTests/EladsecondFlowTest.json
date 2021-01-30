@@ -2,7 +2,8 @@
 {
 		"operationsList":
 			[
-				"sleep"
+				"shutdown",
+				"turnOnWithLan"
 
 
 			]
