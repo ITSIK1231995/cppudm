@@ -12,7 +12,7 @@ class hostPcTestEnvServer():
     @staticmethod
     def bindServer():
         # get the hostname
-        host = socket.gethostname()
+        host = "127.0.0.1"
         port = 5000  # initiate port no above 1024
 
         server_socket = socket.socket()  # get instance
@@ -24,6 +24,7 @@ class hostPcTestEnvServer():
         return server_socket
     @staticmethod
     def server(server_socket):
+        print("server started, waiting for connections")
         while True:
             scoket, address = server_socket.accept()  # accept new connection
             print("Connection from: " + str(address))

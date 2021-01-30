@@ -9,7 +9,7 @@ from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
 import _thread
 from datetime import datetime
-from OWLcontroller.UI.GUI.viewGui import mainWindow
+from UI.GUI.viewGui import mainWindow
 
 
 class ControllerPc():

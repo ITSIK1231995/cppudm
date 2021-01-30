@@ -14,7 +14,6 @@ class runCommandViaCMD(object):
     @staticmethod
     def runOp(socket,parm):
 
-        data =  subprocess.run([parm], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        data = subprocess.run([parm], stdout=subprocess.PIPE).stdout.decode('utf-8')
         time.sleep(5)
         socket.send(data.encode())  # send data to the client
-        # os.system("shutdown /s /t 1")
