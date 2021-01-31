@@ -21,5 +21,3 @@ class allOperations():
     operationsImplementation['turnOnWithLan'] = turnOnWithLan
     operationsImplementation['runDM'] = runDM
 
-#
-# print (allOperations.operationsImplement)
