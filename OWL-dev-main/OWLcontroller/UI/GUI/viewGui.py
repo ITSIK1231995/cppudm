@@ -41,8 +41,8 @@ class mainWindow(object):
 
 
 
-        self.hostExercisersGroupBox = exerHostGroupBox(self.centralwidget,controller.configs,self)
-        self.selectGroupBox = groupBox(self.centralwidget,controller.configs,self)
+        self.hostExercisersGroupBox = exerHostGroupBox(self.centralwidget,self)
+        self.selectGroupBox = groupBox(self.centralwidget,self)
 
 
         self.scrollArea_2 = QtWidgets.QScrollArea(self.centralwidget)
@@ -241,53 +241,47 @@ class mainWindow(object):
     def stopBtnPressed(self):
         self.controller.stopExecution()
 
-
+    #in this functions we create a stack of tests GroupBox, watch per group, in order to switch accordingly
     def createTestScreens(self):
         self.widget = QWidget(self.centralwidget)
         self.widget.setGeometry(QtCore.QRect(285, 150, 540, 280))
 
         self.stackedLayout = QStackedLayout(self.widget)
-        self.testsGroupBoxs = OrderedDict()
+        self.testsGroupBoxWithLeveltuples = OrderedDict()
         TestsGroupBoxWithLeveltuple = namedtuple('TestRow', ['testsGroupBox', 'stackLevel'])
         stackLevel = 0
         for groupName,groupTests in self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.items():
-            self.testsGroupBoxs[groupName] = TestsGroupBoxWithLeveltuple(TestsGroupBox(self.centralwidget,
-                                                                                       self.controller.configs,
-                                                                                       groupName, groupTests,self.controller),stackLevel)
-            self.stackedLayout.addWidget(self.testsGroupBoxs[groupName].testsGroupBox)
+            self.testsGroupBoxWithLeveltuples[groupName] = TestsGroupBoxWithLeveltuple(TestsGroupBox(self.centralwidget, self, groupName, groupTests)
+                                                                                       , stackLevel)
+            self.stackedLayout.addWidget(self.testsGroupBoxWithLeveltuples[groupName].testsGroupBox)
             stackLevel+=1
 
     def retranslateUiTestsGroupBoxs(self):
-        for groupName, testsGroupBoxWithLevelTuple in self.testsGroupBoxs.items():
+        for groupName, testsGroupBoxWithLevelTuple in self.testsGroupBoxWithLeveltuples.items():
             testsGroupBoxWithLevelTuple.testsGroupBox.retranslateUi()
         self.setDefultHostPc()
 
-
-
     def setDefultHostPc(self):
         defaultHostPC = self.controller.configs.defaultConfContent['hostPCs'][0]
-        #defaultHostPC = self.findFirstCheckedHostPc()
         self.currentHostPc = defaultHostPC
         self.setNewHostPC(defaultHostPC)
 
     def getCurrentTestsGroupBoxWithLevelTuple(self):
         currentTGBStackLevel = self.stackedLayout.currentIndex()
-        return next((TGB for TGB in self.testsGroupBoxs.values() if TGB.stackLevel == currentTGBStackLevel), None)
-
+        return next((TGB for TGB in self.testsGroupBoxWithLeveltuples.values() if TGB.stackLevel == currentTGBStackLevel), None)
 
     def setNewHostPC(self,hostPc):
-
         self.currentHostPc = hostPc
         if self.currentHostPc is not None:
-            self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[hostPc['groupName']].stackLevel)
+            self.stackedLayout.setCurrentIndex(self.testsGroupBoxWithLeveltuples[hostPc['groupName']].stackLevel)
             self.selectGroupBox.cahngeSelected(hostPc['groupName'])
             testsGroupBoxWithLevelTuple = self.getCurrentTestsGroupBoxWithLevelTuple()
-            testsGroupBoxWithLevelTuple.testsGroupBox.setHostPCSavedTestParams(hostPc)
+            testsGroupBoxWithLevelTuple.testsGroupBox.loadHostPCSTestParams(hostPc)
 
             self.setTerminal(hostPc)
-        else:
-            for testsGroupBoxTuple in self.testsGroupBoxs.values():
-                testsGroupBoxTuple.testsGroupBox.clearAll()
+        else: # if no hostpc is selected clear all
+            for testsGroupBoxWithLevel in self.testsGroupBoxWithLeveltuples.values():
+                testsGroupBoxWithLevel.testsGroupBox.clearAll()
             self.terminalLbl.setText("")
 
     def setTerminal(self, hostPc):
@@ -296,13 +290,9 @@ class mainWindow(object):
         else:
             self.terminalLbl.setText("")
 
-
-
-
     def updateCurrentTernimal(self,hostPc):
         if self.currentHostPc == hostPc:
             self.terminalLbl.setText(self.controller.runtimeHostPcsData[hostPc["IP"]]['terminal'])
-
 
     def createTerminal(self,skippedTestsNumber):
         self.terminalLbl = ScrollLabel(skippedTestsNumber)
@@ -311,14 +301,12 @@ class mainWindow(object):
         self.terminalLbl.setText("tipesh \n pyqt")
 
     def setDisplayedTestGroup(self, groupName):
-
         if self.currentHostPc is not None:
-
             self.currentHostPc['groupName'] = groupName
             self.currentHostPc['tests'] = {}
             self.setNewHostPC(self.currentHostPc)
         else:
-            self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[groupName].stackLevel)
+            self.stackedLayout.setCurrentIndex(self.testsGroupBoxWithLeveltuples[groupName].stackLevel)
 
 
     def updateTestStatusLblInRunTime(self,hostPc,test,testStatus):
