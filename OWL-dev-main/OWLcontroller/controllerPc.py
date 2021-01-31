@@ -103,3 +103,4 @@ if __name__ == '__main__':
     except Exception as e:
         traceback.print_tb(e.__traceback__)
         logging.exception("exception on main")
+        logging.shutdown()

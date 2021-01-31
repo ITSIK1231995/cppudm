@@ -6,6 +6,7 @@ import json
 import sys
 import logging
 import traceback
+import os
 
 
 class hostPcTestEnvServer():
@@ -76,12 +77,17 @@ class hostPcTestEnvServer():
 
 if __name__ == '__main__':
     #hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-    logging.basicConfig(filename='appLog.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    if not os.path.exists("C:\\owlLog"):
+        os.makedirs("C:\\owlLog")
+
+    logging.basicConfig(filename='C:\\owlLog\\appLog.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
         hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
     except Exception as e:
         traceback.print_tb(e.__traceback__)
         logging.exception("exception on main")
+        logging.shutdown()
 
 
 
