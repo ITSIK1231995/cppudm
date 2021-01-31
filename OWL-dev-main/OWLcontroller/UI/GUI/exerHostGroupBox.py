@@ -20,7 +20,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         super(exerHostGroupBox, self).__init__( centralwidget)
 
         self.mainWindowRef = mainWindowRef
-        self.setGeometry(QtCore.QRect(10, 150, 220, 280))
+        self.setGeometry(QtCore.QRect(10, 150, 260, 280))
         self.setObjectName("hostExercisersGroupBox")
         self.vbox = QVBoxLayout()
 
@@ -33,7 +33,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
 
     def addHostBtnSetup(self):
         self.addHostPcBtn = QtWidgets.QPushButton(self)
-        self.addHostPcBtn.setGeometry(QtCore.QRect(145, 5, 75, 23))
+        self.addHostPcBtn.setGeometry(QtCore.QRect(185, 5, 75, 23))
         self.addHostPcBtn.setObjectName("addHostPc")
         self.addHostPcBtn.clicked.connect(self.addHostPcBtnClicked)
 
@@ -62,13 +62,17 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         editButton.setObjectName("edit_" + hostPc['IP'])
         editButton.clicked.connect(self.editBtnClicked)
 
-        groupBox.setFixedHeight(20)
-        groupBox.setFixedWidth(185)
+        delButton = QtWidgets.QPushButton(groupBox)
+        delButton.setGeometry(QtCore.QRect(185, 0, 43, 20))
+        delButton.setObjectName("del_" + hostPc['IP'])
+        delButton.clicked.connect(self.delBtnClicked)
 
+        groupBox.setFixedHeight(20)
+        groupBox.setFixedWidth(260)
         self.vbox.addWidget(groupBox)
 
-        hostPcRowNamedtuple = namedtuple('hostPcRow', ['checkBox',  'showButton', 'editButton'])
-        self.hostPcRows[hostPc['IP']] = hostPcRowNamedtuple(checkBox,  showButton, editButton)
+        hostPcRowNamedtuple = namedtuple('hostPcRow', ['checkBox',  'showButton', 'editButton','delButton','containingGroupBox'])
+        self.hostPcRows[hostPc['IP']] = hostPcRowNamedtuple(checkBox,  showButton, editButton,delButton,groupBox)
 
 
     def onCheckBoxClicked(self):
@@ -85,7 +89,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.widget)
-        self.scroll.setGeometry(QtCore.QRect(0, 30, 220, 250))
+        self.scroll.setGeometry(QtCore.QRect(0, 30, 260, 250))
 
     def getHostPCFromBtnName(self, btn):
         hostPcIp =  btn.objectName().split('_')[1]
@@ -94,6 +98,20 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
     def editBtnClicked(self):
         hostPc = self.getHostPCFromBtnName(self.sender())
         AddAndEditHostPc(True,hostPc,self.mainWindowRef).exec()
+
+    def userIsSureHeWantsTODel(self,IP):
+        return GUIUtills.PopUpWarning("are you sure you want to delete hostPc " + str(IP) + " ?\n "
+                               "this delete all tests and data configured")
+    def delBtnClicked(self):
+        hostPc = self.getHostPCFromBtnName(self.sender())
+        oldHostPCIP = hostPc["IP"]
+        if self.userIsSureHeWantsTODel(hostPc["IP"]):
+            self.hostPcRows[hostPc["IP"]].containingGroupBox.deleteLater()
+            self.hostPcs.remove(hostPc)
+            if self.mainWindowRef.currentHostPc["IP"] == oldHostPCIP: #if current displayed host pc is deleted then swap for another one
+                self.mainWindowRef.setNewHostPC(self.hostPcs[0])
+
+
 
     def showBtnClicked(self):
         hostPc = self.getHostPCFromBtnName(self.sender())
@@ -114,6 +132,8 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
             self.hostPcRows[hostPc['IP']].checkBox.setChecked(hostPc['checked'])
             self.hostPcRows[hostPc['IP']].editButton.setText(_translate("skippedTestsNumber", "edit"))
             self.hostPcRows[hostPc['IP']].showButton.setText(_translate("skippedTestsNumber", "show"))
+            self.hostPcRows[hostPc['IP']].delButton.setText(_translate("skippedTestsNumber", "delete"))
+
 
 
         self.addHostPcBtn.setText(_translate("skippedTestsNumber", "Add host pc"))

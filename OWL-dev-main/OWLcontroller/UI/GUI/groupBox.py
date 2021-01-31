@@ -12,7 +12,7 @@ class groupBox(QtWidgets.QGroupBox):
         super(groupBox, self).__init__( centralwidget)
 
         self.mainWindowRef = mainWindowRef
-        self.setGeometry(QtCore.QRect(10, 440, 220, 180))
+        self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
 
         self.vbox = QVBoxLayout()
@@ -74,7 +74,7 @@ class groupBox(QtWidgets.QGroupBox):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.widget)
-        self.scroll.setGeometry(QtCore.QRect(0, 20, 220, 160))
+        self.scroll.setGeometry(QtCore.QRect(0, 20, 260, 165))
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate

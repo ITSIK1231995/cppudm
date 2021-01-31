@@ -59,7 +59,7 @@ class ControllerPc():
 
     def GUIInit(self):
         self.app = QtWidgets.QApplication.instance()
-        while self.app is None:
+        while self.app is None: # TODO : remove this dosnt do shit
             try:
                 self.app = QtWidgets.QApplication(sys.argv)
                 break

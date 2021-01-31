@@ -30,7 +30,7 @@ class mainWindow(object):
         self.controller = controller
 
         skippedTestsNumber.setObjectName("skippedTestsNumber")
-        skippedTestsNumber.resize(800, 666)
+        skippedTestsNumber.resize(840, 666)
         skippedTestsNumber.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.centralwidget = QtWidgets.QWidget(skippedTestsNumber)
         self.centralwidget.setObjectName("centralwidget")
@@ -46,7 +46,7 @@ class mainWindow(object):
 
 
         self.scrollArea_2 = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea_2.setGeometry(QtCore.QRect(10, 30, 780, 111))
+        self.scrollArea_2.setGeometry(QtCore.QRect(10, 30, 815, 111))
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_4 = QtWidgets.QWidget()
@@ -244,7 +244,7 @@ class mainWindow(object):
 
     def createTestScreens(self):
         self.widget = QWidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(250, 150, 540, 280))
+        self.widget.setGeometry(QtCore.QRect(285, 150, 540, 280))
 
         self.stackedLayout = QStackedLayout(self.widget)
         self.testsGroupBoxs = OrderedDict()
@@ -301,7 +301,7 @@ class mainWindow(object):
 
     def createTerminal(self,skippedTestsNumber):
         self.terminalLbl = ScrollLabel(skippedTestsNumber)
-        self.terminalLbl.setGeometry(QtCore.QRect(240, 470, 550, 180))
+        self.terminalLbl.setGeometry(QtCore.QRect(285, 470, 540, 180))
         self.terminalLbl.setObjectName("Terminal")
         self.terminalLbl.setText("tipesh \n pyqt")
 
