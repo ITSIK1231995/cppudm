@@ -3,6 +3,10 @@ from operations.allOperations import allOperations
 from operations.operationsTypes.runCommandViaCmd import runCommandViaCMD
 import json
 
+import sys
+import logging
+import traceback
+
 
 class hostPcTestEnvServer():
 
@@ -24,25 +28,33 @@ class hostPcTestEnvServer():
         return server_socket
     @staticmethod
     def server(server_socket):
+        logging.info("server started, waiting for connections")
         print("server started, waiting for connections")
+        #print("server started, waiting for connections")
+
+
         while True:
+
             scoket, address = server_socket.accept()  # accept new connection
+            # print("Connection from: " + str(address))
+            logging.info("Connection from: " + str(address))
             print("Connection from: " + str(address))
 
             # receive data stream. it won't accept data packet greater than 1024 bytes
             data = scoket.recv(1024)
-            print("recv")
+            logging.info("data received")
+            print("data received")
             if data and data.decode('utf-8') != "Test":
-                print("data decode")
                 data = json.loads(data.decode('utf-8'))
-                print("Json load ")
                 # if isinstance(data, dict):
                 mappedOperations = allOperations()
                 if 'param' in data.keys():
-                    print("JParam in key ")
+                    logging.info("executing operation = " + data['operation']+", param = " + data['param'])
+                    print("executing operation = " + data['operation']+", param = " + data['param'])
                     mappedOperations.operationsImplement[data['operation']].runOp(scoket,data['param'])
                 else:
-                    print("JParam in key - else  ")
+                    logging.info("executing operation = " + data['operation'])
+                    print("executing operation = " + data['operation'])
                     mappedOperations.operationsImplement[data['operation']].runOp(scoket,[])
 
 
@@ -63,14 +75,14 @@ class hostPcTestEnvServer():
 
 
 if __name__ == '__main__':
-    hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+    #hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+    logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    try:
+        hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+    except Exception as e:
+        traceback.print_tb(e.__traceback__)
+        logging.exception("exception on main")
 
-    # while True:
-    #     try:
-    #         hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-    #     except Exception as e:
-    #         print(e)
-    #         continue
 
 
 

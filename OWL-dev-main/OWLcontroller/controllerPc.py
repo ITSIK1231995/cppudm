@@ -1,6 +1,8 @@
 import configparser
 import datetime
 import json
+import logging
+import traceback
 
 from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
@@ -15,13 +17,19 @@ from datetime import date
 class ControllerPc():
 
     def __init__(self,conf='defaultConfiguration.json'):
+        logging.info("ControllerPc started")
+        logging.info("parsing configs")
         self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
+        logging.info("initiating gui")
         self.GUIInit()
 
     def reload(self,conf):
+        logging.info("parsing reloading")
+        logging.info("parsing configs")
         self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
+        logging.info("initiating gui")
         self.GUIInit()
 
     def threadMain(self,hostPc):
@@ -29,6 +37,7 @@ class ControllerPc():
 
     #for each hostPc we create a thread that well manage the execution of its tests
     def dispatchThreads(self):
+        logging.info("dispatching Threads")
         self.runtimeHostPcsData = {}
         hostPcs = self.configs.defaultConfContent['hostPCs']
         for hostPc in hostPcs:
@@ -41,6 +50,7 @@ class ControllerPc():
         self.view.updateTestStatusLblInRunTime(hostPc,test,testStatus)
 
     def savedDefaultConfContentIntoJson(self):
+        logging.info("saving new Default Conf Content")
         now = datetime.now()
         currTime = now.strftime("%H:%M:%S")
         currTime = currTime.replace(":","_")
@@ -75,11 +85,21 @@ class ControllerPc():
 
     def startExecution(self):
         self.dispatchThreads()
+        logging.info("running tests")
         print("running tests")
 
     def stopExecution(self):
+        logging.info("stopping tests")
         print("stopping tests")
 
 
 
-controllerPc = ControllerPc()
+
+
+if __name__ == '__main__':
+    logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    try:
+        controllerPc = ControllerPc()
+    except Exception as e:
+        traceback.print_tb(e.__traceback__)
+        logging.exception("exception on main")

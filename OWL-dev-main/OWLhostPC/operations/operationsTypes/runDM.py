@@ -1,6 +1,9 @@
 import os
 import subprocess
 import psutil
+import logging
+
+
 CMD_COMMAND = 'cmd /k '
 DM_SCRIPT_NAME = 'L1.2_Entry_Exit_PS4_Calypso.srt'
 DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC\DM_scripts\\'
@@ -19,9 +22,9 @@ class runDM():
                                env=os.environ, universal_newlines=True)
         returncode = run.communicate()  ## HANGS HERE ##
         if runDM.checkIfProcessRunning("DriveMaster"):
-            print('A DriveMaster process is running')
+            logging.info("DriveMaster process is running")
         else:
-            print('A DriveMaster process is not running')
+            logging.info("DriveMaster process is not running")
         data = "Run dm log"
         socket.send(data.encode())  # send data to the client
 

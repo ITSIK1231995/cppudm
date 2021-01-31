@@ -12,5 +12,4 @@ class hibernate(object):
 
     @staticmethod
     def runOp(socket,parm):
-        #return userCommand
         os.system(CMD_COMMAND + HIBERNATE_COMMAND)
