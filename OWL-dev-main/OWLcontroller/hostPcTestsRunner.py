@@ -26,6 +26,7 @@ class hostPcTestsRunner():
     def printToLog(self,text):
         logging.info(("worker thread",self.hostPc["IP"],text))
 
+
     def runAllTests(self):
         self.printToLog("starting running tests")
         stopOnFailure = self.hostPc['stopOnFailure']
@@ -44,12 +45,22 @@ class hostPcTestsRunner():
                     numOfFails += 1
                     self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Failed !!! \n")
                 self.controllerPc.updateTestStatusInRunTime(self.hostPc, test, " Passed: " + str(numOfPass) + " Failed: " + str(numOfFails))
+
+                if self.controllerPc.haltThreads:
+                    break
+
             if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
                 break
 
             self.controllerPc.updateRunTimeState(self.hostPc, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(
                 numOfFails) + "\n")
             self.printToLog("finished test= " + test.testname)
+
+            if self.controllerPc.haltThreads:
+                self.controllerPc.updateRunTimeState(self.hostPc, "testing stopped")
+                self.printToLog("halting")
+                break
+
         self.printToLog("finished running tests")
 
 

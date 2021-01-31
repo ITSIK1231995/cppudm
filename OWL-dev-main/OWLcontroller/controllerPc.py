@@ -21,6 +21,7 @@ class ControllerPc():
         logging.info("parsing configs")
         self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
+        self.haltThreads = False
         logging.info("initiating gui")
         self.GUIInit()
 
@@ -29,6 +30,7 @@ class ControllerPc():
         logging.info("parsing configs")
         self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
+        self.haltThreads = False
         logging.info("initiating gui")
         self.GUIInit()
 
@@ -84,12 +86,14 @@ class ControllerPc():
 
 
     def startExecution(self):
+        self.haltThreads = False
         self.dispatchThreads()
         logging.info("running tests")
         print("running tests")
 
     def stopExecution(self):
-        logging.info("stopping tests")
+        logging.info("stop pressed, halting threads")
+        self.haltThreads = True
         print("stopping tests")
 
 
