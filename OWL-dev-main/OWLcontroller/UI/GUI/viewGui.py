@@ -278,12 +278,17 @@ class mainWindow(object):
     def setNewHostPC(self,hostPc):
 
         self.currentHostPc = hostPc
-        self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[hostPc['groupName']].stackLevel)
-        self.selectGroupBox.cahngeSelected(hostPc['groupName'])
-        testsGroupBoxWithLevelTuple = self.getCurrentTestsGroupBoxWithLevelTuple()
-        testsGroupBoxWithLevelTuple.testsGroupBox.setHostPCSavedTestParams(hostPc)
+        if self.currentHostPc is not None:
+            self.stackedLayout.setCurrentIndex(self.testsGroupBoxs[hostPc['groupName']].stackLevel)
+            self.selectGroupBox.cahngeSelected(hostPc['groupName'])
+            testsGroupBoxWithLevelTuple = self.getCurrentTestsGroupBoxWithLevelTuple()
+            testsGroupBoxWithLevelTuple.testsGroupBox.setHostPCSavedTestParams(hostPc)
 
-        self.setTerminal(hostPc)
+            self.setTerminal(hostPc)
+        else:
+            for testsGroupBoxTuple in self.testsGroupBoxs.values():
+                testsGroupBoxTuple.testsGroupBox.clearAll()
+            self.terminalLbl.setText("")
 
     def setTerminal(self, hostPc):
         if hostPc["IP"] in self.controller.runtimeHostPcsData:

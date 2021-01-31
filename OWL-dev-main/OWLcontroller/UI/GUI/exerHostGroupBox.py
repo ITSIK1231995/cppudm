@@ -109,7 +109,10 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
             self.hostPcRows[hostPc["IP"]].containingGroupBox.deleteLater()
             self.hostPcs.remove(hostPc)
             if self.mainWindowRef.currentHostPc["IP"] == oldHostPCIP: #if current displayed host pc is deleted then swap for another one
-                self.mainWindowRef.setNewHostPC(self.hostPcs[0])
+                if len(self.hostPcs) == 0:
+                    self.mainWindowRef.setNewHostPC(None)
+                else:
+                    self.mainWindowRef.setNewHostPC(self.hostPcs[0])
 
 
 

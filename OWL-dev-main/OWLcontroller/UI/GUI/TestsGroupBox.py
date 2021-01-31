@@ -141,3 +141,10 @@ class TestsGroupBox(QtWidgets.QGroupBox):
                 self.hostPc['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()
             else:
                 self.hostPc['tests'][test.testname] = {"repeatAmount": 0, "checked": self.checkAllBox.isChecked()}
+
+    def clearAll(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.setTitle(_translate("skippedTestsNumber", self.groupName + " tests"))
+        for testRow in self.testsRows.values():
+            testRow.checkBox.setChecked(False)
+            testRow.repeatTestBox.setValue(0)
