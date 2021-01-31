@@ -76,7 +76,7 @@ class hostPcTestEnvServer():
 
 if __name__ == '__main__':
     #hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-    logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='appLog.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
         hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
     except Exception as e:

@@ -97,7 +97,7 @@ class ControllerPc():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='appLog.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
         controllerPc = ControllerPc()
     except Exception as e:
