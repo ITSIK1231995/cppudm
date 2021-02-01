@@ -8,5 +8,4 @@ class sleep(object):
 
     @staticmethod
     def runOp(socket,parm):
-        print("sleep")
         os.system(SLEEP_COMMAND)

@@ -11,6 +11,4 @@ class shutdown(object):
 
     @staticmethod
     def runOp(socket,parm):
-        print("shutdown")
-        #return userCommand
         os.system("shutdown /s /t 1")

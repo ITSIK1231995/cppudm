@@ -8,16 +8,16 @@ from UI.GUI.GUIUtills import *
 
 
 class groupBox(QtWidgets.QGroupBox):
-    def __init__(self, centralwidget,configs,mainWindowRef):
+    def __init__(self, centralwidget,mainWindowRef):
         super(groupBox, self).__init__( centralwidget)
 
         self.mainWindowRef = mainWindowRef
-        self.setGeometry(QtCore.QRect(10, 440, 220, 180))
+        self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
 
         self.vbox = QVBoxLayout()
 
-        self.groupNames = configs.legacyMode.legacyFlowOperationsTestsByGroups.keys()
+        self.groupNames = mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.keys()
 
         self.groupListSetup()
         self.scrollSetup()
@@ -74,12 +74,11 @@ class groupBox(QtWidgets.QGroupBox):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.widget)
-        self.scroll.setGeometry(QtCore.QRect(0, 20, 220, 160))
+        self.scroll.setGeometry(QtCore.QRect(0, 20, 260, 165))
 
     def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setToolTip(_translate("skippedTestsNumber", "Hosts list"))
-        self.setTitle(_translate("skippedTestsNumber", "Select Group"))
+        self.setToolTip("Group list")
+        self.setTitle("Select Group")
         for groupName in self.groupNames:
-            self.groupCheckBoxArr[groupName].setText(_translate("skippedTestsNumber",groupName))
+            self.groupCheckBoxArr[groupName].setText(groupName)
 

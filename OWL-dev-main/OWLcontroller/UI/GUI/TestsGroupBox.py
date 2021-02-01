@@ -1,32 +1,20 @@
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-from PyQt5.QtWidgets import QScrollArea
 from collections import namedtuple
 from PyQt5.QtWidgets import (QWidget, QSlider, QLineEdit, QLabel, QPushButton, QScrollArea,QApplication,
                              QHBoxLayout, QVBoxLayout, QMainWindow)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
 
-import sys
-
-#TODO : another screen for editing and adding
-
-#todo : present erorr when hostpc has a test in the defultconfig that does not have a an actural test in the test configs
-
 
 class TestsGroupBox(QtWidgets.QGroupBox):
-    def __init__(self, centralwidget,configs,groupName,tests,controller):
+    def __init__(self, centralwidget,mainWindowRef,groupName,tests):
         super(TestsGroupBox, self).__init__(centralwidget)
 
-        self.controller = controller
-        self.configs = configs
-        # self.setGeometry(QtCore.QRect(250, 150, 540, 280))
+        self.controller = mainWindowRef.controller
         self.setObjectName("hostExercisersGroupBox")
         self.vbox = QVBoxLayout()
         self.groupName = groupName
         self.tests = tests
-        self.hostPc = configs.defaultConfContent['hostPCs'][0]
+        self.myHostPc = self.controller.configs.defaultConfContent['hostPCs'][0]
 
         self.testTableSetup()
         self.scrollSetup()
@@ -73,19 +61,19 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def repeatTestBoxChanged(self):
         repeatTestBox = self.sender()
         testName = repeatTestBox.objectName().split('_')[1]
-        if testName in self.hostPc['tests'].keys():
-            self.hostPc['tests'][testName]['repeatAmount'] = repeatTestBox.value()
+        if testName in self.myHostPc['tests'].keys():
+            self.myHostPc['tests'][testName]['repeatAmount'] = repeatTestBox.value()
         else:
-            self.hostPc['tests'][testName] = {"repeatAmount" : repeatTestBox.value(),"checked" : False}
+            self.myHostPc['tests'][testName] = {"repeatAmount" : repeatTestBox.value(), "checked" : False}
 
 
     def onCheckBoxClicked(self):
         clickedCheckBox = self.sender()
         testName = clickedCheckBox.objectName().split('_')[1]
-        if testName in self.hostPc['tests'].keys():
-            self.hostPc['tests'][testName]['checked'] = clickedCheckBox.isChecked()
+        if testName in self.myHostPc['tests'].keys():
+            self.myHostPc['tests'][testName]['checked'] = clickedCheckBox.isChecked()
         else:
-            self.hostPc['tests'][testName] = {"repeatAmount" : 0,"checked" : clickedCheckBox.isChecked()}
+            self.myHostPc['tests'][testName] = {"repeatAmount" : 0, "checked" : clickedCheckBox.isChecked()}
 
 
     def scrollSetup(self):
@@ -101,35 +89,32 @@ class TestsGroupBox(QtWidgets.QGroupBox):
 
 
     def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setToolTip(_translate("skippedTestsNumber", "tests list"))
-        self.setTitle(_translate("skippedTestsNumber", self.groupName + " tests"))
+        self.setToolTip("tests list")
+        self.setTitle(self.groupName + " tests")
         self.checkAllBox.setText("check all")
         for test in self.tests:
-            self.testsRows[test.testname].checkBox.setText(_translate("skippedTestsNumber", test.testname))
-            self.testsRows[test.testname].statusLbl.setText(_translate("skippedTestsNumber", "Not Started"))
+            self.testsRows[test.testname].checkBox.setText(test.testname)
+            self.testsRows[test.testname].statusLbl.setText("Not Started")
 
     def updateTestStatusLbl(self,testName,testStatus):
         _translate = QtCore.QCoreApplication.translate
         self.testsRows[testName].statusLbl.setText(_translate("skippedTestsNumber", testStatus))
 
-    def setHostPCSavedTestParams(self,hostPc):
-        self.hostPc = hostPc
-        _translate = QtCore.QCoreApplication.translate
-        self.setTitle(_translate("skippedTestsNumber", self.groupName + " tests,   for "+self.hostPc['IP']))
+    def loadHostPCSTestParams(self, hostPc):
+        self.myHostPc = hostPc
+        self.setTitle(self.groupName + " tests,   for " + self.myHostPc['IP'])
         for test in self.tests:
-            if test.testname in self.hostPc['tests']:
-                savedTestParmsPerHostPc = self.hostPc['tests'][test.testname]
+            if test.testname in self.myHostPc['tests']:
+                savedTestParmsPerHostPc = self.myHostPc['tests'][test.testname]
                 self.testsRows[test.testname].checkBox.setChecked(savedTestParmsPerHostPc['checked'])
                 self.testsRows[test.testname].repeatTestBox.setValue(savedTestParmsPerHostPc['repeatAmount'])
             else:
                 self.testsRows[test.testname].checkBox.setChecked(False)
                 self.testsRows[test.testname].repeatTestBox.setValue(0)
 
-
-            if self.hostPc["IP"] in self.controller.runtimeHostPcsData.keys() \
-                    and test.testname in self.controller.runtimeHostPcsData[self.hostPc["IP"]].keys():
-                self.testsRows[test.testname].statusLbl.setText(self.controller.runtimeHostPcsData[self.hostPc["IP"]][test.testname])
+            if self.myHostPc["IP"] in self.controller.runtimeHostPcsData.keys() \
+                    and test.testname in self.controller.runtimeHostPcsData[self.myHostPc["IP"]].keys():
+                self.testsRows[test.testname].statusLbl.setText(self.controller.runtimeHostPcsData[self.myHostPc["IP"]][test.testname])
             else:
                 self.testsRows[test.testname].statusLbl.setText("Not Started")
 
@@ -137,7 +122,13 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         for testRow in self.testsRows.values():
             testRow.checkBox.setChecked(self.checkAllBox.isChecked())
         for test in self.tests:
-            if test.testname in self.hostPc['tests'].keys():
-                self.hostPc['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()
+            if test.testname in self.myHostPc['tests'].keys():
+                self.myHostPc['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()
             else:
-                self.hostPc['tests'][test.testname] = {"repeatAmount": 0, "checked": self.checkAllBox.isChecked()}
+                self.myHostPc['tests'][test.testname] = {"repeatAmount": 0, "checked": self.checkAllBox.isChecked()}
+
+    def clearAll(self):
+        self.setTitle(self.groupName + " tests")
+        for testRow in self.testsRows.values():
+            testRow.checkBox.setChecked(False)
+            testRow.repeatTestBox.setValue(0)
