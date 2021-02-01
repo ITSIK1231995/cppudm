@@ -31,16 +31,12 @@ class turnOnWithLan(operation):
 
     def runOp(self,controllerPc,hostPc,opParams):
         controllerPc.updateRunTimeState(hostPc, "\n turn on with lan command has started \n ")
-        controllerPc.updateRunTimeState(hostPc, "\n Verifies the Host is off before sending a wake on lan")
-        hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc)
-        if hostPcIsOFf:
-            controllerPc.updateRunTimeState(hostPc, "\n Host is off - > Sends wake on lun ")
-            macAdress = turnOnWithLan.fetchMacAddress(hostPc["IP"])
+
+        controllerPc.updateRunTimeState(hostPc, "\n wake on lun magic packet has been sent ")
+        macAdress = turnOnWithLan.fetchMacAddress(hostPc["IP"])
                 # wake on lan
-            send_magic_packet(macAdress,
-                              ip_address=hostPc["IP"],
-                              port= controllerPc.configs.defaultConfContent['hostPcServerPort'])
-            controllerPc.updateRunTimeState(hostPc, "\n Wake on lan has been sent, pinging the host for checking if it's on... ")
+        send_magic_packet(macAdress,ip_address=hostPc["IP"],port= controllerPc.configs.defaultConfContent['hostPcServerPort'])
+        controllerPc.updateRunTimeState(hostPc, "\n Wake on lan has been sent, pinging the host for checking if it's on... ")
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
         if hostPcIsOn:
             controllerPc.updateRunTimeState(hostPc,"\nWake on lun succeed and the PC is ON")

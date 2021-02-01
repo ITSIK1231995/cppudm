@@ -7,5 +7,5 @@ class sleep(object):
         return (type(self).__name__)
 
     @staticmethod
-    def runOp(socket,parm):
+    def runOp(hostPcServerRef,socket,parm):
         os.system(SLEEP_COMMAND)

@@ -12,7 +12,7 @@ class runCommandViaCMD(object):
         return (type(self).__name__)
 
     @staticmethod
-    def runOp(socket,parm):
+    def runOp(hostPcServerRef,socket,parm):
 
         data = subprocess.run([parm], stdout=subprocess.PIPE).stdout.decode('utf-8')
         time.sleep(5)

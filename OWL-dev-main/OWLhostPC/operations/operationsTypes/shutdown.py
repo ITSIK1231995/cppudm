@@ -10,5 +10,5 @@ class shutdown(object):
         return (type(self).__name__)
 
     @staticmethod
-    def runOp(socket,parm):
+    def runOp(hostPcServerRef,socket,parm):
         os.system("shutdown /s /t 1")

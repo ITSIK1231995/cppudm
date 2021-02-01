@@ -14,7 +14,7 @@ RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
 class runDM():
 
     @staticmethod
-    def runOp(socket,userPath):
+    def runOp(hostPcServerRef,socket,userPath):
         #os.system(CMD_COMMAND + RUN_DM)
         runDMCmd = EXECUTE_DM + userPath + LOG_PATH
         command = runDMCmd

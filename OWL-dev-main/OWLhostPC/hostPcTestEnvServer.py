@@ -12,23 +12,27 @@ import os
 class hostPcTestEnvServer():
 
 
+    def __init__(self):
+        self.bindServer()
+        self.server()
 
 
-    @staticmethod
-    def bindServer():
+    def bindServer(self):
         # get the hostname
         host = socket.gethostname()
         port = 5000  # initiate port no above 1024
 
-        server_socket = socket.socket()  # get instance
+        self.server_socket = socket.socket()  # get instance
         # look closely. The bind() function takes tuple as argument
-        server_socket.bind((host, port))  # bind host address and port together
+        self.server_socket.bind((host, port))  # bind host address and port together
         # configure how many client the server can listen simultaneously
-        server_socket.listen(1)
+        self.server_socket.listen(1)
 
-        return server_socket
-    @staticmethod
-    def server(server_socket):
+    def reliseServerScoket(self):
+        logging.info("server_socket closed")
+        self.server_socket.close()
+
+    def server(self):
         logging.info("server started, waiting for connections")
         print("server started, waiting for connections")
         #print("server started, waiting for connections")
@@ -36,7 +40,7 @@ class hostPcTestEnvServer():
 
         while True:
 
-            scoket, address = server_socket.accept()  # accept new connection
+            scoket, address = self.server_socket.accept()  # accept new connection
             # print("Connection from: " + str(address))
             logging.info("Connection from: " + str(address))
             print("Connection from: " + str(address))
@@ -52,11 +56,11 @@ class hostPcTestEnvServer():
                 if 'param' in data.keys():
                     logging.info("executing operation = " + data['operation']+", param = " + data['param'])
                     print("executing operation = " + data['operation']+", param = " + data['param'])
-                    mappedOperations.operationsImplement[data['operation']].runOp(scoket,data['param'])
+                    mappedOperations.operationsImplement[data['operation']].runOp(self,scoket,data['param'])
                 else:
                     logging.info("executing operation = " + data['operation'])
                     print("executing operation = " + data['operation'])
-                    mappedOperations.operationsImplement[data['operation']].runOp(scoket,[])
+                    mappedOperations.operationsImplement[data['operation']].runOp(self,scoket,[])
 
 
                 # elif isinstance(data, str):
@@ -83,11 +87,14 @@ if __name__ == '__main__':
 
     logging.basicConfig(filename='C:\\owlLog\\appLog.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
-        hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
+        hostPcServer = hostPcTestEnvServer()
     except Exception as e:
         traceback.print_tb(e.__traceback__)
         logging.exception("exception on main")
+        logging.exception("server shuting down")
         logging.shutdown()
+        sys.exit()
+
 
 
 

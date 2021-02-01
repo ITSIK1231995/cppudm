@@ -12,5 +12,7 @@ class hibernate(object):
         return (type(self).__name__)
 
     @staticmethod
-    def runOp(socket,parm):
+    def runOp(hostPcServerRef,socket,parm):
+        socket.close()
+        hostPcServerRef.reliseServerScoket()
         os.system(CMD_COMMAND + HIBERNATE_COMMAND)
