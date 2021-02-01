@@ -20,9 +20,10 @@ class ControllerPc():
         self.GUIInit()
 
     def reload(self,conf):
-        self.configs = confParser().parseAll(loadConf=conf)
-        self.runtimeHostPcsData = {}
-        self.GUIInit()
+        if conf is not "":
+            self.configs = confParser().parseAll(loadConf=conf)
+            self.runtimeHostPcsData = {}
+            self.GUIInit()
 
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()

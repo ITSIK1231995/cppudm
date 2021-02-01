@@ -2,8 +2,8 @@
 {
 		"operationsList":
 			[
-				"shutdown",
-				"turnOnWithLan"
+				"powerOnWithClicker"
+
 
 
 			]

@@ -12,7 +12,7 @@ class hostPcTestEnvServer():
     @staticmethod
     def bindServer():
         # get the hostname
-        host = "127.0.0.1"
+        host = socket.gethostname()
         port = 5000  # initiate port no above 1024
 
         server_socket = socket.socket()  # get instance

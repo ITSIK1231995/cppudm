@@ -29,15 +29,20 @@ class powerOnWithClicker(operation):
 
     #TODO : add first line from matan script
     def runOp(self,controllerPc,hostPc,opParams):
+
         controllerPc.updateRunTimeState(hostPc,"\n Power on with clicker has started \n")
         controllerPc.updateRunTimeState(hostPc, "\nActivate Clicker\n" )
-        os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
-        os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
-                  " > " + hostPc['clicker']['COM'])
-        time.sleep(0.5)
-        os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][1] +
-                  " > " + hostPc['clicker']['COM'])
 
+        hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc)
+        if hostPcIsOFf:
+            os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
+            os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
+                          " > " + hostPc['clicker']['COM'])
+            time.sleep(0.5)
+            os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][1] +
+                          " > " + hostPc['clicker']['COM'])
+        else:
+            return False
         # check if the host is on
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
 

@@ -18,9 +18,6 @@ class browser(QWidget):
 
     def getChoosedFolderName(self,name):
         folderName = self.openFileNameDialog(name)
-        # self.openFileNamesDialog()
-        # self.saveFileDialog()
-
         self.show()
         self.hide()
         return folderName
@@ -32,6 +29,8 @@ class browser(QWidget):
                                                   "All Files (*);;Python Files (*.py)", options=options)
         if fileName:
             return fileName
+        else:
+            return ""
 
     def openFileNamesDialog(self):
         options = QFileDialog.Options()
