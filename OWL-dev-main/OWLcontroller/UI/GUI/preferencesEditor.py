@@ -39,20 +39,20 @@ class PreferencesEditor(QDialog):
         portBox.setMaximum(65535)
         portBox.setMinimum(1025)
 
-        layout.addRow(QLabel("host pc port:"), portBox)
+        layout.addRow(QLabel("Host pc port:"), portBox)
         conectionAttempsBox = QSpinBox()
         conectionAttempsBox.setMinimum(4)
-        layout.addRow(QLabel("conection attemps:"), conectionAttempsBox)
+        layout.addRow(QLabel("Connection attempt:"), conectionAttempsBox)
         defaultExecutionModeBox =  QComboBox()
-        layout.addRow(QLabel("default execution mode:"), defaultExecutionModeBox)
+        layout.addRow(QLabel("Default execution mode:"), defaultExecutionModeBox)
         resultPathBox = QLineEdit()
-        layout.addRow(QLabel("result path:"),resultPathBox)
+        layout.addRow(QLabel("Result path:"),resultPathBox)
         legacyModePathBox = QLineEdit()
-        layout.addRow(QLabel("legacy mode path:"), legacyModePathBox)
+        layout.addRow(QLabel("Legacy mode path:"), legacyModePathBox)
         errinjModePathBox = QLineEdit()
-        layout.addRow(QLabel("errinj mode path:"), errinjModePathBox)
+        layout.addRow(QLabel("Errinj mode path:"), errinjModePathBox)
         analyzerMinVersionBox = QLineEdit()
-        layout.addRow(QLabel("analyzer min version:"), analyzerMinVersionBox)
+        layout.addRow(QLabel("Analyzer min version:"), analyzerMinVersionBox)
         self.formGroupBox.setLayout(layout)
         formObjectsNamedTuple = namedtuple('formObjects', ['portBox', 'conectionAttempsBox','defaultExecutionModeBox','resultPathBox','legacyModePathBox','errinjModePathBox','analyzerMinVersionBox'])
         self.formObjects = formObjectsNamedTuple(portBox, conectionAttempsBox,defaultExecutionModeBox,resultPathBox,legacyModePathBox,errinjModePathBox,analyzerMinVersionBox)
@@ -74,10 +74,10 @@ class PreferencesEditor(QDialog):
             or self.formObjects.legacyModePathBox.text() == "" \
             or self.formObjects.errinjModePathBox.text() == ""\
             or self.formObjects.analyzerMinVersionBox.text() == "":
-            GUIUtills.PopUpWarning("please make sure that all the fields are filled")
+            GUIUtills.PopUpWarning("Please make sure that all the fields are filled")
             return False
         elif self.formObjects.portBox.value() < 1025 or self.formObjects.portBox.value() > 65535:
-            GUIUtills.PopUpWarning("port must be greater then 1024 and less then 65535")
+            GUIUtills.PopUpWarning("Port must be greater then 1024 and less then 65535")
             return False
         return True
 
@@ -92,8 +92,8 @@ class PreferencesEditor(QDialog):
             defaultConf["errinjModePath"] = self.formObjects.errinjModePathBox.text()
             defaultConf["analyzerMinVersion"] = self.formObjects.analyzerMinVersionBox.text()
 
-            GUIUtills.PopUpWarning("in order for changes to take effect you need to save the configuration and "
-                                   "launch the application using the new configuration")
+            GUIUtills.PopUpWarning("In order for changes to take effect you need to save the configuration and "
+                                   "launch the application using the New configuration")
             self.close()
 
 

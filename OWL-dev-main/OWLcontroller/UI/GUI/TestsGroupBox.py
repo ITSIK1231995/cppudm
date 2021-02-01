@@ -91,7 +91,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def retranslateUi(self):
         self.setToolTip("tests list")
         self.setTitle(self.groupName + " tests")
-        self.checkAllBox.setText("check all")
+        self.checkAllBox.setText("Check all")
         for test in self.tests:
             self.testsRows[test.testname].checkBox.setText(test.testname)
             self.testsRows[test.testname].statusLbl.setText("Not Started")

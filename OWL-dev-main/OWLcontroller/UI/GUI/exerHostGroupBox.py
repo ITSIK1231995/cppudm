@@ -93,7 +93,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         AddAndEditHostPc(True,hostPc,self.mainWindowRef).exec()
 
     def userIsSureHeWantsTODel(self,IP):
-        return GUIUtills.PopUpWarning("are you sure you want to delete hostPc " + str(IP) + " ?\n "
+        return GUIUtills.PopUpWarning("Are you sure you want to delete hostPc " + str(IP) + " ?\n "
                                         "this delete all tests and data configured")
     def delBtnClicked(self):
         hostPc = self.getHostPCFromBtnName(self.sender())
@@ -126,9 +126,9 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         for hostPc in self.hostPcs:
             self.hostPcRows[hostPc['IP']].checkBox.setText(hostPc['IP'])
             self.hostPcRows[hostPc['IP']].checkBox.setChecked(hostPc['checked'])
-            self.hostPcRows[hostPc['IP']].editButton.setText("edit")
-            self.hostPcRows[hostPc['IP']].showButton.setText("show")
-            self.hostPcRows[hostPc['IP']].delButton.setText("delete")
-        self.addHostPcBtn.setText("Add host pc")
+            self.hostPcRows[hostPc['IP']].editButton.setText("Edit")
+            self.hostPcRows[hostPc['IP']].showButton.setText("Show")
+            self.hostPcRows[hostPc['IP']].delButton.setText("Delete")
+        self.addHostPcBtn.setText("Add Host Pc")
 
 

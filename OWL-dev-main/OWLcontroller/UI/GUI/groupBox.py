@@ -55,8 +55,8 @@ class groupBox(QtWidgets.QGroupBox):
             clickedCheckBox.setChecked(True)
 
     def displaySwitchGroupWarningPopUp(self):
-        return GUIUtills.PopUpWarning("are you sure you want to switch group?\n "
-                       "switching well delete all tests configured for current host Pc")
+        return GUIUtills.PopUpWarning("Are you sure you want to switch group?\n "
+                       "switching will delete all tests configured for current host Pc")
 
     def cahngeSelected(self,groupName):
         for checkBox in self.groupCheckBoxArr.values():

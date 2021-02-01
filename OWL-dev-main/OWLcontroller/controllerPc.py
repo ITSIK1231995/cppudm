@@ -2,6 +2,7 @@ import configparser
 import datetime
 import json
 import logging
+import time
 import traceback
 
 from PyQt5.uic.properties import QtWidgets
@@ -65,7 +66,9 @@ class ControllerPc():
 
     def updateRunTimeState(self,hostPc,update):
         print (update)
-        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += update.strip() +"\n"
+        currTime = time.localtime()
+        current_time = time.strftime("%H:%M:%S", currTime)
+        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += current_time + " - INFO - " + update.strip() + "\n"
         self.updateguiTerminal(hostPc)
 
     def updateguiTerminal(self,hostPc):
@@ -73,7 +76,7 @@ class ControllerPc():
 
     def GUIInit(self):
         self.app = QtWidgets.QApplication.instance()
-        while self.app is None: # TODO : remove this dosnt do shit
+        while self.app is None: # TODO : remove this
             try:
                 self.app = QtWidgets.QApplication(sys.argv)
                 break
@@ -86,7 +89,6 @@ class ControllerPc():
         self.app.exec_()
 
 
-
     def startExecution(self):
         self.haltThreads = False
         self.dispatchThreads()
@@ -97,7 +99,6 @@ class ControllerPc():
         logging.info("stop pressed, halting threads")
         self.haltThreads = True
         print("stopping tests")
-
 
 
 

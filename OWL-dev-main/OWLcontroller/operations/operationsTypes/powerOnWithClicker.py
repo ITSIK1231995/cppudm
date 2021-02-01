@@ -15,19 +15,6 @@ class powerOnWithClicker(operation):
         ''' Returns operation's name '''
         return (type(self).__name__)
 
-    # @staticmethod
-    # def checkIfPcisOn(self,controllerPc,hostPc):
-    #     clientSocket = socket.socket()  # instantiate
-    #     port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-    #     try:
-    #         clientSocket.connect((hostPc["IP"], port))  # connect to the server
-    #     except socket.error as e:
-    #         print(e)
-    #         return False
-    #     return clientSocket
-
-
-    #TODO : add first line from matan script
     def runOp(self,controllerPc,hostPc,opParams):
 
         controllerPc.updateRunTimeState(hostPc,"\n Power on with clicker has started \n")

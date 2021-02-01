@@ -28,10 +28,10 @@ class AddAndEditHostPc(QDialog):
         mainLayout.addWidget(buttonBox)
         self.setLayout(mainLayout)
         if editMode:
-            self.setWindowTitle("edit HostPC")
+            self.setWindowTitle("Edit HostPC")
             self.fillWithData()
         else:
-            self.setWindowTitle("add HostPC")
+            self.setWindowTitle("Add HostPC")
 
 
     def createFormGroupBox(self):
@@ -42,11 +42,11 @@ class AddAndEditHostPc(QDialog):
             IPBox.setReadOnly(True)
         layout.addRow(QLabel("IP:"),IPBox)
         COMBox = QLineEdit()
-        layout.addRow(QLabel("clicker COM:"),COMBox)
+        layout.addRow(QLabel("Clicker COM:"),COMBox)
         chanelBox = QSpinBox()
-        layout.addRow(QLabel("clicker chanel:"),chanelBox)
+        layout.addRow(QLabel("Clicker chanel:"),chanelBox)
         stopOnFailure = QCheckBox()
-        layout.addRow(QLabel("stop on failure:"), stopOnFailure)
+        layout.addRow(QLabel("Stop on failure:"), stopOnFailure)
         self.formGroupBox.setLayout(layout)
         formObjectsNamedTuple = namedtuple('formObjects', ['IPBox', 'COMBox','chanelBox','stopOnFailure'])
         self.formObjects = formObjectsNamedTuple(IPBox, COMBox,chanelBox,stopOnFailure)
@@ -94,7 +94,7 @@ class AddAndEditHostPc(QDialog):
     def acceptAddMode(self):
         newHostPCIP = self.formObjects.IPBox.text()
         if not self.validIP(newHostPCIP):
-            GUIUtills.PopUpWarning("IP is not writen currectly")
+            GUIUtills.PopUpWarning("IP is not writen correctly")
         elif  self.IpExsists(newHostPCIP):
             GUIUtills.PopUpWarning("IP already exists")
         else:
