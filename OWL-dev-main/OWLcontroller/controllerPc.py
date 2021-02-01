@@ -2,7 +2,6 @@ import configparser
 import datetime
 import json
 import logging
-import time
 import traceback
 
 from PyQt5.uic.properties import QtWidgets
@@ -66,9 +65,7 @@ class ControllerPc():
 
     def updateRunTimeState(self,hostPc,update):
         print (update)
-        currTime = time.localtime()
-        current_time = time.strftime("%H:%M:%S", currTime)
-        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += current_time + " - INFO - " + update.strip() + "\n"
+        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += update.strip() + "\n"
         self.updateguiTerminal(hostPc)
 
     def updateguiTerminal(self,hostPc):
