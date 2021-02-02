@@ -10,6 +10,14 @@ class operationWithSocket(operation):
     def runOp(self,controllerPc,hostPc,opParams):
         pass
 
+    @staticmethod
+    def PCOnAfterTest():#well the pc be on after test finishes
+        pass
+
+    @staticmethod
+    def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
+        pass
+    
     def createCommunication(self,controllerPc,hostPc): #
         controllerPc.updateRunTimeState(hostPc, "\n create Communication (Socket) \n")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']  # socket server port number

@@ -8,10 +8,18 @@ import re
 class operation(object):
 
     def getKey(self):
-        pass\
+        pass
 
     @staticmethod
     def runOp(controllerPc,hostPc,opParams):
+        pass
+
+    @staticmethod
+    def PCOnAfterTest():#well the pc be on after test finishes
+        pass
+
+    @staticmethod
+    def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
         pass
 
 

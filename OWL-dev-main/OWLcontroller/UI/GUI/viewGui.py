@@ -178,10 +178,10 @@ class mainWindow(object):
         self.menubar.addAction(self.menuAbout.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
-        widget = QWidget(self.centralwidget)
-        widget.setGeometry(0,0,640,480)
-
+        # widget = QWidget(self.centralwidget)
+        # widget.setGeometry(0,0,640,480)
         #
+        # #
         # label = QLabel(widget)
         # pixmap = QPixmap('owl.jpeg')
         # label.setPixmap(pixmap)
@@ -189,9 +189,9 @@ class mainWindow(object):
         # # widget.setGeometry(QtCore.QRect(0, 0, 300, 300))
         # widget.resize(pixmap.width(),pixmap.height())
         # widget.show()
-        # # Optional, resize window to image size
-        # # self.resize(pixmap.width(), pixmap.height())
-        # # label.setText("aaaaaaaaaaaaaa")
+        # Optional, resize window to image size
+        # self.resize(pixmap.width(), pixmap.height())
+        # label.setText("aaaaaaaaaaaaaa")
 
 
         self.retranslateUi(skippedTestsNumber)

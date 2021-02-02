@@ -45,7 +45,7 @@ class Validator:
                 if not self.doesTestExsistInConf(savedTestName,hostPc['groupName']):
                     outputText += "saved test name "+savedTestName+", for host "+hostPc["IP"]+\
                                   " was not found in the configuration files\n"
-                    savedTestObj["checked"] = False
+                    savedTestObj["checked"] = False #todo: delete the test isnted of disabling
 
         if outputText != "":
             logging.info("Validator detected issues in saved hostPc Tests")
