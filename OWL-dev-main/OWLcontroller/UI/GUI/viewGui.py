@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
     QPlainTextEdit, QMenu, QAction)
 
 from collections import OrderedDict
+from PyQt5.QtGui import QIcon, QPixmap
 
 class mainWindow(object):
     def setupUi(self, skippedTestsNumber,controller):
@@ -154,7 +155,6 @@ class mainWindow(object):
         self.actionPreferences = QtWidgets.QAction(skippedTestsNumber)
         self.actionPreferences.triggered.connect(self.runPreferencesEditor)
         self.actionPreferences.setObjectName("actionPreferences")
-        self.actionPreferences.triggered.connect(self.actionPreferencesBtnClicked)
 
 
         self.actionLegacy_Mode_Host_PC = QtWidgets.QAction(skippedTestsNumber)
@@ -178,13 +178,33 @@ class mainWindow(object):
         self.menubar.addAction(self.menuAbout.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
+        widget = QWidget(self.centralwidget)
+        widget.setGeometry(0,0,640,480)
+
+        #
+        # label = QLabel(widget)
+        # pixmap = QPixmap('owl.jpeg')
+        # label.setPixmap(pixmap)
+        # # label.setGeometry(QtCore.QRect(400, 40, 200, 20))
+        # # widget.setGeometry(QtCore.QRect(0, 0, 300, 300))
+        # widget.resize(pixmap.width(),pixmap.height())
+        # widget.show()
+        # # Optional, resize window to image size
+        # # self.resize(pixmap.width(), pixmap.height())
+        # # label.setText("aaaaaaaaaaaaaa")
+
+
         self.retranslateUi(skippedTestsNumber)
         # self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(skippedTestsNumber)
+        self.displayPreRunValidationErorrs()
 
-    def actionPreferencesBtnClicked(self):
-        print ("prefences click")
 
+
+    def displayPreRunValidationErorrs(self):
+        if len(self.controller.preRunValidationErorrs) != 0:
+            for erorrMsg in self.controller.preRunValidationErorrs:
+                GUIUtills.PopUpWarning(erorrMsg)
 
     def loadConfBtnClicked(self):
         print("load")

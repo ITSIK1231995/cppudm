@@ -24,7 +24,6 @@ class ControllerPc():
         self.runtimeHostPcsData = {}
         self.preRunValidationErorrs = []
         validator = Validator(self)
-        validator.validateflowOps()
         self.haltThreads = False
         logging.info("initiating gui")
         self.GUIInit()
@@ -37,7 +36,6 @@ class ControllerPc():
         self.runtimeHostPcsData = {}
         self.preRunValidationErorrs = []
         validator = Validator(self)
-        validator.validateflowOps()
         self.haltThreads = False
         logging.info("initiating gui")
         self.GUIInit()

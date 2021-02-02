@@ -1,9 +1,12 @@
 from operations.allOperations import allOperations
 from collections import namedtuple
+import logging
 
 class Validator:
     def __init__(self,controller):
         self.controller = controller
+        self.validateflowOps()
+        self.validateAndFixHostPcSavedTestData()
 
     def getOprationObject(self,operation):
         opraion = namedtuple('opraion', ['name', 'opraionObj'])
@@ -26,5 +29,27 @@ class Validator:
                                      "\nthe opration "+leadingOp.name+" can not be followed by "+tralingOp.name+"\n"
 
         if outputText != "":
+            logging.info("Validator detected issues in flow operations")
             self.controller.preRunValidationErorrs.append("system detected issues with the flowing the flow operations\n\n" + outputText+
                                                           "\n it is recomanded to go over the test flows and fix the issues, otherwise this might result in unexpected behaviour")
+
+    def doesTestExsistInConf(self,testName,groupName):
+        for testFromConf in self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups[groupName]:
+            if testName == testFromConf.testname:
+                return True
+        return False
+    def validateAndFixHostPcSavedTestData(self):
+        outputText = ""
+        for hostPc in self.controller.configs.defaultConfContent["hostPCs"]:
+            for savedTestName,savedTestObj in hostPc["tests"].items():
+                if not self.doesTestExsistInConf(savedTestName,hostPc['groupName']):
+                    outputText += "saved test name "+savedTestName+", for host "+hostPc["IP"]+\
+                                  " was not found in the configuration files\n"
+                    savedTestObj["checked"] = False
+
+        if outputText != "":
+            logging.info("Validator detected issues in saved hostPc Tests")
+            self.controller.preRunValidationErorrs.append("system detected issues with the flowing saved tests\n\n" + outputText+
+                                                          "\nsystem had unchecked this tests in memory and they wont be displayed in order to prevent unexpected behaviour\n"
+                                                          "if you wish to run the system with this tests\n"
+                                                          "add the missing tests in the appropriate configuration files before starting the system again")
