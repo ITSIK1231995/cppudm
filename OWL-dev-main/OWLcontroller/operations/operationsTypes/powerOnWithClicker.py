@@ -26,6 +26,13 @@ class powerOnWithClicker(operation):
     #         return False
     #     return clientSocket
 
+    @staticmethod
+    def PCOnAfterTest():#well the pc be on after test finishes
+        return True
+
+    @staticmethod
+    def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
+        return False
 
     #TODO : add first line from matan script
     def runOp(self,controllerPc,hostPc,opParams):

@@ -13,6 +13,7 @@ import _thread
 from datetime import datetime
 from UI.GUI.viewGui import mainWindow
 from datetime import date
+from validator import *
 
 class ControllerPc():
 
@@ -21,15 +22,22 @@ class ControllerPc():
         logging.info("parsing configs")
         self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
+        self.preRunValidationErorrs = []
+        validator = Validator(self)
+        validator.validateflowOps()
         self.haltThreads = False
         logging.info("initiating gui")
         self.GUIInit()
+
 
     def reload(self,conf):
         logging.info("parsing reloading")
         logging.info("parsing configs")
         self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
+        self.preRunValidationErorrs = []
+        validator = Validator(self)
+        validator.validateflowOps()
         self.haltThreads = False
         logging.info("initiating gui")
         self.GUIInit()

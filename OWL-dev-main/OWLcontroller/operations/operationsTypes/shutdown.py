@@ -16,7 +16,13 @@ class shutdown(operationWithSocket):
     def getKey(self):
         pass
 
+    @staticmethod
+    def PCOnAfterTest():#well the pc be on after test finishes
+        return False
 
+    @staticmethod
+    def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
+        return True
 
 
     def runOp(self,controllerPc,hostPc,opParams):

@@ -1,11 +1,12 @@
 {
 		"operationsList":
 			[
-				"sleep",
+
 			{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]
-			}
+			},
+				"sleep"
 			]
 
 }
