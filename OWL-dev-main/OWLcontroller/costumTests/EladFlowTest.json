@@ -4,8 +4,8 @@
 				"sleep",
 				"turnOnWithLan",
 			{
-				"name" : "runCommandViaCmd",
-				"params" : ["ipconfig"]
+				"name" : "runDM",
+				"params" : ["\\DM_scripts\\L1.2_Entry_Exit_PS4_Calypso.srt"]
 			}
 			]
 

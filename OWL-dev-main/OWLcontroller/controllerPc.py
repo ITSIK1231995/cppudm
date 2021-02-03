@@ -2,6 +2,7 @@ import configparser
 import datetime
 import json
 import logging
+import time
 import traceback
 
 from PyQt5.uic.properties import QtWidgets
@@ -13,7 +14,7 @@ import _thread
 from datetime import datetime
 from UI.GUI.viewGui import mainWindow
 from datetime import date
-
+from datetime import datetime
 class ControllerPc():
 
     def __init__(self,conf='defaultConfiguration.json'):
@@ -64,8 +65,10 @@ class ControllerPc():
             print(json_dumps_str, file=fout)
 
     def updateRunTimeState(self,hostPc,update):
-        print (update)
-        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += update.strip() + "\n"
+        current_datetime = str(datetime.fromtimestamp(time.time()))
+        ternimalAddition = " -INFO- " + current_datetime + " " + update.strip() + "\n"
+        print (ternimalAddition)
+        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += ternimalAddition
         self.updateguiTerminal(hostPc)
 
     def updateguiTerminal(self,hostPc):

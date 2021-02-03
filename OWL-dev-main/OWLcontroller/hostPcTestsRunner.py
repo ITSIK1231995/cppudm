@@ -32,14 +32,14 @@ class hostPcTestsRunner():
             numOfPass = 0
             numOfFails = 0
             for x in range(self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests acurding to repeatAmount
-                self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has started !!! \n")
+                self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has started ")
                 testResult = self.runSequanceOfOperations(test, self.controllerPc)
                 if (testResult):
                     numOfPass += 1
-                    self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Passed !!! \n")
+                    self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Passed")
                 else:
                     numOfFails += 1
-                    self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Failed !!! \n")
+                    self.controllerPc.updateRunTimeState(self.hostPc, "\n" + test.testname + " Has Failed")
                 self.controllerPc.updateTestStatusInRunTime(self.hostPc, test, " Passed: " + str(numOfPass) + " Failed: " + str(numOfFails))
 
                 if self.controllerPc.haltThreads:

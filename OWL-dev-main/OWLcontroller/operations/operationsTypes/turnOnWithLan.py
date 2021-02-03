@@ -36,7 +36,7 @@ class turnOnWithLan(operation):
         macAdress = turnOnWithLan.fetchMacAddress(hostPc["IP"])
                 # wake on lan
         send_magic_packet(macAdress,ip_address=hostPc["IP"],port= controllerPc.configs.defaultConfContent['hostPcServerPort'])
-        controllerPc.updateRunTimeState(hostPc, "\n Wake on lan has been sent, pinging the host for checking if it's on... ")
+        controllerPc.updateRunTimeState(hostPc, "\n Wake on lan has been sent, pinging the host for checking if it's on")
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
         if hostPcIsOn:
             controllerPc.updateRunTimeState(hostPc,"\nWake on lun succeed and the PC is ON")

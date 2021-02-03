@@ -17,8 +17,8 @@ class powerOnWithClicker(operation):
 
     def runOp(self,controllerPc,hostPc,opParams):
 
-        controllerPc.updateRunTimeState(hostPc,"\n Power on with clicker has started \n")
-        controllerPc.updateRunTimeState(hostPc, "\nActivate Clicker\n" )
+        controllerPc.updateRunTimeState(hostPc,"\n Power on with clicker has started")
+        controllerPc.updateRunTimeState(hostPc, "\nActivate Clicker" )
 
         hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc)
         if hostPcIsOFf:
@@ -34,11 +34,11 @@ class powerOnWithClicker(operation):
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
 
         if hostPcIsOn:
-            controllerPc.updateRunTimeState(hostPc, "\n Host Pc is On\n power On With Clicker done successfully ! ")
+            controllerPc.updateRunTimeState(hostPc, "\n Host Pc is On\n power On With Clicker done successfully")
         else:
-            controllerPc.updateRunTimeState(hostPc, "\n Host Pc is Off\n power On With Clicker Failed ! ")
+            controllerPc.updateRunTimeState(hostPc, "\n Host Pc is Off\n power On With Clicker Failed")
 
-        controllerPc.updateRunTimeState(hostPc, "\n Power on with clicker has ended \n")
+        controllerPc.updateRunTimeState(hostPc, "\n Power on with clicker has ended")
         return hostPcIsOn # if the host is up the clicker done well, and should return True
 
 

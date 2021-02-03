@@ -15,7 +15,7 @@ class sleep(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,opParams):
-        print("\n sleep command has started \n ")
+        controllerPc.updateRunTimeState(hostPc, "\n sleep command has started")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         socket = operationWithSocket.createCommunication(self,controllerPc,hostPc)
         if not socket:
@@ -25,5 +25,5 @@ class sleep(operationWithSocket):
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
         hostPcIsOff = operation.waitForPcToTurnOff(self, controllerPc, hostPc) # Verify the host is down
-        print("\n sleep command has ended \n ")
+        controllerPc.updateRunTimeState(hostPc, "\n sleep command has ended")
         return hostPcIsOff
