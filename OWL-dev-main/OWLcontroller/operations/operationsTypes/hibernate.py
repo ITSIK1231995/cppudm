@@ -14,8 +14,17 @@ class hibernate(operationWithSocket):
         pass
 
 
-    def runOp(self,controllerPc,hostPc,testLog,opParams):
+    @staticmethod
+    def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
+        return True
+
+    @staticmethod
+    def PCOnAfterTest():#well the pc be on after test finishes
+        return False
+
+
         controllerPc.updateRunTimeState(hostPc,testLog, " \n hibernate operation has started \n ")
+    def runOp(self,controllerPc,hostPc,testLog,opParams):
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         socket = operationWithSocket.createCommunication(self,controllerPc,hostPc,testLog)
         if not socket:

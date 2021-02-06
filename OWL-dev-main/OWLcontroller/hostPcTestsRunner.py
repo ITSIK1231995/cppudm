@@ -83,6 +83,7 @@ class hostPcTestsRunner():
 
         self.printToLog("finished running tests")
 
+    #TODO: change implementation to somthing like in the validator : validateflowOps ( use getOprationObject )
     def runSequanceOfOperations(self, test, controllPc, testLog):
         mappedOperations = allOperations()
         for operation in test.flowoperations:

@@ -15,8 +15,15 @@ class powerOnWithClicker(operation):
         ''' Returns operation's name '''
         return (type(self).__name__)
 
-    def runOp(self,controllerPc,hostPc,testLog,opParams):
+    @staticmethod
+    def PCOnAfterTest():#well the pc be on after test finishes
+        return True
 
+    @staticmethod
+    def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
+        return False
+
+    def runOp(self,controllerPc,hostPc,testLog,opParams):
         controllerPc.updateRunTimeState(hostPc,testLog,"\n Power on with clicker has started")
         controllerPc.updateRunTimeState(hostPc,testLog, "\nActivate Clicker" )
 

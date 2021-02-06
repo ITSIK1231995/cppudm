@@ -18,6 +18,8 @@ from UI.GUI.viewGui import mainWindow
 from datetime import date
 from datetime import datetime
 import datetime
+from validator import *
+
 class ControllerPc():
 
     def __init__(self,conf='defaultConfiguration.json'):
@@ -25,19 +27,23 @@ class ControllerPc():
         logging.info("parsing configs")
         self.configs = confParser().parseAll(loadConf=conf)
         self.runtimeHostPcsData = {}
+        self.preRunValidationErorrs = []
+        validator = Validator(self)
         self.haltThreads = False
         logging.info("initiating gui")
         self.GUIInit()
 
+
     def reload(self,conf):
-        if conf is not "":
-            logging.info("parsing reloading")
-            logging.info("parsing configs")
-            self.configs = confParser().parseAll(loadConf=conf)
-            self.runtimeHostPcsData = {}
-            self.haltThreads = False
-            logging.info("initiating gui")
-            self.GUIInit()
+        logging.info("parsing reloading")
+        logging.info("parsing configs")
+        self.configs = confParser().parseAll(loadConf=conf)
+        self.runtimeHostPcsData = {}
+        self.preRunValidationErorrs = []
+        validator = Validator(self)
+        self.haltThreads = False
+        logging.info("initiating gui")
+        self.GUIInit()
 
 
     def threadMain(self,hostPc):
