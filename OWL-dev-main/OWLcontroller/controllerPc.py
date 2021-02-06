@@ -2,8 +2,10 @@ import configparser
 import datetime
 import json
 import logging
+import os
 import time
 import traceback
+from pathlib import Path
 
 from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
@@ -15,6 +17,7 @@ from datetime import datetime
 from UI.GUI.viewGui import mainWindow
 from datetime import date
 from datetime import datetime
+import datetime
 class ControllerPc():
 
     def __init__(self,conf='defaultConfiguration.json'):
@@ -56,20 +59,40 @@ class ControllerPc():
 
     def savedDefaultConfContentIntoJson(self):
         logging.info("saving new Default Conf Content")
-        now = datetime.now()
-        currTime = now.strftime("%H:%M:%S")
-        currTime = currTime.replace(":","_")
+        currTime = self.getCurrentTime()
         defaultConfName = 'defaultConfiguration_New_' + currTime + ".json"
         with open(defaultConfName, 'w+') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
             print(json_dumps_str, file=fout)
 
-    def updateRunTimeState(self,hostPc,update):
-        current_datetime = str(datetime.fromtimestamp(time.time()))
-        ternimalAddition = " -INFO- " + current_datetime + " " + update.strip() + "\n"
+    def updateRunTimeState(self,hostPc,testLog,update):
+        current_datetime = self.getCurrentTime()
+        ternimalAddition = current_datetime + " " + update.strip() + "\n"
         print (ternimalAddition)
         self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += ternimalAddition
         self.updateguiTerminal(hostPc)
+        testLog.write(ternimalAddition)
+        testLog.flush()
+    # def updateLogs(self,hostPc, update):
+    #     for key in self.runtimeHostPcsData[hostPc["IP"]]:
+    #         if self.runtimeHostPcsData[hostPc["IP"]][key] == 'Running':
+    #             logPath = self.configs.defaultConfContent["resultPath"] + "\\" + key.results[:-1]
+    #             if not os.path.exists(logPath + "\\" + key.testname + "_" + self.getCurrentTime() + "\\" + "terminal.log"):
+    #                 os.makedirs(logPath + "\\" + key.testname + "_" + self.getCurrentTime())
+    #                 file_object = open(logPath + "\\" + key.testname + "_" + self.getCurrentTime() + "\\" + "terminal.log", "w")
+    #                 file_object.close()
+    #             else:
+    #                 file_object = open(logPath + "\\" + key.testname + "_" + self.getCurrentTime() + "\\" + "terminal.log", "a")
+    #                 file_object.write(update)
+    #                 file_object.close()
+
+
+    def getCurrentTime(self):
+        now = datetime.datetime.now()
+        return str(now.strftime("%Y-%m-%d %H:%M:%S").replace("-","_").replace(":","_"))
+
+
+
 
     def updateguiTerminal(self,hostPc):
         self.view.updateCurrentTernimal(hostPc)

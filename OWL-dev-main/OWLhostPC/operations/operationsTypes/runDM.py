@@ -6,7 +6,7 @@ import logging
 
 CMD_COMMAND = 'cmd /k '
 DM_SCRIPT_NAME = 'L1.2_Entry_Exit_PS4_Calypso.srt'
-DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC\DM_scripts\\'
+DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC'
 EXECUTE_DM = r'DriveMaster.exe /s:'
 LOG_PATH = ' /1:log.txt /e'
 RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
@@ -15,8 +15,8 @@ class runDM():
 
     @staticmethod
     def runOp(hostPcServerRef,socket,userPath):
-        #os.system(CMD_COMMAND + RUN_DM)
-        runDMCmd = EXECUTE_DM + userPath + LOG_PATH
+        path = os.getcwd()
+        runDMCmd = EXECUTE_DM + path + userPath + LOG_PATH
         command = runDMCmd
         run = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stdin=None, stderr=subprocess.PIPE,
                                env=os.environ, universal_newlines=True)
@@ -43,4 +43,3 @@ class runDM():
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
         return False
-

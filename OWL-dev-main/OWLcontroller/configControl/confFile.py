@@ -35,6 +35,7 @@ class testConfLegacySequenceFlow(confFile):
         else:
             super.__setattr__(self, key, value)
 
+    results = ""
     sequancefile = ''
     flowoperations = []
 

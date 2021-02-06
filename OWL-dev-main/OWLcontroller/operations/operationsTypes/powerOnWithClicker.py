@@ -15,12 +15,12 @@ class powerOnWithClicker(operation):
         ''' Returns operation's name '''
         return (type(self).__name__)
 
-    def runOp(self,controllerPc,hostPc,opParams):
+    def runOp(self,controllerPc,hostPc,testLog,opParams):
 
-        controllerPc.updateRunTimeState(hostPc,"\n Power on with clicker has started")
-        controllerPc.updateRunTimeState(hostPc, "\nActivate Clicker" )
+        controllerPc.updateRunTimeState(hostPc,testLog,"\n Power on with clicker has started")
+        controllerPc.updateRunTimeState(hostPc,testLog, "\nActivate Clicker" )
 
-        hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc)
+        hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc,testLog)
         if hostPcIsOFf:
             os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
             os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
@@ -31,14 +31,14 @@ class powerOnWithClicker(operation):
         else:
             return False
         # check if the host is on
-        hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc)
+        hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc,testLog)
 
         if hostPcIsOn:
-            controllerPc.updateRunTimeState(hostPc, "\n Host Pc is On\n power On With Clicker done successfully")
+            controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is On\n power On With Clicker done successfully")
         else:
-            controllerPc.updateRunTimeState(hostPc, "\n Host Pc is Off\n power On With Clicker Failed")
+            controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is Off\n power On With Clicker Failed")
 
-        controllerPc.updateRunTimeState(hostPc, "\n Power on with clicker has ended")
+        controllerPc.updateRunTimeState(hostPc,testLog, "\n Power on with clicker has ended")
         return hostPcIsOn # if the host is up the clicker done well, and should return True
 
 

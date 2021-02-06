@@ -10,7 +10,7 @@
 			
 						
 		"defaultExecutionMode" : "Errinj Mode",
-		"resultPath" : "PATH",
+		"resultPath" : "results",
 		"legacyModePath" : "legacyModeConfigFiles\\testsByGroups",
 		"errinjModePath" : "errinjModeConfigFiles\\experiment",
 		"analyzerMinVersion" : "VERSION",
@@ -24,6 +24,7 @@
                                 "COM" :  "COM6",
                                 "chanel" :  1
                             },
+
 							"tests" :	{
 								"hermes - power on ready": {"repeatAmount" : 88,"checked" : false},
 								"hermes - power on ready 0": {"repeatAmount" :5,"checked" : false},
