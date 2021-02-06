@@ -95,7 +95,6 @@ class confParserLM():
         testConfiguration.flowoperations = []
         for operation in sequenceFile['operationsList']:
             testConfiguration.flowoperations.append(operation)
-        # print(testConfiguration.flowoperations)
         return testConfiguration
 
     def addingParamsToConf(self, sectionParams,testConf,sectionName):
@@ -107,10 +106,6 @@ class confParserLM():
         groupName = self.getGroupOfSection(sectionName)
         legacyFlowOperationsTestsByGroups = self.insertGroupTotestsByGroup(groupName, legacyFlowOperationsTestsByGroups)
         legacyFlowOperationsTestsByGroups[groupName].append(testConf)
-        # legacyFlowOperationTestsByStatus[testConf.testname] = testConf
-        # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!got into seuance stracture')
-
-
 
     def parseLMConf(self):
         ''' parsing Legacy mode config files '''
@@ -139,18 +134,5 @@ class confParserLM():
         return parseResults(legacyTestsByGroup, legacyFlowOperationsTestsByGroups)  # return the namedTuple contains both results dicts
 
 
-if __name__ == '__main__':
-    # Tester for pharsing Legacy Config
 
-    dictsfromparsing = confParserLM(0).parseLMConf()
-
-    print ('test')
-    print('testsByGroupLegacyFlowOperations', dictsfromparsing.legacyFlowOperationsTestsByGroups)
-    # print('testStatusLegacyFlowOperations', dictsfromparsing.legacyFlowOperationTestsByStatus)
-    # print('testsByGroupLegacy', dictsfromparsing.legacyTestsByGroup)
-    # print('testStatusLegacy', dictsfromparsing.legacyTestsByStatus)
-
-
-    # # Tester for default config parsing
-    confParserLM(0).parseDefaultConf()
 

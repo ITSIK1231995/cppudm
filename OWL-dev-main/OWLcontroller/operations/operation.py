@@ -11,14 +11,14 @@ class operation(object):
         pass\
 
     @staticmethod
-    def runOp(controllerPc,hostPc,opParams):
+    def runOp(controllerPc,hostPc,testLog,opParams):
         pass
 
 
     #todo: if expacting pc to turnOff - test conection untill pc is off or threashhold exceded then return true
     #todo: if expacting pc to turnOn - test conection untill pc is ON or threashhold exceded then return true
-    def waitForPcToTurnOn(self,controllerPc,hostPc): # when PC is ON output is True
-        controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's On  \n ")
+    def waitForPcToTurnOn(self,controllerPc,hostPc,testLog): # when PC is ON output is True
+        controllerPc.updateRunTimeState(hostPc,testLog, " \n Pinging Host until it's On  \n ")
         clientSocket = socket.socket()
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
@@ -27,10 +27,10 @@ class operation(object):
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
                 clientSocket.close()
-                controllerPc.updateRunTimeState(hostPc,"\nwaitForPcToTurnOn - PC is ON")
+                controllerPc.updateRunTimeState(hostPc,testLog,"\nwaitForPcToTurnOn - PC is ON")
                 return True
             except socket.error as e:
-                controllerPc.updateRunTimeState(hostPc,"\nwaitForPcToTurnOn - PC is OFF atempt "+ str(i))
+                controllerPc.updateRunTimeState(hostPc,testLog,"\nwaitForPcToTurnOn - PC is OFF atempt "+ str(i))
                 pass
         return False
 
@@ -50,7 +50,7 @@ class operation(object):
     #             return True
     #     return False
 
-    def waitForPcToTurnOff(self,controllerPc,hostPc):
+    def waitForPcToTurnOff(self,controllerPc,hostPc,testLog):
         attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
         for i in range(attempsToConnectSocket):
             # response = os.system("ping -n 4 " + hostPc["IP"])
@@ -61,9 +61,9 @@ class operation(object):
                     len(re.findall("timed out", response)) == 4:
             # if "unreachable" in response or "timed out" in response:
                 time.sleep(5)
-                controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is OFF")
+                controllerPc.updateRunTimeState(hostPc,testLog, "\nwaitForPcToTurnOff - PC is OFF")
                 return True
-            controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
+            controllerPc.updateRunTimeState(hostPc,testLog, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
         return False
 
 

@@ -7,11 +7,11 @@ class operationWithSocket(operation):
         pass
 
 
-    def runOp(self,controllerPc,hostPc,opParams):
+    def runOp(self,controllerPc,hostPc,testLog,opParams):
         pass
 
-    def createCommunication(self,controllerPc,hostPc): #
-        controllerPc.updateRunTimeState(hostPc, "\n create Communication (Socket) \n")
+    def createCommunication(self,controllerPc,hostPc, testLog): #
+        controllerPc.updateRunTimeState(hostPc,testLog, "\n create Communication")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']  # socket server port number
         clientSocket = socket.socket()  # instantiate
         try:
