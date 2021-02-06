@@ -10,7 +10,7 @@
 			
 						
 		"defaultExecutionMode" : "Errinj Mode",
-		"resultPath" : "C:\\cppudm\\OWL-dev-main\\OWLcontroller\\results",
+		"resultPath" : "results",
 		"legacyModePath" : "legacyModeConfigFiles\\testsByGroups",
 		"errinjModePath" : "errinjModeConfigFiles\\experiment",
 		"analyzerMinVersion" : "VERSION",
