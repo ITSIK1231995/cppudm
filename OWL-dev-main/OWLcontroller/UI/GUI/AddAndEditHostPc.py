@@ -47,9 +47,13 @@ class AddAndEditHostPc(QDialog):
         layout.addRow(QLabel("clicker chanel:"),chanelBox)
         stopOnFailure = QCheckBox()
         layout.addRow(QLabel("stop on failure:"), stopOnFailure)
+        postPingWaitTimeBox = QSpinBox()
+        layout.addRow(QLabel("post ping waiting time:"), postPingWaitTimeBox)
         self.formGroupBox.setLayout(layout)
-        formObjectsNamedTuple = namedtuple('formObjects', ['IPBox', 'COMBox','chanelBox','stopOnFailure'])
-        self.formObjects = formObjectsNamedTuple(IPBox, COMBox,chanelBox,stopOnFailure)
+
+
+        formObjectsNamedTuple = namedtuple('formObjects', ['IPBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
+        self.formObjects = formObjectsNamedTuple(IPBox, COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
 
 
     def fillWithData(self):
@@ -60,6 +64,9 @@ class AddAndEditHostPc(QDialog):
                 self.formObjects.COMBox.setText(self.hostPc["clicker"]["COM"])
             if "chanel" in self.hostPc["clicker"]:
                 self.formObjects.chanelBox.setValue(int(self.hostPc["clicker"]["chanel"]))
+
+        if "postPingWaitingTime" in self.hostPc.keys():
+            self.formObjects.postPingWaitTimeBox.setValue(int(self.hostPc["postPingWaitingTime"]))
 
         self.formObjects.stopOnFailure.setChecked(self.hostPc["stopOnFailure"])
 
@@ -89,6 +96,8 @@ class AddAndEditHostPc(QDialog):
                 "chanel": self.formObjects.stopOnFailure.isChecked()
             }
         self.hostPc["stopOnFailure"] = self.formObjects.stopOnFailure.isChecked()
+        self.hostPc["postPingWaitingTime"] = self.formObjects.postPingWaitTimeBox.value()
+
         self.close()
 
     def acceptAddMode(self):
@@ -103,7 +112,8 @@ class AddAndEditHostPc(QDialog):
                 "stopOnFailure": self.formObjects.stopOnFailure.isChecked(),
                 "checked" : False,
                 "groupName": list(self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.keys())[0], # defult is the first group
-                "tests" : {}
+                "tests" : {},
+                "postPingWaitingTime" : self.formObjects.postPingWaitTimeBox.value()
             }
             if self.formObjects.COMBox.text() != "":
                 newHostPc["clicker"] = {
