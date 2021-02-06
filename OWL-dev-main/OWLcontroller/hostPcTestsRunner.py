@@ -59,13 +59,14 @@ class hostPcTestsRunner():
 
         self.printToLog("finished running tests")
 
+    #TODO: change implementation to somthing like in the validator : validateflowOps ( use getOprationObject )
     def runSequanceOfOperations(self, test, controllPc):
         mappedOperations = allOperations()
         for operation in test.flowoperations:
             if isinstance(operation, dict):
                 self.printToLog("starting Operations= " + operation['name'])
                 operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self,self.controllerPc,self.hostPc,operation['params'])
-                if operationOutPut == False:
+                if operationOutPut == False: # TODO : change to not operationOutPut
                     self.controllerPc.updateRunTimeState(self.hostPc,(operation['name'] + " op failed"))
                     self.printToLog("finished Operations= " + operation['name'] + ", op failed")
                     return False
@@ -76,7 +77,7 @@ class hostPcTestsRunner():
                 self.printToLog("starting Operations= " + operation)
                 operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self, self.controllerPc,
                                                                                              self.hostPc, [])
-                if operationOutPut == False:
+                if operationOutPut == False:# TODO : change to not operationOutPut
                     self.controllerPc.updateRunTimeState(self.hostPc, (operation + " op failed"))
                     print(operation + " op failed")
                     self.printToLog("finished Operations= " + operation + ", op failed")

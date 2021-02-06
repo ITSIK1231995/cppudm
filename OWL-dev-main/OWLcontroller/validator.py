@@ -39,17 +39,22 @@ class Validator:
                 return True
         return False
     def validateAndFixHostPcSavedTestData(self):
+        itemToRemove = namedtuple('opraion', ['name', 'sourceDict'])
+        itemsToRemove = []
         outputText = ""
         for hostPc in self.controller.configs.defaultConfContent["hostPCs"]:
             for savedTestName,savedTestObj in hostPc["tests"].items():
                 if not self.doesTestExsistInConf(savedTestName,hostPc['groupName']):
                     outputText += "saved test name "+savedTestName+", for host "+hostPc["IP"]+\
                                   " was not found in the configuration files\n"
-                    savedTestObj["checked"] = False #todo: delete the test isnted of disabling
+                    itemsToRemove.append(itemToRemove(savedTestName,hostPc["tests"]))
+
 
         if outputText != "":
             logging.info("Validator detected issues in saved hostPc Tests")
             self.controller.preRunValidationErorrs.append("system detected issues with the flowing saved tests\n\n" + outputText+
-                                                          "\nsystem had unchecked this tests in memory and they wont be displayed in order to prevent unexpected behaviour\n"
+                                                          "\nsystem had removed this tests in memory in order to prevent unexpected behaviour\n"
                                                           "if you wish to run the system with this tests\n"
-                                                          "add the missing tests in the appropriate configuration files before starting the system again")
+                                                          "exit without saving and add the missing tests in the appropriate configuration files before starting the system again")
+        for itemToRemove in itemsToRemove:
+            del itemToRemove.sourceDict[itemToRemove.name]
