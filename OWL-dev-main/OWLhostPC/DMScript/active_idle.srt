@@ -1,0 +1,40 @@
+// ##########################################################################
+// #   Copyright (c) 2019, Western Digital									#	
+// #   File: Active_Idle.srt	         									#
+// #   Description: DriveMaster script for Active/Idle Entry Exit Latency	#
+// # 	Author: Matan Raveh <matan.raveh@wdc.com>							#
+// ##########################################################################
+
+
+call "Sub\FormatNVM.srt"
+
+// Disable APST
+NVM_CMD_NSID = 0
+NVM_SETF_AUTOPWRT 0
+
+// Device should go into Active/Idle now
+// wake command
+wait 1000
+nvm_cmd_nsid=1
+nvm_rd 0,7
+
+// performing long write command // 100 x 4K Random
+logoff;
+echo off;
+turbo on;
+fullspeed on;
+nvm_cmd_nsid=1
+REP 100(NVM_WRITE rand%totallba, 7)
+log2;
+echo on;
+turbo off;
+fullspeed off;
+
+// Device should go into Active/Idle now
+
+// last wake command
+wait 2000
+nvm_cmd_nsid=1
+nvm_rd 0,7
+
+

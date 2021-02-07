@@ -1,0 +1,7 @@
+
+// perform Secure erase
+wait 2000
+CMDTO = 300 // Set command timeout to 5 minutes
+NVM_CMD_NSID = 1
+NVM_FMT_NVM 1,0,0,0,0
+CMDTO = 8 // Set command timeout to 8 seconds (default)

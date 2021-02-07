@@ -65,7 +65,7 @@ class ControllerPc():
 
     def savedDefaultConfContentIntoJson(self):
         logging.info("saving new Default Conf Content")
-        currTime = self.getCurrentTime()
+        currTime = self.getCurrentTimeFile()
         defaultConfName = 'defaultConfiguration_New_' + currTime + ".json"
         with open(defaultConfName, 'w+') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
@@ -73,7 +73,7 @@ class ControllerPc():
 
     def updateRunTimeState(self,hostPc,testLog,update):
         current_datetime = self.getCurrentTime()
-        ternimalAddition = current_datetime + " " + update.strip() + "\n"
+        ternimalAddition = current_datetime + "    " + update.strip() + "\n"
         print (ternimalAddition)
         self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += ternimalAddition
         self.updateguiTerminal(hostPc)
@@ -93,12 +93,13 @@ class ControllerPc():
     #                 file_object.close()
 
 
+    def getCurrentTimeFile(self):
+        return self.getCurrentTime().replace("-", "_").replace(":", "_")
+
+
     def getCurrentTime(self):
         now = datetime.datetime.now()
-        return str(now.strftime("%Y-%m-%d %H:%M:%S").replace("-","_").replace(":","_"))
-
-
-
+        return str(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     def updateguiTerminal(self,hostPc):
         self.view.updateCurrentTernimal(hostPc)

@@ -1,0 +1,116 @@
+//DIM StartLba;
+DIM L1PMSubCTRL1;
+DIM LTR_Latency_REG;
+
+include "Sub\LowPowerSub.inc"
+
+prns "==========================================================="
+devname;
+prns "==========================================================="
+
+// Get address for L1PMSubCTRL1 (capability 1E)
+id8 = 01Eh
+gosub GetCfgSpaceRegOffsetPCIe_EXTENDED
+L1PMSubCTRL1 = id9 + 8h // Target register +8h is the L1 PM CTRL1 register offset
+PRNF "\n L1PMSubCTRL1 register is %Xh\n", L1PMSubCTRL1
+
+//! Get address for LTR_Latency_REG (capability 18)
+id8 = 018h
+gosub GetCfgSpaceRegOffsetPCIe_EXTENDED
+LTR_Latency_REG = id9 + 4h // Target register +4h is the LTR Latency Register
+PRNF "\n LTR_Latency_REG register is %Xh\n", LTR_Latency_REG
+
+//! Power Cycle the DUT to remove security freeze lock
+call "Sub\Power_Cycle.srt"
+
+//! Precondition: Secure erase the DUT
+call "Sub\FormatNVM.srt"
+
+//! Precondition: Change Max no-snoop/snoop latency to max value to check L1/1.2 LTR
+InIchcs LTR_Latency_REG, v0
+PRNF "\n Current Max no-snoop/snoop latency register value: %8.8X \n", v0
+PRNF "\n Change Max no-snoop/snoop latency register to max value\n"
+v1 = v0 | 03FF03FFh
+OutIchCs LTR_Latency_REG, v1
+InIchcs LTR_Latency_REG, v0
+PRNF "\n New Max no-snoop/snoop latency register value: %8.8X \n", v0
+
+//! Getting information (IDFY and SMART) from the device
+NVM_CMD_NSID=0
+NVM_IDFY_CTRLR
+NVM_GETLOG_SMART
+//! Precondition: Disable APST if supported
+if (NVM_AUTO_PWTRANS==1)
+    // Clear buffer sent with set-features APST command
+    PATZ "writeA"
+    NVM_SETF_AUTOPWRT 0
+endif
+
+//! Precondition: Disable NOPPME
+NVM_SETF 11h, 0
+
+logoff;
+echo off;
+turbo on;
+fullspeed on;
+
+//! Precondition: Perform 10k random writes with transfer size 4k
+PATI "Write"
+NVM_CMD_NSID = 1
+// 10000 x 4K Random
+REP 10000(NVM_WRITE rand%totallba, 7)
+
+// 10000 x 128K Sequential
+//StartLba = 0;
+//REP 10000(NVM_WRITE StartLba, 255; StartLba+=256)
+
+log2;
+echo on;
+turbo off;
+fullspeed off;
+
+wait 1000
+//! Set the DUT Power state to PS4 to measure L1.2/PS4 entry latency
+NVM_CMD_NSID = 0
+NVM_SETF_PWRMGT 4
+PRNS "\n ============================="
+PRNF "\n PS4 Entry Time (L1.2) %dus", interval;
+PRNS "\n ============================="
+PRNF "\n"
+wait 1000
+//! Issue 4k Read to wake up the drive to measure L1.2/PS4 exit latency
+NVM_CMD_NSID = 1
+NVM_READ 0, 7; // Send a 4K READ
+PRNS "\n ============================="
+PRNF "\n PS4 Exit Time (L1.2) %dus", interval;
+PRNS "\n ============================="
+PRNF "\n"
+
+
+//! Disable L1.2 substate for L1 Entry/Exit latency and L1 LTR
+g99 = L1PMSubCTRL1
+call "Sub\disable_L1_PM_substates.srt"
+wait 1000
+//! Set the DUT Power state to PS4 to check L1 entry latency
+NVM_CMD_NSID = 0
+NVM_SETF_PWRMGT 4
+PRNS "\n ============================="
+PRNF "\n PS4 Entry Time (L1) %dus", interval;
+PRNS "\n ============================="
+PRNF "\n"
+wait 1000
+//! Issue 4k Read to wake up the drive to measure L1 exit latency
+NVM_CMD_NSID = 1
+NVM_READ 0, 7; // Send a 4K READ
+PRNS "\n ============================="
+PRNF "\n PS4 Exit Time (L1) %dus", interval;
+PRNS "\n ============================="
+PRNF "\n"
+
+//! Re-enable L1.2 substate
+g99 = L1PMSubCTRL1
+call "Sub\enable_L1_PM_substates.srt"
+wait 1000
+
+NVM_CMD_NSID = 0
+NVM_SETF_PWRMGT 0

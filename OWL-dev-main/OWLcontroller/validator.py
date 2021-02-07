@@ -53,9 +53,9 @@ class Validator:
 
         if outputText != "":
             logging.info("Validator detected issues in saved hostPc Tests")
-            self.controller.preRunValidationErorrs.append("system detected issues with the flowing saved tests\n\n" + outputText+
-                                                          "\nsystem had removed this tests in memory in order to prevent unexpected behaviour\n"
-                                                          "if you wish to run the system with this tests\n"
+            self.controller.preRunValidationErorrs.append("System detected issues with the flowing saved tests\n\n" + outputText+
+                                                          "\nSystem had removed this tests in memory in order to prevent unexpected behaviour\n"
+                                                          "If you wish to run the system with this tests\n"
                                                           "exit without saving and add the missing tests in the appropriate configuration files before starting the system again")
         for itemToRemove in itemsToRemove:
             del itemToRemove.sourceDict[itemToRemove.name]

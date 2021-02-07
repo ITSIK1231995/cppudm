@@ -48,7 +48,11 @@ class AddAndEditHostPc(QDialog):
         stopOnFailure = QCheckBox()
         layout.addRow(QLabel("stop on failure:"), stopOnFailure)
         postPingWaitTimeBox = QSpinBox()
-        layout.addRow(QLabel("post ping waiting time:"), postPingWaitTimeBox)
+        postPingWait = QLabel("post ping waiting time:")
+        postPingWait.setToolTip("In some hosts ping stops before the PC is off, this is the amount of time the controll PC will wait before sending the clicker command")
+        postPingWaitTimeBox.setMaximum(1000000)
+        postPingWaitTimeBox.setMinimum(0)
+        layout.addRow(postPingWait, postPingWaitTimeBox)
         self.formGroupBox.setLayout(layout)
 
 

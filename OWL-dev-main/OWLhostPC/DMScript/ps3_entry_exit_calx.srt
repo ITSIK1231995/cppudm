@@ -1,0 +1,119 @@
+//DIM StartLba;
+
+// Get address for L1PMSubCTRL1 (capability 1E)
+DIM L1PMSubCTRL1;
+include "Sub\LowPowerSub.inc"
+id8 = 01Eh
+gosub GetCfgSpaceRegOffsetPCIe_EXTENDED
+L1PMSubCTRL1 = id9 + 4h // Target register +4h is the L1 PM CTRL1 register offset
+prnf "\n L1PMSubCTRL1 register is %Xh\n", L1PMSubCTRL1
+
+// Power Cycle the DUT to remove security freeze lock
+// Uses GPIO to Power Cycle
+//PwOff
+//RunApp "utils\pwrcycle.bat", "", 1000, v0
+//wait 2000
+//PwOn
+//PINIT
+
+//! Precondition: Secure erase the DUT
+CMDTO = 300 // Set command timeout to 5 minutes
+NVM_CMD_NSID = 1
+NVM_FMT_NVM 1,0,0,0,0
+CMDTO = 8 // Set command timeout to 8 seconds (default)
+
+logoff;
+echo off;
+turbo on;
+fullspeed on;
+
+NVM_CMD_NSID=0
+nvm_idfy
+//! Precondition: Disable APST if supported
+if (NVM_AUTO_PWTRANS==1)
+    // Clear buffer sent with set-features APST command
+    PATZ "writeA"
+    NVM_SETF_AUTOPWRT 0
+endif
+
+//! Precondition: Disable NOPPME
+NVM_SETF 11h, 0
+
+//Set ITPT and ITPS for APST (long timers) to diable auto-sleep
+//for(i=0;i<3;i+=1)
+//    WBV "WriteA", i*8, 0ffffff18h, 8
+//endfor
+//WBV "WriteA", i*8, 0ffffff20h, 8;
+//nvm_setf_autopwrt 1
+
+
+PATI "Write"
+NVM_CMD_NSID = 1
+//StartLba = 0;
+// 10000 x 4K Random
+REP 10000(NVM_WRITE rand%totallba, 0)
+NVM_WRITE 0, 0
+
+//10000 x 128K Sequential
+//REP 10000(NVM_WRITE StartLba, 255; StartLba+=256)
+
+log2;
+echo on;
+turbo off;
+fullspeed off;
+
+//! Precondition: Change Max no-snoop/snoop latency to 10ms to check L1/1.2 LTR
+PRNF "\n Get current Max no-snoop/snoop latency register value:\n"
+InIchcs 1BCh, v0
+PRNF "\n %8.8X", v0
+PRNF "\n Change Max no-snoop/snoop latency register to 10\n"
+v1 = v0 & 0fff0fff0h
+v1 = v1 | 0A000Ah
+OutIchCs 1BCh, v1
+prnf "\n Get new Max no-snoop/snoop latency register value:\n"
+InIchcs 1BCh, v0
+PRNF "\n %8.8X", v0
+//! In a loop of 30 iterations perform LPM-Wake as follows
+for(i=0; i<30; i+=1)
+    wait 1000
+    NVM_CMD_NSID = 0
+    //!  Set the DUT Power state to PS4 to measure L1/PS3 entry latency
+    NVM_SETF_PWRMGT 3
+    PRNS "\n ============================="
+    PRNF "\n PS3 Entry Time (L1) %dus", interval;
+    PRNS "\n ============================="
+    PRNF "\n"
+    wait 1000
+    NVM_CMD_NSID = 1
+    //!  Issue 4k Read to wake up the drive to measure L1/PS3 exit latency
+    NVM_READ 0, 0 // Send a 4K READ
+    PRNS "\n ============================="
+    PRNF "\n PS3 Exit Time (L1) %dus", interval;
+    PRNS "\n ============================="
+    PRNF "\n"
+endfor
+
+// Disable L1.2 for L1 LTR
+//g99 = L1PMSubCTRL1
+//call "Sub\disable_L1_PM_substates.srt"
+//wait 1000
+//NVM_CMD_NSID = 0
+//NVM_SETF_PWRMGT 3
+//PRNS "\n ============================="
+//PRNF "\n PS3 Entry Time (L1) %dus", interval;
+//PRNS "\n ============================="
+//PRNF "\n"
+//wait 1000
+//NVM_CMD_NSID = 1
+//NVM_READ 0, 7; // Send a 4K READ
+//PRNS "\n ============================="
+//PRNF "\n PS3 Exit Time (L1) %dus", interval;
+//PRNS "\n ============================="
+//PRNF "\n"
+
+//g99 = L1PMSubCTRL1
+//call "Sub\enable_L1_PM_substates.srt"
+//wait 1000
+
+//NVM_CMD_NSID = 0
+//NVM_SETF_PWRMGT 0

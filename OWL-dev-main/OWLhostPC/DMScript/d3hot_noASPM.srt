@@ -1,0 +1,86 @@
+DIM cfg_LinkCtlR, cfg_PMCSR, def_val;
+
+sub GetConfigRegisterOffsetPCICapability
+//--------------------------------------------------------
+//Returns register offset for a particular capability id
+//input paramaters: id1 - desired capability id
+//return value: id3 - register offset for cap=id1
+//                  - 0 if capability not found
+//--------------------------------------------------------
+    inichcs 034h, id3   //read Cap_Ptr into id3
+    id3 = id3 & 000ffh
+    while (id3 != 0)
+        inichcs id3, id4
+        id2 = id4 & 00ffh
+        if(id2 == id1)
+            goto break
+        endif
+        id3 = (id4 & 00ffffh)>>8
+    endwhile
+    if ((id3 == 0))
+        prnf "\nCapability id: %X,",id1
+        prnf "not found!"
+    endif
+Break:endsub
+
+cls
+logoff
+
+id1 = 1h
+gosub GetConfigRegisterOffsetPCICapability
+if (id3 == 0)
+    prnf "\nFailed to find register offset for cap_id=%Xh, Halt the test!", id1
+    end
+endif
+
+prnf "\n Address for cap_id=%Xh", id1
+prnf ", %x", id3
+
+cfg_PMCSR = id3+04h
+//prnf ", %x", cfg_PMCSR
+
+id1 = 10h
+gosub GetConfigRegisterOffsetPCICapability
+if (id3 == 0)
+    prnf "\nFailed to find register offset for cap_id=%Xh, Halt the test!", id1
+    end
+endif
+
+prnf "\n Address for cap_id=%Xh", id1
+prnf ", %x\n", id3
+
+cfg_LinkCtlR = id3 + 010h
+//prnf ", %x", cfg_LinkCtlR
+
+//! step1: Disable ASPM
+inichcs cfg_LinkCtlR, def_val
+v0 = def_val
+prnf "Initial value, cfg_LinkCtlR=%8.8X\n", v0
+v0 = v0 & 0fffffffCh
+outichcs cfg_LinkCtlR, v0
+inichcs cfg_LinkCtlR,v0
+prnf "After disabling ASPM, cfg_LinkCtlR=%8.8X\n",v0
+
+//! step2: Set the DUT to D3Hot and wait for 5 seconds
+inichcs cfg_PMCSR,v0
+prnf "Initial value, cfg_PMCSR=%8.8X\n",v0
+v0 = v0 | 03h
+outichcs cfg_PMCSR, v0
+inichcs cfg_PMCSR,v0
+prnf "After D3Hot, cfg_PMCSR=%8.8X\n",v0
+wait 5000
+
+//! step3: Set the DUT to D0
+inichcs cfg_PMCSR,v0
+prnf "Initial value, cfg_PMCSR=%8.8X\n",v0
+v0 = v0 & 0fffffffCh
+outichcs cfg_PMCSR, v0
+inichcs cfg_PMCSR,v0
+prnf "After D0, cfg_PMCSR=%8.8X\n",v0
+
+//! step4: Revert ASPM to default state
+outichcs cfg_LinkCtlR, def_val
+inichcs cfg_LinkCtlR,v0
+prnf "Reverting ASPM to default state, cfg_LinkCtlR=%8.8X\n",v0
+
+//! step5: From the trace, verify that the link transitions to L1.2 for > 4.5 seconds

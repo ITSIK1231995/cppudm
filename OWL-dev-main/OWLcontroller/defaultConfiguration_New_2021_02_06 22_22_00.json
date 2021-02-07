@@ -21,10 +21,6 @@
                 "chanel": 1
             },
             "tests": {
-                "hermes - power on ready": {
-                    "repeatAmount": 88,
-                    "checked": false
-                },
                 "hermes - power on ready 0": {
                     "repeatAmount": 5,
                     "checked": false
@@ -32,10 +28,6 @@
                 "hermes - power on ready 3": {
                     "repeatAmount": 1,
                     "checked": true
-                },
-                "hermes - power on ready 2": {
-                    "repeatAmount": 50,
-                    "checked": false
                 }
             },
             "checked": false
@@ -48,16 +40,7 @@
                 "COM": "COM3",
                 "chanel": 1
             },
-            "tests": {
-                "hermes - power on ready": {
-                    "repeatAmount": 3,
-                    "checked": true
-                },
-                "hermes - power on ready 2": {
-                    "repeatAmount": 25,
-                    "checked": false
-                }
-            },
+            "tests": {},
             "checked": true,
             "postPingWaitingTime": 25
         },
@@ -69,16 +52,7 @@
                 "COM": "COM4",
                 "chanel": 2
             },
-            "tests": {
-                "hermes - power on ready": {
-                    "repeatAmount": 3,
-                    "checked": true
-                },
-                "hermes - power on ready 2": {
-                    "repeatAmount": 25,
-                    "checked": true
-                }
-            },
+            "tests": {},
             "checked": false
         },
         {
@@ -90,10 +64,6 @@
                 "chanel": 2
             },
             "tests": {
-                "hermes - power on ready": {
-                    "repeatAmount": 88,
-                    "checked": true
-                },
                 "hermes - power on ready 0": {
                     "repeatAmount": 5,
                     "checked": false
@@ -101,10 +71,6 @@
                 "hermes - power on ready 3": {
                     "repeatAmount": 44,
                     "checked": true
-                },
-                "hermes - power on ready 2": {
-                    "repeatAmount": 50,
-                    "checked": false
                 }
             },
             "checked": false
@@ -118,10 +84,6 @@
                 "chanel": 2
             },
             "tests": {
-                "hermes - power on ready": {
-                    "repeatAmount": 88,
-                    "checked": true
-                },
                 "hermes - power on ready 0": {
                     "repeatAmount": 5,
                     "checked": false
@@ -146,10 +108,6 @@
                 "chanel": 3
             },
             "tests": {
-                "hermes - power on ready": {
-                    "repeatAmount": 88,
-                    "checked": true
-                },
                 "hermes - power on ready 5": {
                     "repeatAmount": 50,
                     "checked": true
@@ -157,10 +115,6 @@
                 "hermes - power on ready 3": {
                     "repeatAmount": 44,
                     "checked": true
-                },
-                "hermes - power on ready 2": {
-                    "repeatAmount": 50,
-                    "checked": false
                 }
             },
             "checked": false
@@ -185,10 +139,6 @@
                 "hermes - power on ready 3": {
                     "repeatAmount": 44,
                     "checked": true
-                },
-                "hermes - power on ready 2": {
-                    "repeatAmount": 50,
-                    "checked": false
                 }
             },
             "checked": false

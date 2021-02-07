@@ -1,0 +1,18 @@
+// Help function to power cycle the Device
+// Uses GPIO to Power Cycle
+
+// issue SHN for graceful shutdown
+PRNF "\nSet Shutdown Notification (1)"
+g3=MICROSECOND	
+INNVMHBA 14h,j9;
+OUTNVMHBA 14h, (j9&0ffff3fffh)|4000h
+// Wait for completion
+DO INNVMHBA 1ch, j8 UNTIL (((j8>>2)&03h)==2h)
+PRNF "\nShutdown Completion Time=%d us\n",MICROSECOND-g3
+
+// Perform POWER CYCLE
+PwOff
+RunApp "..\utils\pwrcycle.bat", "", 1000, v0
+wait 2000
+PwOn
+PINIT

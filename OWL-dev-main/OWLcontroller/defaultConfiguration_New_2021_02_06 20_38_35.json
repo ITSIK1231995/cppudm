@@ -45,7 +45,7 @@
             "groupName": "Hermes",
             "stopOnFailure": false,
             "clicker": {
-                "COM": "COM3",
+                "COM": "COM4",
                 "chanel": 1
             },
             "tests": {
@@ -55,6 +55,14 @@
                 },
                 "hermes - power on ready 2": {
                     "repeatAmount": 25,
+                    "checked": false
+                },
+                "hermes - power on ready 0": {
+                    "repeatAmount": 0,
+                    "checked": false
+                },
+                "hermes - power on ready 3": {
+                    "repeatAmount": 0,
                     "checked": false
                 }
             },

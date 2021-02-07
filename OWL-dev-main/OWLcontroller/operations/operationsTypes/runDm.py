@@ -21,7 +21,7 @@ class runDM(operationWithSocket):
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
         controllerPc.updateRunTimeState(hostPc,testLog, "\n Run Dm command has started \n ")
-        socket = operationWithSocket.createCommunication(self, controllerPc,hostPc)
+        socket = operationWithSocket.createCommunication(self, controllerPc,hostPc,testLog)
         if (socket == False):
             return False
         messegeToServer = {"operation": "runDM", "param": opParams[0]}

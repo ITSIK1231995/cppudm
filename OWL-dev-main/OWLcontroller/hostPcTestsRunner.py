@@ -72,8 +72,7 @@ class hostPcTestsRunner():
             if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
                 break
 
-            self.controllerPc.updateRunTimeState(self.hostPc,testLog, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(
-                numOfFails) + "\n")
+            self.controllerPc.updateRunTimeState(self.hostPc,testLog, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(numOfFails) + "\n")
             self.printToLog("finished test= " + test.testname)
 
             if self.controllerPc.haltThreads:

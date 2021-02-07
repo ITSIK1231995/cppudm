@@ -1,0 +1,13 @@
+// Disabling L1.1 and L1.2 in the L1 PM Substates Control 1 Register
+// getting the address from calling function in variable "g99"
+
+PRNF "\n L1 CTRL1 Register address: %X", g99
+
+// Get the current status of L1.1, L1.2 ASPM and PCI-PM
+inichcs g99, v0
+PRNF "\n Value in L1PMSubCTRL1: %8.8X", v0
+
+PRNF "\n Now will disable L1.1, L1.2 (ASPM and PCI-PM)\n"
+v0 = v0 & 0fffffff0h
+PRNF "\n Setting value in L1PMSubCTRL1: %8.8X \n", v0
+OutIchCs g99, v0

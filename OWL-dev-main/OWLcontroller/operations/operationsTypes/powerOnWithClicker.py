@@ -25,23 +25,22 @@ class powerOnWithClicker(operation):
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
         controllerPc.updateRunTimeState(hostPc,testLog,"\n Power on with clicker has started")
-        controllerPc.updateRunTimeState(hostPc,testLog, "\nActivate Clicker" )
-
-        hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc,testLog)
-        if hostPcIsOFf:
-            os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
-            os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
-                          " > " + hostPc['clicker']['COM'])
-            time.sleep(0.5)
-            os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][1] +
-                          " > " + hostPc['clicker']['COM'])
-        else:
-            return False
+        # hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc,testLog)
+        # if hostPcIsOFf:
+        controllerPc.updateRunTimeState(hostPc, testLog, "\nActivate Clicker")
+        os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
+        os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
+                      " > " + hostPc['clicker']['COM'])
+        os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][1] +
+                      " > " + hostPc['clicker']['COM'])
+        # else:
+        #     return False
         # check if the host is on
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc,testLog)
 
         if hostPcIsOn:
-            controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is On\n power On With Clicker done successfully")
+            controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is On")
+            controllerPc.updateRunTimeState("\n power On With Clicker done successfully")
         else:
             controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is Off\n power On With Clicker Failed")
 

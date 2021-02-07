@@ -1,0 +1,77 @@
+//Script:   d3hot_exit_latency.srt
+//Author:   Akshay Naik <Akshay.Naik@sandisk.com>
+//History:  03/22/2019 - Initial version
+//Desc:     Set the DUT to D3Hot and back to D0 to measure latency
+
+DIM cfg_PMCSR;
+
+//Subroutines
+
+sub GetConfigRegisterOffsetPCICapability
+//--------------------------------------------------------
+//Returns register offset for a particular capability id
+//input paramaters: id1 - desired capability id
+//return value: id3 - register offset for cap=id1
+//                  - 0 if capability not found
+//--------------------------------------------------------
+    inichcs 034h, id3   //read Cap_Ptr into id3
+    id3 = id3 & 000ffh
+    while (id3 != 0)
+        inichcs id3, id4
+        id2 = id4 & 00ffh
+        if(id2 == id1)
+            goto break
+        endif
+        id3 = (id4 & 00ffffh)>>8
+    endwhile
+    if ((id3 == 0))
+        prnf "\nCapability id: %X,",id1
+        prnf "not found!"
+    endif
+Break:endsub
+
+//~Subroutines
+
+cls
+logoff
+log2
+//HaltErr OFF
+
+id1 = 1h
+gosub GetConfigRegisterOffsetPCICapability
+if (id3 == 0)
+    prnf "\nFailed to find register offset for cap_id=%Xh, Halt the test!", id1
+    end
+endif
+
+prnf "\n Address for cap_id=%Xh", id1
+prnf ", %x", id3
+
+cfg_PMCSR = id3+04h
+prnf "\n cfg_PMCSR=%X", cfg_PMCSR
+
+//! step1: Set the DUT to D3Hot and wait for 1 second
+//! step2: Measure the D3Hot entry latency as delta between D3Hot cfg write and clkreq# de-assertion
+prnf "\n Set power state to D3Hot"
+inichcs cfg_PMCSR, v0
+prnf "\n set cfg_PMCSR=%X", (v0 | 03h)
+outichcs cfg_PMCSR, (v0 | 03h)
+wait 1000
+inichcs cfg_PMCSR, v0
+prnf "\n read cfg_PMCSR=%X", v0
+if (v0&03h != 03h)
+    prnf "\nFailed to set power state to D3Hot!"
+endif
+
+//! step3: Set the DUT to D0
+//! step4: Measure the D3Hot exit latency as delta between clkreq# assertion and D0 cfg write
+prnf "\n Set power state to D0"
+inichcs cfg_PMCSR, v0
+prnf "\n set cfg_PMCSR=%X", v0 & 0fffch
+outichcs cfg_PMCSR, v0 & 0fffch
+inichcs cfg_PMCSR, v0
+prnf "\n read cfg_PMCSR=%X", v0
+if (v0&03h != 0)
+    prnf "\nFailed to set power state to D0"
+endif
+

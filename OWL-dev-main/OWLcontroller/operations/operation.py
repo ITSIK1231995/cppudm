@@ -68,7 +68,9 @@ class operation(object):
             if len(re.findall("unreachable", response)) == 4 or \
                     len(re.findall("timed out", response)) == 4:
             # if "unreachable" in response or "timed out" in response:
-                time.sleep(5)
+                if 'postPingWaitingTime' in hostPc:
+                    controllerPc.updateRunTimeState(hostPc, testLog,"\n Awaiting for " + str(hostPc['postPingWaitingTime']) + "seconds")
+                    time.sleep(hostPc['postPingWaitingTime'])
                 controllerPc.updateRunTimeState(hostPc,testLog, "\nwaitForPcToTurnOff - PC is OFF")
                 return True
             controllerPc.updateRunTimeState(hostPc,testLog, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
