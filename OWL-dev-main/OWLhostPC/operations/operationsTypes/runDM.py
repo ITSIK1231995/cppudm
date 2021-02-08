@@ -8,7 +8,7 @@ CMD_COMMAND = 'cmd /k '
 DM_SCRIPT_NAME = 'L1.2_Entry_Exit_PS4_Calypso.srt'
 DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC'
 EXECUTE_DM = r'DriveMaster.exe /s:'
-LOG_PATH = ' /1:log.txt /e'
+LOG_PATH = ' /l:C:\Dmtests\OWLdmLastLog.txt /e'
 RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
 
 class runDM():

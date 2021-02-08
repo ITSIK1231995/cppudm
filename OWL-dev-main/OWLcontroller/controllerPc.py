@@ -77,8 +77,9 @@ class ControllerPc():
         print (ternimalAddition)
         self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += ternimalAddition
         self.updateguiTerminal(hostPc)
-        testLog.write(ternimalAddition)
-        testLog.flush()
+        if testLog is not None:
+            testLog.write(ternimalAddition)
+            testLog.flush()
     # def updateLogs(self,hostPc, update):
     #     for key in self.runtimeHostPcsData[hostPc["IP"]]:
     #         if self.runtimeHostPcsData[hostPc["IP"]][key] == 'Running':

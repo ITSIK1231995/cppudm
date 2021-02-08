@@ -4,7 +4,7 @@
 			[
 				{
 				"name" : "runDM",
-				"params" : ["\\DM_scripts\\L1.2_Entry_Exit_PS4_Calypso.srt"]
+				"params" : ["\\DMScript\\PS3_Entry_Exit_PwrCycle.srt"]
 			}
 			]
 
