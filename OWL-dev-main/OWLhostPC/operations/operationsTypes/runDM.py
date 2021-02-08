@@ -8,15 +8,16 @@ CMD_COMMAND = 'cmd /k '
 DM_SCRIPT_NAME = 'L1.2_Entry_Exit_PS4_Calypso.srt'
 DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC'
 EXECUTE_DM = r'DriveMaster.exe /s:'
-LOG_PATH = ' /l:C:\Dmtests\OWLdmLastLog.txt /e'
-RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH
+LOG_PATH = 'C:\Dmtests\OWLdmLastLog.txt'
+LOG_PATH_DM_SYNTAX = ' /l:C:\Dmtests\OWLdmLastLog.txt /e'
+RUN_DM_CMD = EXECUTE_DM + DM_SCRIPT_PATH + DM_SCRIPT_NAME + LOG_PATH_DM_SYNTAX
 
 class runDM():
 
     @staticmethod
     def runOp(hostPcServerRef,socket,userPath):
         path = os.getcwd()
-        runDMCmd = EXECUTE_DM + path + userPath + LOG_PATH
+        runDMCmd = EXECUTE_DM + path + userPath + LOG_PATH_DM_SYNTAX
         command = runDMCmd
         run = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stdin=None, stderr=subprocess.PIPE,
                                env=os.environ, universal_newlines=True)
@@ -25,7 +26,8 @@ class runDM():
             logging.info("DriveMaster process is running")
         else:
             logging.info("DriveMaster process is not running")
-        data = "Run dm log"
+        with open(LOG_PATH, 'r') as file:
+            data = file.read()
         socket.send(data.encode())  # send data to the client
 
 
