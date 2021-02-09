@@ -4,8 +4,15 @@
 			[
 				"shutdown",
 				"powerOnWithClicker",
+				"shutdown",
+				"powerOnWithClicker",
 				"sleep",
 				"powerOnWithClicker",
+
+				{
+				"name" : "wait",
+				"params" : 5
+			},
 							{
 				"name" : "runCommandViaCmd",
 				"params" : ["ipconfig"]

@@ -40,7 +40,7 @@ class powerOnWithClicker(operation):
 
         if hostPcIsOn:
             controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is On")
-            controllerPc.updateRunTimeState("\n power On With Clicker done successfully")
+            controllerPc.updateRunTimeState(hostPc,testLog,"\n power On With Clicker done successfully")
         else:
             controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is Off\n power On With Clicker Failed")
 

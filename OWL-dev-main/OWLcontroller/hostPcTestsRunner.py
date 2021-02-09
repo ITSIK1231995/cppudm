@@ -77,7 +77,7 @@ class hostPcTestsRunner():
             self.printToLog("finished test= " + test.testname)
 
             if self.controllerPc.haltThreads:
-                self.controllerPc.updateRunTimeState(self.hostPc,testLog, "testing stopped")
+                self.controllerPc.updateRunTimeState(self.hostPc,None, "testing stopped")
                 self.printToLog("halting")
                 break
 

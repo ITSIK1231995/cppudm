@@ -31,6 +31,6 @@ class sleep(operationWithSocket):
         messegeToServer = {"operation": "sleep"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
-        hostPcIsOff = operation.waitForPcToTurnOff(self, controllerPc, hostPc) # Verify the host is down
+        hostPcIsOff = operation.waitForPcToTurnOff(self, controllerPc, hostPc,testLog) # Verify the host is down
         controllerPc.updateRunTimeState(hostPc,testLog, "\n sleep command has ended")
         return hostPcIsOff

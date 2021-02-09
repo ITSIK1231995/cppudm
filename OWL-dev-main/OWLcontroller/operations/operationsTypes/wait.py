@@ -15,8 +15,8 @@ class wait(operation):
         return True
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
-        controllerPc.updateRunTimeState(hostPc,testLog ("\n number of seconds to wait is " , opParams[0]))
-        time.sleep(int(opParams[0]))
-        controllerPc.updateRunTimeState(hostPc,testLog, ("\n wait command has ended \n ", opParams[0]))
+        controllerPc.updateRunTimeState(hostPc,testLog, "\n number of seconds to wait is " + str(opParams))
+        time.sleep(int(opParams))
+        controllerPc.updateRunTimeState(hostPc,testLog, "\n number of seconds to wait is " + str(opParams))
         return True
 
