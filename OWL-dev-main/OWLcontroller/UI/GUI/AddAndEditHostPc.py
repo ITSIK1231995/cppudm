@@ -16,7 +16,6 @@ class AddAndEditHostPc(QDialog):
         self.mainWindowRef = mainWindowRef
         self.hostPc = hostPc
         self.editMode = editMode
-
         self.createFormGroupBox()
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)

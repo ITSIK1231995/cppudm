@@ -24,10 +24,10 @@ class powerOnWithClicker(operation):
         return False
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
-        controllerPc.updateRunTimeState(hostPc,testLog,"\n Power on with clicker has started")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Power on with clicker has started")
         # hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc,testLog)
         # if hostPcIsOFf:
-        controllerPc.updateRunTimeState(hostPc, testLog, "\nActivate Clicker")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nActivate Clicker")
         os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
         os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
                       " > " + hostPc['clicker']['COM'])
@@ -39,12 +39,12 @@ class powerOnWithClicker(operation):
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc,testLog)
 
         if hostPcIsOn:
-            controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is On")
-            controllerPc.updateRunTimeState(hostPc,testLog,"\n power On With Clicker done successfully")
+            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Host Pc is On")
+            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n power On With Clicker done successfully")
         else:
-            controllerPc.updateRunTimeState(hostPc,testLog, "\n Host Pc is Off\n power On With Clicker Failed")
+            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Host Pc is Off\n power On With Clicker Failed")
 
-        controllerPc.updateRunTimeState(hostPc,testLog, "\n Power on with clicker has ended")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Power on with clicker has ended")
         return hostPcIsOn # if the host is up the clicker done well, and should return True
 
 

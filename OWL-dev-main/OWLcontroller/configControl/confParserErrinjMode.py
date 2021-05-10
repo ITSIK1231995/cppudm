@@ -7,45 +7,12 @@ import json
 import os
 
 # Errinj Mode
+from configControl.confParserLM import findDir
+from configControl.fileOPHelperFuncs import convertToString, cleanUpErrinjModeConfFile
+
 ERRINJ_CONFIG_FILE_SUFFIX = ".cts"
 TEST_PARAM = "="
 
-
-
-# TODO: move all helper functions to another py file called fileOPHelperFuncs
-def cleanUpErrinjModeConfFile(line):
-    return line.rstrip("\n").replace(";", "").replace('"', "").strip().split("=")
-
-def convertToString(line):
-    return str(line)
-
-def getFilePath(legacyModeConfigFilesDirectory, filename):
-    return os.path.join(legacyModeConfigFilesDirectory, filename)
-
-def getRootDirectory(relativePath):
-    return r'..\\' + relativePath
-
-
-def findFile(fileNameFromUser ="../"):
-    path = "../" + fileNameFromUser
-    return path if os.path.isfile(path) else ''
-
-# def searchFromRoot(dirNameFromUser):
-#     start = "../"
-#     for dirpath, dirnames, filenames in os.walk(start):
-#         for filename in filenames:
-#             if filename == dirNameFromUser:
-#                 filename = os.path.join(dirpath, filename)
-#                 # print(filename)
-#                 # print(dirpath)
-#                 # print(dirnames)
-#                 #print(dirpath)
-#                 return filename
-
-
-def findDir(dirNameFromUser):
-    path = "../" + dirNameFromUser
-    return path if os.path.isdir(path) else ''
 
 
 

@@ -20,7 +20,7 @@ class runDM(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
-        controllerPc.updateRunTimeState(hostPc,testLog, "\n Run Dm command has started \n ")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Run Dm command has started \n ")
         socket = operationWithSocket.createCommunication(self, controllerPc,hostPc,testLog)
         if (socket == False):
             return False
@@ -28,8 +28,8 @@ class runDM(operationWithSocket):
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         messegeFromServer = socket.recv(1024).decode()  # receive response from the server
         socket.close()
-        controllerPc.updateRunTimeState(hostPc,testLog, "\n message from server:\n" + "\n" + messegeFromServer + "\n")
-        controllerPc.updateRunTimeState(hostPc,testLog, "\n Run Dm command has ended")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n message from server:\n" + "\n" + messegeFromServer + "\n")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Run Dm command has ended")
 
 
 

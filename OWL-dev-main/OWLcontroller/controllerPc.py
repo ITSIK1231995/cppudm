@@ -10,7 +10,7 @@ from pathlib import Path
 from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
 from configControl.confParserLM import confParserLM
-from hostPcTestsRunner import hostPcTestsRunner
+from hostPcTestsRunner import hostPcTestsRunner, state
 from UI.GUI.viewGui import *
 import _thread
 from datetime import datetime
@@ -18,31 +18,36 @@ from UI.GUI.viewGui import mainWindow
 from datetime import date
 from datetime import datetime
 import datetime
+
+from lecroy import lecroy
 from validator import *
 
 class ControllerPc():
 
     def __init__(self,conf='defaultConfiguration.json'):
         logging.info("ControllerPc started")
-        logging.info("parsing configs")
-        self.configs = confParser().parseAll(loadConf=conf)
+        logging.info("Parsing configs")
+
         self.runtimeHostPcsData = {}
-        self.preRunValidationErorrs = []
+        self.preRunValidationErorrs = {}
+        self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
-        logging.info("initiating gui")
+        logging.info("Initiating GUI")
+        self.analyzer = lecroy()
+
         self.GUIInit()
 
 
     def reload(self,conf):
-        logging.info("parsing reloading")
-        logging.info("parsing configs")
-        self.configs = confParser().parseAll(loadConf=conf)
+        logging.info("Parsing reloading")
+        logging.info("Parsing configs")
         self.runtimeHostPcsData = {}
         self.preRunValidationErorrs = []
+        self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
-        logging.info("initiating gui")
+        logging.info("Initiating GUI")
         self.GUIInit()
 
 
@@ -59,40 +64,31 @@ class ControllerPc():
                 self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
 
-    def updateTestStatusInRunTime(self,hostPc,test,testStatus):
-        self.runtimeHostPcsData[hostPc["IP"]][test.testname] = testStatus
-        self.view.updateTestStatusLblInRunTime(hostPc,test,testStatus)
+    def updateTestStatusInRunTime(self,hostPc,test):
+        self.view.updateTestStatusLblInRunTime(hostPc,test)
+
+
+    def updateUiWithHostNewStatus(self, hostPcWithNewState):
+        self.view.updateHostPcLabels(hostPcWithNewState)
+
 
     def savedDefaultConfContentIntoJson(self):
-        logging.info("saving new Default Conf Content")
+        logging.info("Saving new Default Conf Content")
         currTime = self.getCurrentTimeFile()
         defaultConfName = 'defaultConfiguration_New_' + currTime + ".json"
         with open(defaultConfName, 'w+') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
             print(json_dumps_str, file=fout)
 
-    def updateRunTimeState(self,hostPc,testLog,update):
-        current_datetime = self.getCurrentTime()
-        ternimalAddition = current_datetime + "    " + update.strip() + "\n"
-        print (ternimalAddition)
-        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += ternimalAddition
+    def updateRunTimeStateInTerminal(self, hostPc, testLog, update):
+        currentDatetime = self.getCurrentTime()
+        terminalAddition = currentDatetime + "    " + update.strip() + "\n"
+        print (terminalAddition)
+        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += terminalAddition
         self.updateguiTerminal(hostPc)
         if testLog is not None:
-            testLog.write(ternimalAddition)
+            testLog.write(terminalAddition)
             testLog.flush()
-    # def updateLogs(self,hostPc, update):
-    #     for key in self.runtimeHostPcsData[hostPc["IP"]]:
-    #         if self.runtimeHostPcsData[hostPc["IP"]][key] == 'Running':
-    #             logPath = self.configs.defaultConfContent["resultPath"] + "\\" + key.results[:-1]
-    #             if not os.path.exists(logPath + "\\" + key.testname + "_" + self.getCurrentTime() + "\\" + "terminal.log"):
-    #                 os.makedirs(logPath + "\\" + key.testname + "_" + self.getCurrentTime())
-    #                 file_object = open(logPath + "\\" + key.testname + "_" + self.getCurrentTime() + "\\" + "terminal.log", "w")
-    #                 file_object.close()
-    #             else:
-    #                 file_object = open(logPath + "\\" + key.testname + "_" + self.getCurrentTime() + "\\" + "terminal.log", "a")
-    #                 file_object.write(update)
-    #                 file_object.close()
-
 
     def getCurrentTimeFile(self):
         return self.getCurrentTime().replace("-", "_").replace(":", "_")
@@ -123,15 +119,17 @@ class ControllerPc():
     def startExecution(self):
         self.haltThreads = False
         self.dispatchThreads()
-        logging.info("running tests")
-        print("running tests")
+        logging.info("Running tests")
+        print("Running tests")
 
     def stopExecution(self):
-        logging.info("stop pressed, halting threads")
+        logging.info("Stop pressed, Halting threads")
         self.haltThreads = True
-        print("stopping tests")
+        print("Stopping tests")
 
 
+    def exitSystem(self):
+        exit(0)
 
 
 if __name__ == '__main__':

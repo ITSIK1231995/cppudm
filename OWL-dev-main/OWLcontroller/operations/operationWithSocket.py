@@ -19,7 +19,7 @@ class operationWithSocket(operation):
         pass
     
     def createCommunication(self,controllerPc,hostPc, testLog): #
-        controllerPc.updateRunTimeState(hostPc,testLog, "\n create Communication")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n create Communication")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']  # socket server port number
         clientSocket = socket.socket()  # instantiate
         try:

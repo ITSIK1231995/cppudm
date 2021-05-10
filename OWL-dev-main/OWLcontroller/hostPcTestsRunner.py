@@ -1,6 +1,7 @@
 import datetime
 import os
 import threading
+from UI.GUI.state import state
 from operations.allOperations import allOperations
 import logging
 
@@ -12,7 +13,7 @@ class hostPcTestsRunner():
         self.hostPc = hostPc
         self.testToRun = self.getRelevantTestForHostPc()
         self.threadLock = threading.Lock()
-        logging.info("hostPc worker thread "+hostPc["IP"]+" started")
+        logging.info("HostPc worker thread " + hostPc["IP"] + " started")
 
     def getRelevantTestForHostPc(self):
         allTests = self.controllerPc.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc["groupName"]]
@@ -23,20 +24,19 @@ class hostPcTestsRunner():
                 relevantTests.append(test)
         return relevantTests
 
-    def printToLog(self,text):
-        logging.info(("worker thread",self.hostPc["IP"],text))
+    def printToLog(self, text):
+        logging.info(("worker thread", self.hostPc["IP"], text))
 
     def getCurrentTime(self):
         now = datetime.datetime.now()
-        return str(now.strftime("%Y-%m-%d %H:%M:%S").replace("-","_").replace(":","_"))
-
+        return str(now.strftime("%Y-%m-%d %H:%M:%S").replace("-", "_").replace(":", "_"))
 
     def createLog(self, test):
         self.threadLock.acquire()
         timeStamp = self.getCurrentTime()
-        logPath = self.controllerPc.configs.defaultConfContent["resultPath"] +  "\\" + test.results[:-1]
-        filePath =logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
-        fileName = filePath+ "\\" + "terminal.log"
+        logPath = self.controllerPc.configs.defaultConfContent["resultPath"] + "\\" + test.results[:-1]
+        filePath = logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
+        fileName = filePath + "\\" + "terminal.log"
         if not os.path.exists(fileName):
             os.makedirs(filePath)
             logObj = open(fileName, "w")
@@ -45,63 +45,90 @@ class hostPcTestsRunner():
         self.threadLock.release()
         return logObj
 
-
     def runAllTests(self):
         self.printToLog("starting running tests")
         stopOnFailure = self.hostPc['stopOnFailure']
+        hostFinalStatus = state.PASSED  # if True host final session status is pass , otherwise fail
         for test in self.testToRun:
-            self.controllerPc.updateTestStatusInRunTime(self.hostPc,test,"Running")
-            self.printToLog("starting test= " + test.testname)
             numOfPass = 0
             numOfFails = 0
-            for x in range(self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests acurding to repeatAmount
+
+            self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]][test.testname] = \
+                {"testRepeatsCurrStatus": state.RUNNING,
+                 "testRepeatsSummary": {state.PASSED: numOfPass, state.FAILED: numOfFails}}
+            self.controllerPc.updateTestStatusInRunTime(self.hostPc, test)
+
+            self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]]["hostPcLblColor"] = state.RUNNING
+            self.controllerPc.updateUiWithHostNewStatus(self.hostPc)
+            self.printToLog("starting test= " + test.testname)
+            for x in range(self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests according to repeatAmount
                 testLog = self.createLog(test)
-                self.controllerPc.updateRunTimeState(self.hostPc,testLog, "\n" + test.testname + " Has started ")
+                self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
+
+#TODO need to start and stop recording with analyzer
+                analyzerInfo = self.controllerPc.analyzer.startAnalyzerRecord(os.getcwd() + "\\" +test.recordingoptions,r"C:\cppudm\OWL-dev-main\OWLcontroller", "newTrace")
+
                 testResult = self.runSequanceOfOperations(test, self.controllerPc, testLog)
+
+                self.controllerPc.analyzer.startAnalyzerRecord(analyzerInfo)
+
                 if (testResult):
                     numOfPass += 1
-                    self.controllerPc.updateRunTimeState(self.hostPc,testLog, "\n" + test.testname + " Has Passed")
+                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Passed")
                 else:
                     numOfFails += 1
-                    self.controllerPc.updateRunTimeState(self.hostPc,testLog, "\n" + test.testname + " Has Failed")
+                    hostFinalStatus = state.FAILED  # if one test has failed in the Host's session of tests its enough to mark this session for this host has a session that failed
+                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Failed")
                 testLog.close()
-                self.controllerPc.updateTestStatusInRunTime(self.hostPc, test, " Passed: " + str(numOfPass) + " Failed: " + str(numOfFails))
+
+                self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]][test.testname] = \
+                    {"testRepeatsCurrStatus": state.RUNNING if x < self.hostPc["tests"][test.testname]['repeatAmount']-1 else state.FINISHED, # if we did not finished all the repeats we the state will be running otherwise it'll be according to the results
+                     "testRepeatsSummary": {state.PASSED: numOfPass, state.FAILED: numOfFails}}
+                self.controllerPc.updateTestStatusInRunTime(self.hostPc, test)
+
                 if self.controllerPc.haltThreads:
                     break
 
             if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
                 break
 
-
-            self.controllerPc.updateRunTimeState(self.hostPc,None, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(numOfFails) + "\n")
+            self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, None,
+                                                 "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(
+                                                     numOfFails) + "\n")
             self.printToLog("finished test= " + test.testname)
 
             if self.controllerPc.haltThreads:
-                self.controllerPc.updateRunTimeState(self.hostPc,None, "testing stopped")
+                self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, None, "Testing stopped")
                 self.printToLog("halting")
                 break
+        self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]]["hostPcLblColor"] = hostFinalStatus
+        self.controllerPc.updateUiWithHostNewStatus(self.hostPc)
+        self.printToLog("Finished running tests")
 
-        self.printToLog("finished running tests")
-
-    #TODO: change implementation to somthing like in the validator : validateflowOps ( use getOprationObject )
+    # TODO: change implementation to somthing like in the validator : validateflowOps ( use getOprationObject )
     def runSequanceOfOperations(self, test, controllPc, testLog):
         mappedOperations = allOperations()
         for operation in test.flowoperations:
             if isinstance(operation, dict):
                 self.printToLog("starting Operations= " + operation['name'])
-                operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self,self.controllerPc,self.hostPc,testLog,operation['params'])
+                operationOutPut = mappedOperations.operationsImplementation[operation['name']].runOp(self,
+                                                                                                     self.controllerPc,
+                                                                                                     self.hostPc,
+                                                                                                     testLog, operation[
+                                                                                                         'params'])
                 if operationOutPut == False:
-                    self.controllerPc.updateRunTimeState(self.hostPc,testLog,(operation['name'] + " op failed"))
+                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation['name'] + " op failed"))
                     self.printToLog("finished Operations= " + operation['name'] + ", op failed")
                     return False
 
-                self.printToLog("finished Operations= " + operation['name']+ ", op succeeded")
+                self.printToLog("finished Operations= " + operation['name'] + ", op succeeded")
 
             elif isinstance(operation, str):
                 self.printToLog("starting Operations= " + operation)
-                operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self, self.controllerPc,self.hostPc,testLog, [])
+                operationOutPut = mappedOperations.operationsImplementation[operation].runOp(self, self.controllerPc,
+                                                                                             self.hostPc, testLog, [])
                 if operationOutPut == False:
-                    self.controllerPc.updateRunTimeState(self.hostPc,testLog, (operation + " op failed"))
+                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation + " op failed"))
                     self.printToLog("finished Operations= " + operation + ", op failed")
                     return False
                 self.printToLog("finished Operations= " + operation + ", op succeeded")

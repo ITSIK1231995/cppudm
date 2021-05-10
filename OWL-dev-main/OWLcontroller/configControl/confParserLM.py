@@ -81,23 +81,43 @@ class confParserLM():
         setattr(testConf, Param, self.getparamValue(sectionName, Param))
         return testConf
 
+    def getCurrPath(self):
+        return os.getcwd().strip()
 
+    def parseSequanceFile(self, sectionName,controlPc):
+        try:
+            flowOperationsFile = open((findFile(self.getparamValue(sectionName, 'sequancefile'))), encoding="utf8")
+            FlowOperations = json.load(flowOperationsFile)
+            flowOperationsFile.close()
+        except Exception as e:
+            sequenceFileName = self.getparamValue(sectionName,'sequancefile').strip()
+            sequenceFileInvalidSyntaxDescription = str("The system detected an invalid syntax in the following Json file: \n" + self.getCurrPath() + '\\' + sequenceFileName + "\nPlease fix the file's content according to the following error message \n" + str(e) + "\n \n ")
+            if "corruptedSequenceFile" not in controlPc.preRunValidationErorrs.keys():
+                controlPc.preRunValidationErorrs["corruptedSequenceFile"] = []
+                controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName :sequenceFileInvalidSyntaxDescription})
+            else:
+                for corruptedSequenceFileDict in controlPc.preRunValidationErorrs['corruptedSequenceFile']:
+                    if sequenceFileName in corruptedSequenceFileDict:
+                        break
+                else:
+                    controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName: sequenceFileInvalidSyntaxDescription})
 
-    def parseSequanceFile(self, sectionName):
-        flowOperationsName = open((findFile(self.getparamValue(sectionName, 'sequancefile'))), encoding="utf8")
-        FlowOperations = json.load(flowOperationsName)
-        flowOperationsName.close()
-        return FlowOperations
+                #controlPc.preRunValidationErorrs.append(sequenceFileInvalidSyntaxDescription)
+            return None # When the sequence file is corrupted we are sending a "False" boolean in order to indicate this
+        return FlowOperations #Otherwise we are sending the loaded json file
 
-    def createSequanceFileConf(self, sectionName):
+    def createSequanceFileConf(self, sectionName,controlPc):
         testConfiguration = testConfLegacySequenceFlow()
-        sequenceFile = self.parseSequanceFile(sectionName)
+        sequenceFile = self.parseSequanceFile(sectionName,controlPc)
+        if sequenceFile == None:
+            return None
         testConfiguration.flowoperations = []
         for operation in sequenceFile['operationsList']:
             testConfiguration.flowoperations.append(operation)
         return testConfiguration
 
     def addingParamsToConf(self, sectionParams,testConf,sectionName):
+
         for Param in sectionParams:
             testConf = self.addValueToLegacyConfiguration(testConf, Param, sectionName)
         return testConf
@@ -107,11 +127,12 @@ class confParserLM():
         legacyFlowOperationsTestsByGroups = self.insertGroupTotestsByGroup(groupName, legacyFlowOperationsTestsByGroups)
         legacyFlowOperationsTestsByGroups[groupName].append(testConf)
 
-    def parseLMConf(self):
+    def parseLMConf(self, controlPc):
         ''' parsing Legacy mode config files '''
         legacyTestsByGroup = OrderedDict()
         legacyFlowOperationsTestsByGroups = OrderedDict()
         parseResults = namedtuple('parsingResult', ['legacyTestsByGroup',  'legacyFlowOperationsTestsByGroups' ])
+
 
         # Legacy mode config file (contains sections , each section is a summary for one test)
         for filename in self.getFilesNames(self.lMConfFilesDirectory):
@@ -122,8 +143,11 @@ class confParserLM():
                 for sectionName in self.lMConfFile.sections():
                     sectionParams = self.getParamsFromSection(sectionName)
                     if SEQUANCE_FILE in sectionParams: #TODO: "sequanceFile" should be constant , we need create a class of CONSTANTS , that way each const will be reached by const.legacy.something
+                        testConf = self.createSequanceFileConf(sectionName,controlPc)
+                        if testConf == None:
 
-                        testConf = self.createSequanceFileConf(sectionName)
+                            continue # If the user provided an invalid Json file (sequence file) , the system won't take it.
+
                         self.addingParamsToConf(sectionParams,testConf, sectionName)
                         self.saveConfIntoDicts(sectionName, legacyFlowOperationsTestsByGroups, testConf)
                     else:

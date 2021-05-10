@@ -11,13 +11,14 @@ DEFAULT_CONF_FILE = 'defaultConfiguration.json' #when running from the controlPc
 
 
 class confParser():
-    def __init__(self):
-        pass
+    def __init__(self,controlPc):
+        self.controlPc = controlPc
+
 
     def parseAll(self,loadConf):
         defaultConfContent = self.parseDefaultConf(loadConf)
 
-        lMparsingResults = confParserLM(defaultConfContent).parseLMConf() # Parsing the legacy mode config files (Flow operations and trainer scripts)
+        lMparsingResults = confParserLM(defaultConfContent).parseLMConf(self.controlPc) # Parsing the legacy mode config files (Flow operations and trainer scripts)
         errinjModeParsingResults = confParserErrinjMode(defaultConfContent).parseErrinjConfFiles() # Parsing the Errinj Mode config files
 
         parseResults = namedtuple('parsingResult', ['legacyMode', 'ErrinjMode','defaultConfContent'])

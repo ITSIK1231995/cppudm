@@ -1,33 +1,44 @@
-
-
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
 from UI.GUI.AddAndEditHostPc import *
+from UI.GUI.convertor import convertor
 
-
+DEFAULT_COLOR_TO_CHOSEN_HOST_PC = "background-color: rgb(124, 226, 252);"
 
 
 
 class exerHostGroupBox(QtWidgets.QGroupBox):
-    def __init__(self, centralwidget,mainWindowRef):
+    def __init__(self, centralwidget,mainWindowRef, controlPc):
         super(exerHostGroupBox, self).__init__( centralwidget)
 
         self.mainWindowRef = mainWindowRef
         self.setGeometry(QtCore.QRect(10, 150, 260, 280))
         self.setObjectName("hostExercisersGroupBox")
         self.vbox = QVBoxLayout()
+        self.controlPc = controlPc
 
-        self.hostPcs = mainWindowRef.controller.configs.defaultConfContent['hostPCs']
+        if  mainWindowRef.controller.configs:
+            self.hostPcs = mainWindowRef.controller.configs.defaultConfContent['hostPCs']
 
         self.hostPCTableSetup()
         self.scrollSetup()
         self.addHostBtnSetup()
+        self.currHostPc = self.getFirstHostPc()
+        self.setColortoCurrHostCheckBox()
+
+
+    def getFirstHostPc(self):
+        return self.hostPcs[0]
+
+    def setColortoCurrHostCheckBox(self,):
+        self.setDefaultColorToChoosenHostPc(self.currHostPc)
 
 
     def addHostBtnSetup(self):
         self.addHostPcBtn = QtWidgets.QPushButton(self)
         self.addHostPcBtn.setGeometry(QtCore.QRect(185, 5, 75, 23))
         self.addHostPcBtn.setObjectName("addHostPc")
+        self.addHostPcBtn.setStyleSheet("background-color:rgb(255,178,102)");
         self.addHostPcBtn.clicked.connect(self.addHostPcBtnClicked)
 
     def hostPCTableSetup(self):
@@ -49,16 +60,19 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         showButton.setGeometry(QtCore.QRect(120, 0, 35, 20))
         showButton.setObjectName("show_" + hostPc['IP'])
         showButton.clicked.connect(self.showBtnClicked)
+        showButton.setStyleSheet("background-color:rgb(51,153,255)")
 
         editButton = QtWidgets.QPushButton(groupBox)
         editButton.setGeometry(QtCore.QRect(155, 0, 30, 20))
         editButton.setObjectName("edit_" + hostPc['IP'])
         editButton.clicked.connect(self.editBtnClicked)
+        editButton.setStyleSheet("background-color:rgb(255,178,102)")
 
         delButton = QtWidgets.QPushButton(groupBox)
         delButton.setGeometry(QtCore.QRect(185, 0, 43, 20))
         delButton.setObjectName("del_" + hostPc['IP'])
         delButton.clicked.connect(self.delBtnClicked)
+        delButton.setStyleSheet("background-color:rgb(255,153,153)")
 
         groupBox.setFixedHeight(20)
         groupBox.setFixedWidth(260)
@@ -94,7 +108,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
 
     def userIsSureHeWantsTODel(self,IP):
         return GUIUtills.PopUpWarning("Are you sure you want to delete hostPc " + str(IP) + " ?\n "
-                                        "this delete all tests and data configured")
+                                        "This delete all tests and data configured")
     def delBtnClicked(self):
         hostPc = self.getHostPCFromBtnName(self.sender())
         oldHostPCIP = hostPc["IP"]
@@ -112,17 +126,33 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
 
     def showBtnClicked(self):
         hostPc = self.getHostPCFromBtnName(self.sender())
+        self.setColorForPickedShowBtn(hostPc)
         self.mainWindowRef.setNewHostPC(hostPc)
+
+
+
+    def setColorForPickedShowBtn(self, pickedHostPc): # When clicking on the Show button.
+        # this statement used for set color to the host pc after clicking "show" on other host pc
+        if self.currHostPc["IP"] in self.controlPc.runtimeHostPcsData.keys() and 'hostPcLblColor' in self.controlPc.runtimeHostPcsData[self.currHostPc["IP"]].keys():
+                self.hostPcRows[self.currHostPc["IP"]].checkBox.setStyleSheet(convertor().getAppropriateColorForState(self.controlPc.runtimeHostPcsData[self.currHostPc["IP"]]['hostPcLblColor']))
+        else:
+            self.hostPcRows[self.currHostPc["IP"]].checkBox.setStyleSheet('background-color: None')
+        self.setDefaultColorToChoosenHostPc(pickedHostPc)
+        self.currHostPc = pickedHostPc
+
+
+    def setDefaultColorToChoosenHostPc(self,hostPcPicked): # Set light blue color to the host pc that was choosen
+        self.hostPcRows[hostPcPicked["IP"]].checkBox.setStyleSheet(DEFAULT_COLOR_TO_CHOSEN_HOST_PC)
 
 
     def addHostPcBtnClicked(self):
         AddAndEditHostPc(False,None,self.mainWindowRef).exec()
 
 
-
     def retranslateUi(self):
         self.setToolTip("Hosts list")
         self.setTitle("Exerciser / Host")
+        self.setStyleSheet("background-color:rgb(224,224,224)")
         for hostPc in self.hostPcs:
             self.hostPcRows[hostPc['IP']].checkBox.setText(hostPc['IP'])
             self.hostPcRows[hostPc['IP']].checkBox.setChecked(hostPc['checked'])

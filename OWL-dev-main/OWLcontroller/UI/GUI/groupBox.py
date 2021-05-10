@@ -56,7 +56,7 @@ class groupBox(QtWidgets.QGroupBox):
 
     def displaySwitchGroupWarningPopUp(self):
         return GUIUtills.PopUpWarning("Are you sure you want to switch group?\n "
-                       "switching will delete all tests configured for current host Pc")
+                       "Wwitching will delete all tests configured for current host Pc")
 
     def cahngeSelected(self,groupName):
         for checkBox in self.groupCheckBoxArr.values():
@@ -79,6 +79,7 @@ class groupBox(QtWidgets.QGroupBox):
     def retranslateUi(self):
         self.setToolTip("Group list")
         self.setTitle("Select Group")
+        self.setStyleSheet("background-color:rgb(224,224,224)")
         for groupName in self.groupNames:
             self.groupCheckBoxArr[groupName].setText(groupName)
 
