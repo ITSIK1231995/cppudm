@@ -69,6 +69,12 @@ class hostPcTestsRunner():
     def getSavedTraceFullPath(self):
         return os.getcwd() + "\\" + self.resultFilePath
 
+    def getTraceFullPathAndName(self,test):
+        return self.getSavedTraceFullPath() + test.testname + ".pex"
+
+    def getVSEFullPathAndName(self,test):
+        return os.getcwd() + "\\" + test.verificationscript
+
     def runAllTests(self):
         self.printToLog("starting running tests")
         stopOnFailure = self.hostPc['stopOnFailure']
@@ -89,7 +95,7 @@ class hostPcTestsRunner():
                 while not self.controllerPc.isAnalyzerHandleEnded(analyzer):
                     time.sleep(1)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has stopped for the following test: " + test.testname)
-                self.controllerPc.startVSE()
+                self.controllerPc.startVSE(self.getTraceFullPathAndName(test),self.getVSEFullPathAndName(test))
                 if testResult:
                     numOfPass += 1
                     self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Passed")
