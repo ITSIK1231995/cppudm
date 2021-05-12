@@ -1,7 +1,9 @@
 import datetime
 import os
 import threading
-from UI.GUI.state import state
+import time
+
+from UI.GUI.teststate import testState
 from operations.allOperations import allOperations
 import logging
 
@@ -35,55 +37,58 @@ class hostPcTestsRunner():
         self.threadLock.acquire()
         timeStamp = self.getCurrentTime()
         logPath = self.controllerPc.configs.defaultConfContent["resultPath"] + "\\" + test.results[:-1]
-        filePath = logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
-        fileName = filePath + "\\" + "terminal.log"
+        self.filePath = logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
+        fileName = self.filePath + "\\" + "terminal.log"
         if not os.path.exists(fileName):
-            os.makedirs(filePath)
+            os.makedirs(self.filePath)
             logObj = open(fileName, "w")
         else:
             logObj = open(fileName, "a")
         self.threadLock.release()
         return logObj
 
-    def runAllTests(self):
+    def runAllTests(self): #TODO need to sperate this func to several funcs
         self.printToLog("starting running tests")
         stopOnFailure = self.hostPc['stopOnFailure']
-        hostFinalStatus = state.PASSED  # if True host final session status is pass , otherwise fail
+        hostFinalStatus = testState.PASSED  # if True host final session status is pass , otherwise fail
         for test in self.testToRun:
             numOfPass = 0
             numOfFails = 0
 
+            #Todo the lines 57 - 67 should be a functiomn updating the UI , also state name should be changwd to testState
             self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]][test.testname] = \
-                {"testRepeatsCurrStatus": state.RUNNING,
-                 "testRepeatsSummary": {state.PASSED: numOfPass, state.FAILED: numOfFails}}
+                {"testRepeatsCurrStatus": testState.RUNNING,
+                 "testRepeatsSummary": {testState.PASSED: numOfPass, testState.FAILED: numOfFails}}
             self.controllerPc.updateTestStatusInRunTime(self.hostPc, test)
-
-            self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]]["hostPcLblColor"] = state.RUNNING
+            self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]]["hostPcLblColor"] = testState.RUNNING
             self.controllerPc.updateUiWithHostNewStatus(self.hostPc)
             self.printToLog("starting test= " + test.testname)
             for x in range(self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests according to repeatAmount
                 testLog = self.createLog(test)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
-
 #TODO need to start and stop recording with analyzer
-                analyzerInfo = self.controllerPc.analyzer.startAnalyzerRecord(os.getcwd() + "\\" +test.recordingoptions,r"C:\cppudm\OWL-dev-main\OWLcontroller", "newTrace")
+# TODO need to start and stop recording with analyzer
 
+                analyzer = self.controllerPc.createAnalyzerInstance()
+                self.controllerPc.startRecordingWithAnalyzer(analyzer, test, self.filePath)
                 testResult = self.runSequanceOfOperations(test, self.controllerPc, testLog)
+                while not self.controllerPc.isAnalyzerHandleEnded(analyzer):
+                    time.sleep(1)
 
-                self.controllerPc.analyzer.stopAnalyzerRecording(analyzerInfo)
+                # self.controllerPc.analyzer.stopAnalyzerRecording()
 
-                if (testResult):
+                if testResult:
                     numOfPass += 1
                     self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Passed")
                 else:
                     numOfFails += 1
-                    hostFinalStatus = state.FAILED  # if one test has failed in the Host's session of tests its enough to mark this session for this host has a session that failed
+                    hostFinalStatus = testState.FAILED  # if one test has failed in the Host's session of tests its enough to mark this session for this host has a session that failed
                     self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Failed")
                 testLog.close()
-
+                #TODO the following should be in another function that is about update ui
                 self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]][test.testname] = \
-                    {"testRepeatsCurrStatus": state.RUNNING if x < self.hostPc["tests"][test.testname]['repeatAmount']-1 else state.FINISHED, # if we did not finished all the repeats we the state will be running otherwise it'll be according to the results
-                     "testRepeatsSummary": {state.PASSED: numOfPass, state.FAILED: numOfFails}}
+                    {"testRepeatsCurrStatus": testState.RUNNING if x < self.hostPc["tests"][test.testname]['repeatAmount'] - 1 else testState.FINISHED,  # if we did not finished all the repeats we the state will be running otherwise it'll be according to the results
+                     "testRepeatsSummary": {testState.PASSED: numOfPass, testState.FAILED: numOfFails}}
                 self.controllerPc.updateTestStatusInRunTime(self.hostPc, test)
 
                 if self.controllerPc.haltThreads:
@@ -91,16 +96,13 @@ class hostPcTestsRunner():
 
             if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
                 break
-
-            self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, None,
-                                                 "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(
-                                                     numOfFails) + "\n")
+            self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, None,"\n >>> Passed: " + str(numOfPass) + " Failed:" + str(numOfFails) + "\n")
             self.printToLog("finished test= " + test.testname)
-
             if self.controllerPc.haltThreads:
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, None, "Testing stopped")
                 self.printToLog("halting")
                 break
+            # TODO the following should be in another function that is about update ui
         self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]]["hostPcLblColor"] = hostFinalStatus
         self.controllerPc.updateUiWithHostNewStatus(self.hostPc)
         self.printToLog("Finished running tests")

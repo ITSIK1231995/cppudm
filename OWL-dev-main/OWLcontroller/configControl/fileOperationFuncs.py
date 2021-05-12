@@ -1,6 +1,5 @@
 import os
 
-
 def cleanUpErrinjModeConfFile(line):
     return line.rstrip("\n").replace(";", "").replace('"', "").strip().split("=")
 
