@@ -1,5 +1,6 @@
 import datetime
 import os
+import subprocess
 import threading
 import time
 from collections import namedtuple
@@ -95,7 +96,7 @@ class hostPcTestsRunner():
                 while not self.controllerPc.isAnalyzerHandleEnded(analyzer):
                     time.sleep(1)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has stopped for the following test: " + test.testname)
-                verificationScriptOutPut = os.subprocess.getoutput(self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test)))
+                verificationScriptOutPut = subprocess.getoutput(self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test)))
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, verificationScriptOutPut)
                 if testResult:
                     numOfPass += 1
