@@ -1,0 +1,171 @@
+##################################################################################################
+#                                                                                                #
+#  Copyright (c) 2014, LeCroy Corporation - All Rights Reserved                                  #
+#                                                                                                #
+#  examp_nvme_errors.pevs                                                                        #
+#                                                                                                #
+#   Verification script                                                                          #
+#                                                                                                #
+#   Brief Description: Iterates through all NVME transactions trace and prints out               #
+#   relevant information about each transaction errors.                                          #
+#                                                                                                #
+##################################################################################################
+
+
+##################################################################################################
+#                                           Module info                                          #
+##################################################################################################
+set ModuleType  = "Verification Script";  # Should be set for all verification scripts
+set OutputType  = "VS";                   # Should be set for all verification scripts that
+                                          # output only Report string and Result.
+set InputType   = "VS";
+set DecoderDesc = "Example PCI Express Verification Script, prints out
+information about NVME transaction errors";
+
+##################################################################################################
+
+
+%include  "VSTools.inc"         # must be included
+
+
+##################################################################################################
+# For input context members, please refer to Verification Script Engine manual.                  #
+#                                                                                                #
+##################################################################################################
+
+
+##################################################################################################
+#                            Global Variables                                                    #
+##################################################################################################
+
+set TransactionCount = 0;
+
+set ErrorCount = 0;
+set NVMEErrorAccessDirViolation = 0;
+set NVMEErrorReservedNotNull = 0;
+set NVMEErrorInvalidFieldValue = 0;
+set NVMEErrorIncompleteTra = 0;
+set NVMEErrorIncompleteSubTra = 0;
+set NVMEErrorErrorInSubTra = 0;
+set NVMEErrorLogicalError = 0;
+set NVMEErrorQueueError = 0;
+set NVMEErrorNoError = 0;
+
+##################################################################################################
+
+
+##################################################################################################
+#                                                                                                #
+# OnStartScript - Calleed once before executing the script.                                      #
+# Setup and event filtering actions are taken here.                                              #
+#                                                                                                #
+##################################################################################################
+
+OnStartScript()
+{
+    ScriptForDisplayOnly();     # Just prints out data, no Pass/Fail
+
+    ReportText( "Processing NVME transactions..." );
+
+    SendAllChannels();
+
+    SendLevelOnly( _NVME ); # only processing NVME Transactions    
+
+    SendAllTraceEvents();
+
+    TransactionCount = 0;
+
+    ErrorCount = 0;
+    NVMEErrorAccessDirViolation = 0;
+    NVMEErrorReservedNotNull = 0;
+    NVMEErrorInvalidFieldValue = 0;
+    NVMEErrorIncompleteTra = 0;
+    NVMEErrorIncompleteSubTra = 0;
+    NVMEErrorErrorInSubTra = 0;
+    NVMEErrorLogicalError = 0;
+    NVMEErrorQueueError = 0;
+    NVMEErrorNoError = 0;
+}
+
+
+##################################################################################################
+# Function:    OnFinishScript()
+# Description: The application calls this function just before stopping the script execution.
+##################################################################################################
+OnFinishScript()
+{
+    errors_report = FormatEx("Correct transactions: %d. Transactions with errors: %d.
+    RO Violation: %d,
+    Reserved not zero: %d, 
+    Invalid Value: %d,
+    Incomplete: %d,
+    Incomplete Sub: %d,
+    Error In Sub: %d,
+    Logical error: %d,
+    Queue error: %d",
+    NVMEErrorNoError, ErrorCount, NVMEErrorAccessDirViolation, NVMEErrorReservedNotNull, NVMEErrorInvalidFieldValue,
+    NVMEErrorIncompleteTra, NVMEErrorIncompleteSubTra, NVMEErrorErrorInSubTra, NVMEErrorLogicalError, NVMEErrorQueueError);
+
+    ReportText( errors_report );
+
+    out.Result = theResult;
+}
+
+
+######################################################################################
+#                                                                                    #
+# ProcessEvent - Entry point of the script.                                          #
+# The application calls this function every time it finds new relevant trace event.  #
+#                                                                                    #
+######################################################################################
+ProcessEvent()
+{
+    if ( in.nvmeTraHasErrors )
+    {
+        ErrorCount++;
+        ReportText( FormatEx( "Transaction #%d:\t%s", TransactionCount, in.nvmeErrorIdAsString ) );
+    }
+
+    if ( TraHasError( _NVME_ERROR_ACCESS_DIR_VIOLATION ) )
+    {
+        NVMEErrorAccessDirViolation++;
+    }
+    if ( TraHasError( _NVME_ERROR_RESERVED_NOT_NULL ) )
+    {
+        NVMEErrorReservedNotNull++;
+    }
+    if ( TraHasError( _NVME_ERROR_INVALID_FIELD_VALUE ) )
+    {
+        NVMEErrorInvalidFieldValue++;
+    }
+    if ( TraHasError( _NVME_ERROR_INCOMPLETE_TRA ) )
+    {
+        NVMEErrorIncompleteTra++;
+    }
+    if ( TraHasError( _NVME_ERROR_INCOMPLETE_SUB_TRA ) )
+    {
+        NVMEErrorIncompleteSubTra++;
+    }
+    if ( TraHasError( _NVME_ERROR_ERROR_IN_SUB_TRA ) )
+    {
+        NVMEErrorErrorInSubTra++;
+    }
+    if ( TraHasError( _NVME_ERROR_LOGICAL_ERROR ) )
+    {
+        NVMEErrorLogicalError++;
+    }
+    if ( TraHasError( _NVME_ERROR_QUEUE_ERROR ) )
+    {
+        NVMEErrorQueueError++;
+    }
+    
+    /* or you can check errors this way */
+    if ( in.nvmeErrorId == _NVME_ERROR_NO_ERROR )
+    {
+        NVMEErrorNoError++;
+    }
+
+    TransactionCount++;
+    return Complete();
+}
+

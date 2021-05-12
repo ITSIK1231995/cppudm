@@ -5,13 +5,13 @@ import time
 import traceback
 from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
-from hostPcTestsRunner import hostPcTestsRunner, testState
+from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
 import _thread
 from UI.GUI.viewGui import mainWindow
 from datetime import datetime
 import datetime
-from analyzer import analyzer
+from lecroy.analyzer import analyzer
 from validator import *
 
 class ControllerPc():
@@ -46,8 +46,8 @@ class ControllerPc():
         return True
 
     def startRecordingWithAnalyzer(self, analyzer, test, filePath):
-        analyzer.startAnalyzerRecord(os.getcwd() + "\\" + test.recordingoptions, os.getcwd() + "\\" + filePath,
-                                     "newTrace")
+        analyzer.startAnalyzerRecord(os.getcwd() + "\\" + test.recordingoptions, os.getcwd() + "\\" + filePath, test.testname)
+
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()
 
