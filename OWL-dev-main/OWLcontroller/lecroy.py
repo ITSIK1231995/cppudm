@@ -43,7 +43,7 @@ class lecroy():
 
         self.Trace = self.Analyzer.MakeRecording(RecOptions)
         print ("!!!!!!!!!!!!!!!!!!!! Thread passed the make recording func !!!!!!!!!!!!!!!!!!!!!!!!!!")
-
+        print ("Additoon")
         # Imitation of some activity - just sleep for 3 seconds.
         time.sleep(3)
         self.makeRecordingWasDone = True
