@@ -36,14 +36,14 @@ class VSEventHandler(object):
         except Exception as e:
             print("VSEventHandler::OnNotifyClient - failed with exception: %s" % e)
 
-class verificationScriptEngine():
-    def startVerificationScriptEngine(self,TraceName,VScriptName):
+class VSE():
+    def startVerificationScriptEngine(self, traceFullPathAndName, vScriptFullPathAndName):
         # TraceName = "C:\\Users\\Public\\Documents\\LeCroy\\PCIe Protocol Suite\\Sample Files\\Training_x8.pex"
         # VScriptName = "C:\\Users\\Public\\Documents\\LeCroy\\PCIe Protocol Suite\\Scripts\\VFScripts\\Examples\\" \
         #               "examp_nvme_errors.pevs"
         Analyzer = DispatchWithEvents("CATC.PETracer", PEEvent)  # using dispatch with events
-        Trace = Analyzer.OpenFile(TraceName)
-        VSEngine = Trace.GetVScriptEngine(VScriptName)
+        Trace = Analyzer.OpenFile(traceFullPathAndName)
+        VSEngine = Trace.GetVScriptEngine(vScriptFullPathAndName)
         handler = WithEvents(VSEngine, VSEventHandler)
         VSEngine.Tag = 12
         Result = VSEngine.RunVScript()  # run VSE script and get result

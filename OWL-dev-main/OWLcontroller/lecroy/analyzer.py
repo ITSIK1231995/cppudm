@@ -17,9 +17,6 @@ class analyzer():
 
     def dispatchAnalyzerRecord(self,recOptionsFullPath,saveTraceFullPath,savedTraceName):
         self.threadLock.acquire()
-        recOptionsFullPath = 'C:\\Users\\Public\\Documents\\LeCroy\\PCIe Protocol Suite\\Automation\\python\\Input\\test_ro.rec'
-        #saveTraceFullPath = 'C:\\Users\\Public\\Documents\\LeCroy\\PCIe Protocol Suite\\Automation\\python\\Output\\'
-        #savedTraceName = 'PCIe_seqrecc_dataForth1'
         os.system("TASKKILL /F /IM PETracer.exe")
         analyzerInfo = namedtuple('analyzerInfo', ['AnalyzerObj', 'Trace', 'SavedTracePathAndName'])
         # Initialize the Analyzer object
