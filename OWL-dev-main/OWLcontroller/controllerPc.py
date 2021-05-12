@@ -46,8 +46,8 @@ class ControllerPc():
             time.sleep(1)
         return True
 
-    def startRecordingWithAnalyzer(self, analyzer, test, filePath):
-        analyzer.startAnalyzerRecord(os.getcwd() + "\\" + test.recordingoptions, os.getcwd() + "\\" + filePath, test.testname)
+    def startRecordingWithAnalyzer(self, analyzer, test, SavedTraceFullPath, recordingOptionsFilePath):
+        analyzer.startAnalyzerRecord(recordingOptionsFilePath, SavedTraceFullPath, test.testname)
 
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()

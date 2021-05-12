@@ -35,10 +35,10 @@ class hostPcTestsRunner():
         self.threadLock.acquire()
         timeStamp = self.getCurrentTime()
         logPath = self.controllerPc.configs.defaultConfContent["resultPath"] + "\\" + test.results[:-1]
-        self.filePath = logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
-        fileName = self.filePath + "\\" + "terminal.log"
+        self.resultFilePath = logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
+        fileName = self.resultFilePath + "\\" + "terminal.log"
         if not os.path.exists(fileName):
-            os.makedirs(self.filePath)
+            os.makedirs(self.resultFilePath)
             logObj = open(fileName, "w")
         else:
             logObj = open(fileName, "a")
@@ -63,6 +63,12 @@ class hostPcTestsRunner():
         self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]]["hostPcLblColor"] = hostCurrState
         self.controllerPc.updateUiWithHostNewStatus(self.hostPc)
 
+    def getRecordOptionFilePath(self,test):
+        return os.getcwd() + "\\" + test.recordingoptions
+
+    def getSavedTraceFullPath(self):
+        return os.getcwd() + "\\" + self.resultFilePath
+
     def runAllTests(self):
         self.printToLog("starting running tests")
         stopOnFailure = self.hostPc['stopOnFailure']
@@ -78,7 +84,7 @@ class hostPcTestsRunner():
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
                 analyzer = self.controllerPc.createAnalyzerInstance()
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has started for the following test: "+ test.testname)
-                self.controllerPc.startRecordingWithAnalyzer(analyzer, test, self.filePath)
+                self.controllerPc.startRecordingWithAnalyzer(analyzer, test, self.getSavedTraceFullPath(),self.getRecordOptionFilePath(test))
                 testResult = self.runSequanceOfOperations(test, self.controllerPc, testLog)
                 while not self.controllerPc.isAnalyzerHandleEnded(analyzer):
                     time.sleep(1)
