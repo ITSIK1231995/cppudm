@@ -1,6 +1,6 @@
 import time
 from collections import namedtuple
-
+import win32com.client
 import win32com
 
 
@@ -8,6 +8,7 @@ class lecroy():
     def startAnalyzerRecord(self,recOptionsFullPath,saveTraceFullPath,savedTraceName):
         analyzerInfo = namedtuple('analyzerInfo' , ['AnalyzerObj' , 'Trace', 'SavedTracePathAndName'])
         # Initialize the Analyzer object
+
         Analyzer = win32com.client.Dispatch("CATC.PETracer")
         #
         # In the piece of code below we perform 4 sequential recordings and

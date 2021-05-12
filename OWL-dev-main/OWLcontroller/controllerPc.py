@@ -1,56 +1,52 @@
-import configparser
-import datetime
 import json
-import logging
 import os
 import time
 import traceback
-from pathlib import Path
-
 from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
-from configControl.confParserLM import confParserLM
-from hostPcTestsRunner import hostPcTestsRunner, state
+from hostPcTestsRunner import hostPcTestsRunner, testState
 from UI.GUI.viewGui import *
 import _thread
-from datetime import datetime
 from UI.GUI.viewGui import mainWindow
-from datetime import date
 from datetime import datetime
 import datetime
-
 from lecroy import lecroy
 from validator import *
-
+#TODO need to remove spaces (leave one space between functions)
 class ControllerPc():
-
     def __init__(self,conf='defaultConfiguration.json'):
         logging.info("ControllerPc started")
         logging.info("Parsing configs")
-
         self.runtimeHostPcsData = {}
         self.preRunValidationErorrs = {}
         self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
         logging.info("Initiating GUI")
-        self.analyzer = lecroy()
-
         self.GUIInit()
-
 
     def reload(self,conf):
         logging.info("Parsing reloading")
         logging.info("Parsing configs")
         self.runtimeHostPcsData = {}
-        self.preRunValidationErorrs = []
+        self.preRunValidationErorrs = {}
         self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
         logging.info("Initiating GUI")
         self.GUIInit()
 
+    def createAnalyzerInstance(self):
+        return lecroy()
 
+    def isAnalyzerHandleEnded(self, analyzer):
+        while analyzer.AnalyzerHandlingEnded == False:
+            time.sleep(1)
+        return True
+
+    def startRecordingWithAnalyzer(self, analyzer, test, filePath):
+        analyzer.startAnalyzerRecord(os.getcwd() + "\\" + test.recordingoptions, os.getcwd() + "\\" + filePath,
+                                     "newTrace")
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()
 
@@ -67,10 +63,8 @@ class ControllerPc():
     def updateTestStatusInRunTime(self,hostPc,test):
         self.view.updateTestStatusLblInRunTime(hostPc,test)
 
-
     def updateUiWithHostNewStatus(self, hostPcWithNewState):
         self.view.updateHostPcLabels(hostPcWithNewState)
-
 
     def savedDefaultConfContentIntoJson(self):
         logging.info("Saving new Default Conf Content")
@@ -93,7 +87,6 @@ class ControllerPc():
     def getCurrentTimeFile(self):
         return self.getCurrentTime().replace("-", "_").replace(":", "_")
 
-
     def getCurrentTime(self):
         now = datetime.datetime.now()
         return str(now.strftime("%Y-%m-%d %H:%M:%S"))
@@ -115,7 +108,6 @@ class ControllerPc():
         self.QMainWindow.show()
         self.app.exec_()
 
-
     def startExecution(self):
         self.haltThreads = False
         self.dispatchThreads()
@@ -127,10 +119,8 @@ class ControllerPc():
         self.haltThreads = True
         print("Stopping tests")
 
-
     def exitSystem(self):
         exit(0)
-
 
 if __name__ == '__main__':
     logging.basicConfig(filename='appLog.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

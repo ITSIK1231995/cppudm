@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
 
 from UI.GUI.convertor import convertor
-from hostPcTestsRunner import state
+from hostPcTestsRunner import testState
 
 
 class TestsGroupBox(QtWidgets.QGroupBox):
@@ -105,18 +105,18 @@ class TestsGroupBox(QtWidgets.QGroupBox):
 
     def updateTestStatusLbl(self,hostPc,testName): #
         _translate = QtCore.QCoreApplication.translate
-        parsingTestRepeatsSummary = self.parsingTestRepeatsSummary(hostPc,testName)
+        parsingTestRepeatsSummary = self.prepareTestRepeatsSummary(hostPc, testName)
         self.testsRows[testName].statusLbl.setText(_translate("skippedTestsNumber", parsingTestRepeatsSummary.resultsStr))
-        self.testsRows[testName].statusLbl.setStyleSheet(convertor().getAppropriateColorForState(parsingTestRepeatsSummary.stateForColor))
+        self.testsRows[testName].statusLbl.setStyleSheet(convertor().getColorForState(parsingTestRepeatsSummary.stateForColor))
 
-    def parsingTestRepeatsSummary(self,hostPc,testName):
+    def prepareTestRepeatsSummary(self, hostPc, testName):
         parsedTestRepeatsSummary = namedtuple('parsedTestRepeatsSummary', ['stateForColor', 'resultsStr'])
-        if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]["testRepeatsCurrStatus"].name == state.RUNNING.name:
-            return parsedTestRepeatsSummary(state.RUNNING, "Running")
-        if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][state.FAILED] > 0:
-            return parsedTestRepeatsSummary(state.FAILED," Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][state.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][state.FAILED]))
-        elif self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][state.PASSED] > 0:
-            return parsedTestRepeatsSummary(state.PASSED," Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][state.PASSED]))
+        if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]["testRepeatsCurrStatus"].name == testState.RUNNING.name:
+            return parsedTestRepeatsSummary(testState.RUNNING, "Running")
+        if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED] > 0:
+            return parsedTestRepeatsSummary(testState.FAILED, " Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED]))
+        elif self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED] > 0:
+            return parsedTestRepeatsSummary(testState.PASSED, " Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]))
 
 
     def loadHostPCSTestParams(self, hostPc):
@@ -133,12 +133,12 @@ class TestsGroupBox(QtWidgets.QGroupBox):
                 self.testsRows[test.testname].repeatTestBox.setValue(0)
 
             if self.myHostPc["IP"] in self.controller.runtimeHostPcsData.keys() and test.testname in self.controller.runtimeHostPcsData[self.myHostPc["IP"]].keys():
-                parsedTestRepeatsSummary = self.parsingTestRepeatsSummary(hostPc,test.testname)
+                parsedTestRepeatsSummary = self.prepareTestRepeatsSummary(hostPc, test.testname)
                 self.testsRows[test.testname].statusLbl.setText(parsedTestRepeatsSummary.resultsStr)
-                self.testsRows[test.testname].statusLbl.setStyleSheet(convertor().getAppropriateColorForState(parsedTestRepeatsSummary.stateForColor))
+                self.testsRows[test.testname].statusLbl.setStyleSheet(convertor().getColorForState(parsedTestRepeatsSummary.stateForColor))
             else:
                 self.testsRows[test.testname].statusLbl.setText("Not Started")
-                self.testsRows[test.testname].statusLbl.setStyleSheet(convertor().getAppropriateColorForState(state.NOTSTARTED))
+                self.testsRows[test.testname].statusLbl.setStyleSheet(convertor().getColorForState(testState.NOTSTARTED))
 
 
 

@@ -101,8 +101,6 @@ class confParserLM():
                         break
                 else:
                     controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName: sequenceFileInvalidSyntaxDescription})
-
-                #controlPc.preRunValidationErorrs.append(sequenceFileInvalidSyntaxDescription)
             return None # When the sequence file is corrupted we are sending a "False" boolean in order to indicate this
         return FlowOperations #Otherwise we are sending the loaded json file
 
@@ -145,16 +143,13 @@ class confParserLM():
                     if SEQUANCE_FILE in sectionParams: #TODO: "sequanceFile" should be constant , we need create a class of CONSTANTS , that way each const will be reached by const.legacy.something
                         testConf = self.createSequanceFileConf(sectionName,controlPc)
                         if testConf == None:
-
                             continue # If the user provided an invalid Json file (sequence file) , the system won't take it.
-
                         self.addingParamsToConf(sectionParams,testConf, sectionName)
                         self.saveConfIntoDicts(sectionName, legacyFlowOperationsTestsByGroups, testConf)
                     else:
                         testConf = testConfLegacy()  # Creates Legacy config file container
                         self.addingParamsToConf(sectionParams, testConf, sectionName)
                         self.saveConfIntoDicts(sectionName, legacyTestsByGroup, testConf)
-
         return parseResults(legacyTestsByGroup, legacyFlowOperationsTestsByGroups)  # return the namedTuple contains both results dicts
 
 

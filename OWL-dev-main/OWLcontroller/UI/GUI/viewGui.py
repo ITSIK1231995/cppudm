@@ -217,9 +217,9 @@ class mainWindow(object):
         if len(self.controller.preRunValidationErorrs) != 0:
             if 'corruptedSequenceFile' in self.controller.preRunValidationErorrs:
                 outPutcorruptedSequenceFile = ""
-                for dict in self.controller.preRunValidationErorrs['corruptedSequenceFile']:
-                    for key,value in dict.items():
-                        outPutcorruptedSequenceFile += str(value)
+                for curraptedSeqfile in self.controller.preRunValidationErorrs['corruptedSequenceFile']:
+                    for seqFileName,seqFileErr in curraptedSeqfile.items():
+                        outPutcorruptedSequenceFile += str(seqFileErr)
                 GUIUtills.PopUpWarning(outPutcorruptedSequenceFile)
                 self.controller.exitSystem()
 
@@ -359,7 +359,7 @@ class mainWindow(object):
             self.getCurrentTestsGroupBoxWithLevelTuple().testsGroupBox.updateTestStatusLbl(hostPc,test.testname)
 
     def updateHostPcLabels(self, hostPcWithNewStatus):
-        self.hostExercisersGroupBox.hostPcRows[hostPcWithNewStatus["IP"]].checkBox.setStyleSheet(convertor().getAppropriateColorForState(self.controller.runtimeHostPcsData[hostPcWithNewStatus["IP"]]["hostPcLblColor"]))
+        self.hostExercisersGroupBox.hostPcRows[hostPcWithNewStatus["IP"]].checkBox.setStyleSheet(convertor().getColorForState(self.controller.runtimeHostPcsData[hostPcWithNewStatus["IP"]]["hostPcLblColor"]))
 
     def runPreferencesEditor(self):
         PreferencesEditor(self).exec()

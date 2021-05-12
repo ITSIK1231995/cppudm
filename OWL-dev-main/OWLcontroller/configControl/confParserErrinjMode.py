@@ -8,7 +8,7 @@ import os
 
 # Errinj Mode
 from configControl.confParserLM import findDir
-from configControl.fileOPHelperFuncs import convertToString, cleanUpErrinjModeConfFile
+from configControl.fileOperationFuncs import convertToString, cleanUpErrinjModeConfFile
 
 ERRINJ_CONFIG_FILE_SUFFIX = ".cts"
 TEST_PARAM = "="

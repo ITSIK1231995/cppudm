@@ -70,7 +70,7 @@ class hostPcTestsRunner():
 
                 testResult = self.runSequanceOfOperations(test, self.controllerPc, testLog)
 
-                self.controllerPc.analyzer.startAnalyzerRecord(analyzerInfo)
+                self.controllerPc.analyzer.stopAnalyzerRecording(analyzerInfo)
 
                 if (testResult):
                     numOfPass += 1

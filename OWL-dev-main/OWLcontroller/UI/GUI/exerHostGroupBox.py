@@ -15,10 +15,10 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.setGeometry(QtCore.QRect(10, 150, 260, 280))
         self.setObjectName("hostExercisersGroupBox")
         self.vbox = QVBoxLayout()
-        self.controlPc = controlPc
+        self.controller = mainWindowRef.controller
 
-        if  mainWindowRef.controller.configs:
-            self.hostPcs = mainWindowRef.controller.configs.defaultConfContent['hostPCs']
+        if self.controller.configs:
+            self.hostPcs = self.controller.configs.defaultConfContent['hostPCs']
 
         self.hostPCTableSetup()
         self.scrollSetup()
@@ -133,8 +133,8 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
 
     def setColorForPickedShowBtn(self, pickedHostPc): # When clicking on the Show button.
         # this statement used for set color to the host pc after clicking "show" on other host pc
-        if self.currHostPc["IP"] in self.controlPc.runtimeHostPcsData.keys() and 'hostPcLblColor' in self.controlPc.runtimeHostPcsData[self.currHostPc["IP"]].keys():
-                self.hostPcRows[self.currHostPc["IP"]].checkBox.setStyleSheet(convertor().getAppropriateColorForState(self.controlPc.runtimeHostPcsData[self.currHostPc["IP"]]['hostPcLblColor']))
+        if self.currHostPc["IP"] in self.controller.runtimeHostPcsData.keys() and 'hostPcLblColor' in self.controller.runtimeHostPcsData[self.currHostPc["IP"]].keys():
+                self.hostPcRows[self.currHostPc["IP"]].checkBox.setStyleSheet(convertor().getColorForState(self.controller.runtimeHostPcsData[self.currHostPc["IP"]]['hostPcLblColor']))
         else:
             self.hostPcRows[self.currHostPc["IP"]].checkBox.setStyleSheet('background-color: None')
         self.setDefaultColorToChoosenHostPc(pickedHostPc)
