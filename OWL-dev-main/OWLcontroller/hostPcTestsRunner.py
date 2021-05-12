@@ -51,9 +51,9 @@ class hostPcTestsRunner():
              "testRepeatsSummary": {testState.PASSED: numOfPass, testState.FAILED: numOfFails}}
         self.controllerPc.updateTestStatusInRunTime(self.hostPc, test)
 
-    def updateUiAndControlleWithTestStatusrAfterEachRepat(self,test,numOfPass,numOfFails):
+    def updateUiAndControlleWithTestStatusrAfterEachRepat(self,test,numOfPass,numOfFails,repeat):
         self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]][test.testname] = \
-            {"testRepeatsCurrStatus": testState.RUNNING if x < self.hostPc["tests"][test.testname][
+            {"testRepeatsCurrStatus": testState.RUNNING if repeat < self.hostPc["tests"][test.testname][
                 'repeatAmount'] - 1 else testState.FINISHED,
              # if we did not finished all the repeats we the state will be running otherwise it'll be according to the results
              "testRepeatsSummary": {testState.PASSED: numOfPass, testState.FAILED: numOfFails}}
@@ -73,7 +73,7 @@ class hostPcTestsRunner():
             self.updateUiAndControllerWithTestStatuses(test,numOfPass,numOfFails)
             self.updateUiAndContollerWithHostdata(testState.RUNNING)
             self.printToLog("starting test= " + test.testname)
-            for x in range(self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests according to repeatAmount
+            for repeat in range(self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests according to repeatAmount
                 testLog = self.createLog(test)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
                 analyzer = self.controllerPc.createAnalyzerInstance()
@@ -89,7 +89,7 @@ class hostPcTestsRunner():
                     hostFinalStatus = testState.FAILED  # if one test has failed in the Host's session of tests its enough to mark this session for this host has a session that failed
                     self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Failed")
                 testLog.close()
-                self.updateUiAndControlleWithTestStatusrAfterEachRepat(test,numOfPass,numOfFails)
+                self.updateUiAndControlleWithTestStatusrAfterEachRepat(test,numOfPass,numOfFails,repeat)
                 if self.controllerPc.haltThreads:
                     break
             if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
