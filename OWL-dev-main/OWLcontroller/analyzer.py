@@ -6,7 +6,7 @@ from collections import namedtuple
 import win32com.client
 import win32com
 
-class lecroy():
+class analyzer():
     def __init__(self):
         self.threadLock = threading.Lock()
         self.makeRecordingWasDone = False

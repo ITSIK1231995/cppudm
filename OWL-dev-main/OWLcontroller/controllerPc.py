@@ -11,7 +11,7 @@ import _thread
 from UI.GUI.viewGui import mainWindow
 from datetime import datetime
 import datetime
-from lecroy import lecroy
+from analyzer import analyzer
 from validator import *
 
 class ControllerPc():
@@ -38,7 +38,7 @@ class ControllerPc():
         self.GUIInit()
 
     def createAnalyzerInstance(self):
-        return lecroy()
+        return analyzer()
 
     def isAnalyzerHandleEnded(self, analyzer):
         while analyzer.AnalyzerHandlingEnded == False:

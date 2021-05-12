@@ -77,10 +77,13 @@ class hostPcTestsRunner():
                 testLog = self.createLog(test)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
                 analyzer = self.controllerPc.createAnalyzerInstance()
+                self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has started for the following test: "+ test.testname)
                 self.controllerPc.startRecordingWithAnalyzer(analyzer, test, self.filePath)
                 testResult = self.runSequanceOfOperations(test, self.controllerPc, testLog)
                 while not self.controllerPc.isAnalyzerHandleEnded(analyzer):
                     time.sleep(1)
+                self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,
+                                                               "\n Analyzer recording has stopped for the following test: " + test.testname)
                 if testResult:
                     numOfPass += 1
                     self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Passed")
