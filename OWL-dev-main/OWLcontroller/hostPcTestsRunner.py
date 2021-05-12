@@ -70,7 +70,7 @@ class hostPcTestsRunner():
         return os.getcwd() + "\\" + self.resultFilePath
 
     def getTraceFullPathAndName(self,test):
-        return self.getSavedTraceFullPath() + test.testname + ".pex"
+        return "\\" + self.getSavedTraceFullPath() + test.testname + ".pex"
 
     def getVSEFullPathAndName(self,test):
         return os.getcwd() + "\\" + test.verificationscript
