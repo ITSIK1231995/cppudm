@@ -1,21 +1,15 @@
 import socket
 from operations.allOperations import allOperations
-from operations.operationsTypes.runCommandViaCmd import runCommandViaCMD
 import json
-
 import sys
 import logging
 import traceback
 import os
 
-
 class hostPcTestEnvServer():
-
-
     def __init__(self):
         self.bindServer()
         self.server()
-
 
     def bindServer(self):
         # get the hostname
@@ -35,16 +29,11 @@ class hostPcTestEnvServer():
     def server(self):
         logging.info("server started, waiting for connections")
         print("server started, waiting for connections")
-        #print("server started, waiting for connections")
-
-
         while True:
-
             scoket, address = self.server_socket.accept()  # accept new connection
             # print("Connection from: " + str(address))
             logging.info("Connection from: " + str(address))
             print("Connection from: " + str(address))
-
             # receive data stream. it won't accept data packet greater than 1024 bytes
             data = scoket.recv(1024)
             logging.info("data received")
@@ -62,29 +51,9 @@ class hostPcTestEnvServer():
                     print("executing operation = " + data['operation'])
                     mappedOperations.operationsImplement[data['operation']].runOp(self,scoket,[])
 
-
-                # elif isinstance(data, str):
-                #     mappedOperations = allOperations()
-                #     mappedOperations.operationsImplement[data].runOp()
-
-
-            #print("from connected user: " + str(data))
-            #data = input(' -> ')
-            # conn.send(data.encode())  # send data to the client
-
-        #conn.close()  # close the connection
-
-
-
-
-
-
 if __name__ == '__main__':
-    #hostPcTestEnvServer.server(hostPcTestEnvServer.bindServer())
-
     if not os.path.exists("C:\\owlLog"):
         os.makedirs("C:\\owlLog")
-
     logging.basicConfig(filename='C:\\owlLog\\appLog.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
         hostPcServer = hostPcTestEnvServer()

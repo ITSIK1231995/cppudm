@@ -1,6 +1,4 @@
 import os
-import sys
-
 CMD_COMMAND = 'cmd /k '
 HIBERNATE_COMMAND = 'shutdown /h'
 

@@ -1,18 +1,12 @@
-import os
-
 from operations.operation import operation
 import json
-
 from operations.operationWithSocket import operationWithSocket
-
 PING = 'ping '
-#SLEEP_COMMAND ="hibernate command request from client new"
 HIBERNATE_COMMAND = 'shutdown /h'
 
 class hibernate(operationWithSocket):
     def getKey(self):
         pass
-
 
     @staticmethod
     def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
@@ -21,7 +15,6 @@ class hibernate(operationWithSocket):
     @staticmethod
     def PCOnAfterTest():#well the pc be on after test finishes
         return False
-
 
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, " \n hibernate operation has started \n ")
     def runOp(self,controllerPc,hostPc,testLog,opParams):

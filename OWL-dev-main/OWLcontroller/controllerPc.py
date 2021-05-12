@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import time
 import traceback
 from PyQt5.uic.properties import QtWidgets
@@ -12,7 +13,7 @@ from datetime import datetime
 import datetime
 from lecroy import lecroy
 from validator import *
-#TODO need to remove spaces (leave one space between functions)
+
 class ControllerPc():
     def __init__(self,conf='defaultConfiguration.json'):
         logging.info("ControllerPc started")

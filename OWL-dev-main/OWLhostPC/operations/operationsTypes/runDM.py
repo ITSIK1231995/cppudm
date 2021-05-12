@@ -2,8 +2,6 @@ import os
 import subprocess
 import psutil
 import logging
-
-
 CMD_COMMAND = 'cmd /k '
 DM_SCRIPT_NAME = 'L1.2_Entry_Exit_PS4_Calypso.srt'
 DM_SCRIPT_PATH = 'C:\OWL\OWL-dev\OWLhostPC'
@@ -29,7 +27,6 @@ class runDM():
         with open(LOG_PATH, 'r') as file:
             data = file.read()
         socket.send(data.encode())  # send data to the client
-
 
     @staticmethod
     def checkIfProcessRunning(processName):

@@ -2,33 +2,22 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog,
                              QDialogButtonBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
                              QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
                              QVBoxLayout)
-
-import sys
 from collections import namedtuple
 from UI.GUI.GUIUtills import *
 
-from PyQt5 import QtWidgets, uic, QtCore
-
 class PreferencesEditor(QDialog):
-
 
     def __init__(self,mainWindowRef):
         super(PreferencesEditor, self).__init__()
         self.mainWindowRef = mainWindowRef
-
-
         self.createFormGroupBox()
-
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.reject)
-
         mainLayout = QVBoxLayout()
         mainLayout.addWidget(self.formGroupBox)
         mainLayout.addWidget(buttonBox)
         self.setLayout(mainLayout)
-
-
         self.setWindowTitle("Preferences")
         self.fillWithData()
 
@@ -38,7 +27,6 @@ class PreferencesEditor(QDialog):
         portBox = QSpinBox()
         portBox.setMaximum(65535)
         portBox.setMinimum(1025)
-
         layout.addRow(QLabel("Host pc port:"), portBox)
         conectionAttempsBox = QSpinBox()
         conectionAttempsBox.setMinimum(4)
@@ -56,7 +44,6 @@ class PreferencesEditor(QDialog):
         self.formGroupBox.setLayout(layout)
         formObjectsNamedTuple = namedtuple('formObjects', ['portBox', 'conectionAttempsBox','defaultExecutionModeBox','resultPathBox','legacyModePathBox','errinjModePathBox','analyzerMinVersionBox'])
         self.formObjects = formObjectsNamedTuple(portBox, conectionAttempsBox,defaultExecutionModeBox,resultPathBox,legacyModePathBox,errinjModePathBox,analyzerMinVersionBox)
-
 
     def fillWithData(self):
         defaultConf = self.mainWindowRef.controller.configs.defaultConfContent

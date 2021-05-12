@@ -1,5 +1,4 @@
 import time
-
 from operations.operation import operation
 
 class wait(operation):

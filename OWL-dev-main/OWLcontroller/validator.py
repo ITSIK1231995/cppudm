@@ -8,7 +8,6 @@ class Validator:
         self.validateflowOps()
         self.validateAndFixHostPcSavedTestData()
 
-
     def getOprationObject(self,operation):
         opraion = namedtuple('opraion', ['name', 'opraionObj'])
         mappedOperations = allOperations()
@@ -18,7 +17,6 @@ class Validator:
             return opraion(operation, mappedOperations.operationsImplementation[operation])
 
     def validateflowOps(self):
-
         outputText = ""
         for groupName,groupTests in self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.items():
             for test in groupTests:
@@ -26,8 +24,8 @@ class Validator:
                     leadingOp = self.getOprationObject(test.flowoperations[x])
                     tralingOp = self.getOprationObject(test.flowoperations[x+1])
                     if not leadingOp.opraionObj.PCOnAfterTest() and tralingOp.opraionObj.asumesPcOnBeforeTest():
-                        outputText +="at group= "+groupName+",test= "+test.testname+\
-                                     "\nthe operation "+leadingOp.name+" can not be followed by "+tralingOp.name+"\n"
+                        outputText +="At group= "+groupName+",test= "+test.testname+\
+                                     "\nThe operation "+leadingOp.name+" can not be followed by "+tralingOp.name+"\n"
 
         if outputText != "":
             logging.info("Validator detected issues in flow operations")
@@ -54,8 +52,6 @@ class Validator:
                     outputText += "Saved test name "+savedTestName+", for host "+hostPc["IP"]+\
                                   " was not found in the configuration files\n"
                     itemsToRemove.append(itemToRemove(savedTestName,hostPc["tests"]))
-
-
         if outputText != "":
             logging.info("Validator detected issues in saved hostPc Tests")
 

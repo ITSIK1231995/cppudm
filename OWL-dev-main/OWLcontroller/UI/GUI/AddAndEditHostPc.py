@@ -9,8 +9,6 @@ from UI.GUI.GUIUtills import *
 
 
 class AddAndEditHostPc(QDialog):
-
-
     def __init__(self,editMode,hostPc,mainWindowRef):
         super(AddAndEditHostPc, self).__init__()
         self.mainWindowRef = mainWindowRef
@@ -32,7 +30,6 @@ class AddAndEditHostPc(QDialog):
         else:
             self.setWindowTitle("Add HostPC")
 
-
     def createFormGroupBox(self):
         self.formGroupBox = QGroupBox("host Pc Settings")
         layout = QFormLayout()
@@ -53,11 +50,8 @@ class AddAndEditHostPc(QDialog):
         postPingWaitTimeBox.setMinimum(0)
         layout.addRow(postPingWait, postPingWaitTimeBox)
         self.formGroupBox.setLayout(layout)
-
-
         formObjectsNamedTuple = namedtuple('formObjects', ['IPBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
         self.formObjects = formObjectsNamedTuple(IPBox, COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
-
 
     def fillWithData(self):
 

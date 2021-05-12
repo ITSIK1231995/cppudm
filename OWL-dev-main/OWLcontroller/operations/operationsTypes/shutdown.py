@@ -1,17 +1,7 @@
-import errno
-import os
-import socket
-from collections import namedtuple
-from ssl import socket_error
-
 from operations.operation import operation
 import json
-
 from operations.operationWithSocket import operationWithSocket
 
-# PING = 'ping '
-#SHUTDOWN_COMMAND = "shutdown command request from client"
-# SHUTDOWN_COMMAND = "shutdown /s /t 1"
 class shutdown(operationWithSocket):
     def getKey(self):
         pass
@@ -24,7 +14,6 @@ class shutdown(operationWithSocket):
     def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
         return True
 
-
     def runOp(self,controllerPc,hostPc,testLog,opParams):
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n shutdown command has started")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
@@ -35,7 +24,6 @@ class shutdown(operationWithSocket):
         messegeToServer = {"operation": "shutdown"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
         socket.close()
-
         # Verify the host is down
         hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc,testLog)
         if hostPcIsOFf:

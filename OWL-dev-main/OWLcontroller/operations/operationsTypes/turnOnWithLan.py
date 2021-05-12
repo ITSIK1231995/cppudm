@@ -5,7 +5,6 @@ from wakeonlan import send_magic_packet
 from getmac import get_mac_address
 
 class turnOnWithLan(operation):
-
     def getKey(self):
         ''' Returns operation's name '''
         return (type(self).__name__)
@@ -29,12 +28,10 @@ class turnOnWithLan(operation):
         except Exception:
             return False
 
-
     @staticmethod
     def fetchMacAddress(hostIP):
         hostPcMacAdress = get_mac_address(ip=hostIP)
         return hostPcMacAdress
-
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n turn on with lan command has started \n ")

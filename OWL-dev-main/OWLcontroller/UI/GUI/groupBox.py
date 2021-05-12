@@ -1,24 +1,15 @@
-
-from collections import namedtuple
-from PyQt5.QtWidgets import (QWidget, QSlider, QLineEdit, QLabel, QPushButton, QScrollArea,QApplication,
-                             QHBoxLayout, QVBoxLayout, QMessageBox)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
 from UI.GUI.GUIUtills import *
 
-
 class groupBox(QtWidgets.QGroupBox):
     def __init__(self, centralwidget,mainWindowRef):
         super(groupBox, self).__init__( centralwidget)
-
         self.mainWindowRef = mainWindowRef
         self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
-
         self.vbox = QVBoxLayout()
-
         self.groupNames = mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.keys()
-
         self.groupListSetup()
         self.scrollSetup()
 
@@ -37,7 +28,6 @@ class groupBox(QtWidgets.QGroupBox):
                 self.groupCheckBoxArr[groupName].setChecked(True)
                 self.mainWindowRef.setDisplayedTestGroup(groupName)
 
-
     def onChacked(self):
         clickedCheckBox = self.sender()
         if clickedCheckBox.isChecked():
@@ -45,8 +35,6 @@ class groupBox(QtWidgets.QGroupBox):
                 for checkBox in self.groupCheckBoxArr.values():
                     if checkBox is not clickedCheckBox and checkBox.isChecked():
                         checkBox.setChecked(False)
-
-
                 groupName = clickedCheckBox.objectName().split('_')[1]
                 self.mainWindowRef.setDisplayedTestGroup(groupName)
             else:
@@ -64,7 +52,6 @@ class groupBox(QtWidgets.QGroupBox):
                 checkBox.setChecked(True)
             else:
                 checkBox.setChecked(False)
-
 
     def scrollSetup(self):
         self.widget = QWidget()

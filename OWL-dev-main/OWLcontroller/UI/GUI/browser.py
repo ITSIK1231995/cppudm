@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog
 
 class browser(QWidget):
-
     def __init__(self,name):
         super().__init__()
         self.title = name

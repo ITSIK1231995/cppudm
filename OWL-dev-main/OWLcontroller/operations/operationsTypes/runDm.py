@@ -1,9 +1,5 @@
 import json
-import time
-
-from operations.operation import operation
 from operations.operationWithSocket import operationWithSocket
-
 
 class runDM(operationWithSocket):
     def getKey(self):
@@ -17,7 +13,6 @@ class runDM(operationWithSocket):
     @staticmethod
     def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
         return True
-
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Run Dm command has started \n ")

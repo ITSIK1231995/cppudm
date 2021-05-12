@@ -1,7 +1,5 @@
 from enum import Enum
-
-
-class testState(Enum): #TODO need to move it to a seperate file
+class testState(Enum):
     PASSED = 1
     FAILED = 2
     RUNNING = 3

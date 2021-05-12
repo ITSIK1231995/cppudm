@@ -2,10 +2,8 @@ import socket
 from operations.operation import operation
 
 class operationWithSocket(operation):
-
     def getKey(self):
         pass
-
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
         pass

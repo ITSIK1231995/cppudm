@@ -1,12 +1,9 @@
-import os
 import socket
 import subprocess
 import time
 import re
 
-
 class operation(object):
-
     def getKey(self):
         pass
 
@@ -22,9 +19,6 @@ class operation(object):
     def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
         pass
 
-
-    #todo: if expacting pc to turnOff - test conection untill pc is off or threashhold exceded then return true
-    #todo: if expacting pc to turnOn - test conection untill pc is ON or threashhold exceded then return true
     def waitForPcToTurnOn(self,controllerPc,hostPc,testLog): # when PC is ON output is True
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, " \n Pinging Host until it's On  \n ")
         clientSocket = socket.socket()
@@ -41,22 +35,6 @@ class operation(object):
                 controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOn - PC is OFF atempt " + str(i))
                 pass
         return False
-
-    # def waitForPcToTurnOff(self,controllerPc,hostPc): # when PC is off output is True
-    #     controllerPc.updateRunTimeState(hostPc, " \n Pinging Host until it's off  \n ")
-    #     clientSocket = socket.socket()
-    #     port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-    #     attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-    #     for i in range(attempsToConnectSocket):
-    #         try:
-    #             clientSocket.connect((hostPc["IP"], port))  # connect to the server
-    #             clientSocket.send("Test".encode())
-    #             clientSocket.close()
-    #             controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is ON atempt "+ str(i))
-    #         except socket.error as e:
-    #             controllerPc.updateRunTimeState(hostPc, "\nwaitForPcToTurnOff - PC is OFF")
-    #             return True
-    #     return False
 
     def waitForPcToTurnOff(self,controllerPc,hostPc,testLog):
         attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
@@ -75,7 +53,6 @@ class operation(object):
                 return True
             controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOff - PC is ON attempt " + str(i))
         return False
-
 
     def checkIfPcisOn(self,controllerPc,hostPc):
         clientSocket = socket.socket()  # instantiate
@@ -96,12 +73,6 @@ class operation(object):
         clientSocket.close()
         return True
 
-        # try:
-        #     clientSocket.connect((hostPc["IP"], port))  # connect to the server
-        # except socket.error as e:
-        #     return False
-        # clientSocket.close()
-        # return True
 
 
 
