@@ -10,7 +10,7 @@ class PEEvent(object):
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
-            self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog, "PEEvent::OnTraceCreated - %s" % trace)
+            self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog, "PE-Event:: On Trace Created")
             trace_obj = Dispatch(trace)  # Dispatch trace object
             trace_obj.Save(self.__class__.saveTraceFullPath)  # Save trace file
             trace_obj.Close()  # close trace file
@@ -19,6 +19,8 @@ class PEEvent(object):
             traceCreatedPerAnalyzer[self.__class__.trace_ready] = True
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
+            self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog,
+                                                                   "PEEvent::OnTraceCreated failed with exception: %s" % e)
 
     @staticmethod
     def getTraceReadinessState(self):
@@ -27,9 +29,12 @@ class PEEvent(object):
     def OnStatusReport(self, subsystem, state, percent_done):
         try:
             print("PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
+            self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog,
+                                                                   "PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
         except Exception as e:
             print("PEEvent::OnStatusReport failed with exception: %s" % e)
-
+            self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog,
+                                                                   "PEEvent::OnStatusReport failed with exception: %s" % e)
 class analyzerHandler():
     def __init__(self,controller):
         self.traceFileName = "data.pex"  # default trace file name used in recording options
