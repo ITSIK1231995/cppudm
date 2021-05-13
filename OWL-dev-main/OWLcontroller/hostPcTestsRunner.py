@@ -89,14 +89,17 @@ class hostPcTestsRunner():
             for repeat in range(self.hostPc["tests"][test.testname]['repeatAmount']):  # repeat tests according to repeatAmount
                 testLog = self.createLog(test)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
+
                 analyzer = self.controllerPc.createAnalyzerInstance()
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has started for the following test: "+ test.testname)
                 self.controllerPc.startRecordingWithAnalyzer(analyzer, test, self.getSavedTraceFullPath(),self.getRecordOptionFilePath(test))
                 testResult = self.runSequanceOfOperations(test, self.controllerPc, testLog)
-                while not self.controllerPc.isAnalyzerHandleEnded(analyzer):
-                    time.sleep(1)
+                self.controllerPc.stopRecordingWithAnalyzer(analyzer)
+                # while not self.controllerPc.isAnalyzerHandleEnded(analyzer):
+                #     time.sleep(1)
+
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has stopped for the following test: " + test.testname)
-                verificationScriptOutPut = subprocess.getoutput(self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test)))
+                verificationScriptOutPut = self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test))
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, verificationScriptOutPut)
                 if testResult:
                     numOfPass += 1

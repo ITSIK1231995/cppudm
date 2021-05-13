@@ -11,8 +11,8 @@ import _thread
 from UI.GUI.viewGui import mainWindow
 from datetime import datetime
 import datetime
-from lecroy.analyzer import analyzer
 from lecroy.VSE import VSE
+from lecroy.analyzer import analyzerHandler
 from validator import *
 
 class ControllerPc():
@@ -39,7 +39,7 @@ class ControllerPc():
         self.GUIInit()
 
     def createAnalyzerInstance(self):
-        return analyzer()
+        return analyzerHandler()
 
     def isAnalyzerHandleEnded(self, analyzer):
         while analyzer.AnalyzerHandlingEnded == False:
@@ -47,7 +47,10 @@ class ControllerPc():
         return True
 
     def startRecordingWithAnalyzer(self, analyzer, test, SavedTraceFullPath, recordingOptionsFilePath):
-        analyzer.startAnalyzerRecord(recordingOptionsFilePath, SavedTraceFullPath, test.testname)
+        analyzer.startRecording(recordingOptionsFilePath, SavedTraceFullPath, test.testname)
+
+    def stopRecordingWithAnalyzer(self, analyzer):
+        analyzer.stopRecording()
 
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()
