@@ -69,7 +69,7 @@ timeout = 3  # time out between start and stop of recording in seconds
 
 # Global variables
 # trace_ready = False  # global flag, indicates that trace is ready
-
+traceCreatedPerAnalyzer = []
 
 class PEEvent(object):
     saveTraceFullPath = ""
@@ -84,11 +84,14 @@ class PEEvent(object):
             trace_obj.Close()  # close trace file
 
             del trace_obj  # delete trace dispatch instance
-
-            self.__class__.trace_ready = True  # set global flag to True
+            # self.__class__.trace_ready = True  # set global flag to True
+            traceCreatedPerAnalyzer[self.__class__.trace_ready] = True
 
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
+    @staticmethod
+    def getTraceReadinessState(self):
+        return self.__class__.trace_ready
 
     def OnStatusReport(self, subsystem, state, percent_done):
         try:
@@ -104,9 +107,10 @@ class analyzerHandler():
 
     def startRecordingWithAnalyzer(self,recOptionsFullPath,saveTraceFullPath,savedTraceName):
         os.system("TASKKILL /F /IM PETracer.exe")
+        traceCreatedPerAnalyzer.append(False)
         self.CopyOfPEEvent = type('CopyOfB', PEEvent.__bases__, dict(PEEvent.__dict__))
         self.CopyOfPEEvent.saveTraceFullPath = saveTraceFullPath + "\\" + savedTraceName + ".pex"
-        self.CopyOfPEEvent.trace_ready = False
+        self.CopyOfPEEvent.trace_ready = 0
         self.analyzerObj = DispatchWithEvents("CATC.PETracer", self.CopyOfPEEvent)
         # You can use this to set default file name before recording
         self.rec_options = self.analyzerObj.GetRecordingOptions()
@@ -123,7 +127,7 @@ class analyzerHandler():
 
         del self.rec_options  # delete recording options instance
 
-        while (self.CopyOfPEEvent.trace_ready == False):
+        while (traceCreatedPerAnalyzer[self.CopyOfPEEvent.trace_ready] == False):
             sleep(0.2)
             pythoncom.PumpWaitingMessages()
             print("PumpWaitingMessages")
