@@ -59,7 +59,7 @@ from win32com.client import DispatchWithEvents, Dispatch
 from sys import exit
 from time import sleep, time
 import pythoncom
-
+import os
 # User variables
 # trace_saving_path = "C:/Temp/trace.pex"  # path where to save trace file
 
@@ -103,8 +103,9 @@ class analyzerHandler():
         self.traceFileName = "data.pex"  # default trace file name used in recording options
 
     def startRecordingWithAnalyzer(self,recOptionsFullPath,saveTraceFullPath,savedTraceName):
+        os.system("TASKKILL /F /IM PETracer.exe")
         self.CopyOfPEEvent = type('CopyOfB', PEEvent.__bases__, dict(PEEvent.__dict__))
-        self.CopyOfPEEvent.saveTraceFullPath = saveTraceFullPath + "\\" + savedTraceName
+        self.CopyOfPEEvent.saveTraceFullPath = saveTraceFullPath + "\\" + savedTraceName + ".pex"
         self.CopyOfPEEvent.trace_ready = False
         self.analyzerObj = DispatchWithEvents("CATC.PETracer", self.CopyOfPEEvent)
         # You can use this to set default file name before recording
