@@ -80,12 +80,12 @@ class PEEvent(object):
 
 
             trace_obj = Dispatch(trace)  # Dispatch trace object
-            trace_obj.Save(PEEvent.saveTraceFullPath)  # Save trace file
+            trace_obj.Save(self.__class__.saveTraceFullPath)  # Save trace file
             trace_obj.Close()  # close trace file
 
             del trace_obj  # delete trace dispatch instance
 
-            PEEvent.trace_ready = True  # set global flag to True
+            self.__class__.trace_ready = True  # set global flag to True
 
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
