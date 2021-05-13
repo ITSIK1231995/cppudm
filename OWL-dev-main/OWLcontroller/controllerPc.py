@@ -43,8 +43,8 @@ class ControllerPc():
         analyzerHandler = lecroy.analyzer.analyzerHandler()
         return analyzerHandler
 
-    def startRecordingWithAnalyzer(self,analyzerHandler,RecordOptionFilePath,SavedTraceFullPath,test):
-        analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPath,test.testname)
+    def startRecordingWithAnalyzer(self,analyzerHandler,RecordOptionFilePath,SavedTraceFullPath,testName):
+        analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPath,testName)
 
     def stopRecordingWithAnalyzer(self, analyzerHandler):
         analyzerHandler.stopRecording()
