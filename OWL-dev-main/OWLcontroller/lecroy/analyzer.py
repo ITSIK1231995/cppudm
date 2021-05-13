@@ -73,7 +73,7 @@ timeout = 3  # time out between start and stop of recording in seconds
 
 class PEEvent(object):
     saveTraceFullPath = ""
-    trace_ready = ""
+    trace_ready = False
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
