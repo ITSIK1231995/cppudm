@@ -40,11 +40,11 @@ class ControllerPc():
         self.GUIInit()
 
     def createAnalyzerInstance(self):
-        analyzerHandler = lecroy.analyzer.analyzerHandler()
+        analyzerHandler = lecroy.analyzer.analyzerHandler(self)
         return analyzerHandler
 
-    def startRecordingWithAnalyzer(self,analyzerHandler,test,SavedTraceFullPath,RecordOptionFilePath):
-        analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPath,test.testname)
+    def startRecordingWithAnalyzer(self,analyzerHandler,test,SavedTraceFullPath,RecordOptionFilePath,hostPc,testLog):
+        analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPath,test.testname,hostPc,testLog)
 
     def stopRecordingWithAnalyzer(self, analyzerHandler):
         analyzerHandler.stopRecording()

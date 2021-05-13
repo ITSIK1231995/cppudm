@@ -30,24 +30,29 @@ class PEEvent(object):
             print("PEEvent::OnStatusReport failed with exception: %s" % e)
 
 class analyzerHandler():
-    def __init__(self):
+    def __init__(self,controller):
         self.traceFileName = "data.pex"  # default trace file name used in recording options
+        self.controller = controller
 
-    def startRecordingWithAnalyzer(self,recOptionsFullPath,saveTraceFullPath,savedTraceName):
+    def startRecordingWithAnalyzer(self,recOptionsFullPath,saveTraceFullPath,savedTraceName,hostPc,testLog):
         os.system("TASKKILL /F /IM PETracer.exe")
         traceCreatedPerAnalyzer.append(False)
         self.CopyOfPEEvent = type('CopyOfB', PEEvent.__bases__, dict(PEEvent.__dict__))
         self.CopyOfPEEvent.saveTraceFullPath = saveTraceFullPath + "\\" + savedTraceName + ".pex"
         self.CopyOfPEEvent.trace_ready = 0
+        self.CopyOfPEEvent.hostPc = hostPc
+        self.CopyOfPEEvent.testLog = testLog
         self.analyzerObj = DispatchWithEvents("CATC.PETracer", self.CopyOfPEEvent)
         self.rec_options = self.analyzerObj.GetRecordingOptions()
         self.rec_options.SetTraceFileName(self.traceFileName)
         self.analyzerObj.StartRecording(recOptionsFullPath)  # here you need to pass rec options file path or empty string
-        print("StartRecording")
+        print("Start Analyzer record")
+        self.controller.updateRunTimeStateInTerminal(self.CopyOfPEEvent.hostPc, self.CopyOfPEEvent.testLog,"\n Start Analyzer record")
 
     def stopRecording(self):
         self.analyzerObj.StopRecording(False)
-        print("StopRecording")
+        print("Stop Analyzer record")
+        self.controller.updateRunTimeStateInTerminal(self.CopyOfPEEvent.hostPc, self.CopyOfPEEvent.testLog, "\n Stop Analyzer record")
         # You can use this to get default file path for recording
         print(self.rec_options.GetFileName())
         del self.rec_options  # delete recording options instance
