@@ -10,6 +10,7 @@ class PEEvent(object):
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
+            self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog, "PEEvent::OnTraceCreated - %s" % trace)
             trace_obj = Dispatch(trace)  # Dispatch trace object
             trace_obj.Save(self.__class__.saveTraceFullPath)  # Save trace file
             trace_obj.Close()  # close trace file
@@ -42,6 +43,7 @@ class analyzerHandler():
         self.CopyOfPEEvent.trace_ready = 0
         self.CopyOfPEEvent.hostPc = hostPc
         self.CopyOfPEEvent.testLog = testLog
+        self.CopyOfPEEvent.controller = self.controller
         self.analyzerObj = DispatchWithEvents("CATC.PETracer", self.CopyOfPEEvent)
         self.rec_options = self.analyzerObj.GetRecordingOptions()
         self.rec_options.SetTraceFileName(self.traceFileName)
