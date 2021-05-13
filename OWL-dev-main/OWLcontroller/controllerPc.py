@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 import time
 import traceback
@@ -12,8 +11,10 @@ from UI.GUI.viewGui import mainWindow
 from datetime import datetime
 import datetime
 from lecroy.VSE import VSE
-from lecroy.analyzer import analyzerHandler
 from validator import *
+import lecroy.analyzer
+
+
 
 class ControllerPc():
     def __init__(self,conf='defaultConfiguration.json'):
@@ -39,18 +40,14 @@ class ControllerPc():
         self.GUIInit()
 
     def createAnalyzerInstance(self):
-        return analyzerHandler()
+        analyzerHandler = lecroy.analyzer.analyzerHandler()
+        return analyzerHandler
 
-    def isAnalyzerHandleEnded(self, analyzer):
-        while analyzer.AnalyzerHandlingEnded == False:
-            time.sleep(1)
-        return True
+    def startRecordingWithAnalyzer(self,analyzerHandler,RecordOptionFilePath,SavedTraceFullPath,test):
+        analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPath,test.testname)
 
-    def startRecordingWithAnalyzer(self, analyzer, test, SavedTraceFullPath, recordingOptionsFilePath):
-        analyzer.startRecording(recordingOptionsFilePath, SavedTraceFullPath, test.testname)
-
-    def stopRecordingWithAnalyzer(self, analyzer):
-        analyzer.stopRecording()
+    def stopRecordingWithAnalyzer(self, analyzerHandler):
+        analyzerHandler.stopRecording()
 
     def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()

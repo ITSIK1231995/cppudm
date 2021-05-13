@@ -49,33 +49,44 @@
 #         # Analyzer = None
 #         os.system("TASKKILL /F /IM PETracer.exe")
 #         self.AnalyzerHandlingEnded = True
-import os
+# Copyright (c) 2020 Teledyne LeCroy, Inc.
+#
+# Use and disclosure of data: Information contained herein is
+# classified as EAR99 under the U.S. Export Administration Regulations.
+# Export, reexport or diversion contrary to U.S. law is prohibited.
 
 from win32com.client import DispatchWithEvents, Dispatch
 from sys import exit
 from time import sleep, time
 import pythoncom
-isTraceReady = False  # global flag, indicates that trace is ready
 
-class analyzerHandler(object):
-    def __init__(self):
-        # User variables
-        #self.traceRecordedeSavingPathWithTraceName = "C:/Temp/trace.pex"  # path where to save trace file
-        self.traceCreatedInDefaultLocation = "data.pex"  # default trace file name used in recording options
-        #self.recordingOptionsFilePath = "DO_NOT_CHANGE_RECORDING_OPTIONS"  # path to recording options used when recording trace,
-        # if DO_NOT_CHANGE_RECORDING_OPTIONS - default will be used
-        timeout = 1  # time out between start and stop of recording in seconds
-        # Global variables
+# User variables
+# trace_saving_path = "C:/Temp/trace.pex"  # path where to save trace file
 
+rec_options_path = "DO_NOT_CHANGE_RECORDING_OPTIONS"  # path to recording options used when recording trace,
+# if DO_NOT_CHANGE_RECORDING_OPTIONS - default will be used
+timeout = 3  # time out between start and stop of recording in seconds
+
+# Global variables
+# trace_ready = False  # global flag, indicates that trace is ready
+
+
+class PEEvent(object):
+    saveTraceFullPath = ""
+    trace_ready = ""
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
+
+
             trace_obj = Dispatch(trace)  # Dispatch trace object
-            trace_obj.Save(self.traceRecordedeSavingPathWithTraceName)  # Save trace file
+            trace_obj.Save(PEEvent.saveTraceFullPath)  # Save trace file
             trace_obj.Close()  # close trace file
+
             del trace_obj  # delete trace dispatch instance
-            global isTraceReady
-            isTraceReady = True  # set global flag to True
+
+            PEEvent.trace_ready = True  # set global flag to True
+
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
 
@@ -86,21 +97,24 @@ class analyzerHandler(object):
         except Exception as e:
             print("PEEvent::OnStatusReport failed with exception: %s" % e)
 
-    def startRecording(self,recordingOptionsFilePath,SavedTraceFullPath, savedTraceName):
-        self.traceRecordedeSavingPathWithTraceName = SavedTraceFullPath + "\\" +savedTraceName
-        os.system("TASKKILL /F /IM PETracer.exe")
-        self.dispatchedAnalyzerObj = DispatchWithEvents("CATC.PETracer", analyzerHandler)  # using dispatch with events
-        # You can use this to set default file name before recording
-        self.rec_options = self.dispatchedAnalyzerObj.GetRecordingOptions()
-        self.rec_options.SetTraceFileName(self.traceCreatedInDefaultLocation)
 
-        self.dispatchedAnalyzerObj.StartRecording(recordingOptionsFilePath)  # here you need to pass rec options file path or empty string
+class analyzerHandler():
+    def __init__(self):
+        self.traceFileName = "data.pex"  # default trace file name used in recording options
+
+    def startRecordingWithAnalyzer(self,recOptionsFullPath,saveTraceFullPath,savedTraceName):
+        self.CopyOfPEEvent = type('CopyOfB', PEEvent.__bases__, dict(PEEvent.__dict__))
+        self.CopyOfPEEvent.saveTraceFullPath = saveTraceFullPath + "\\" + savedTraceName
+        self.CopyOfPEEvent.trace_ready = False
+        self.analyzerObj = DispatchWithEvents("CATC.PETracer", self.CopyOfPEEvent)
+        # You can use this to set default file name before recording
+        self.rec_options = self.analyzerObj.GetRecordingOptions()
+        self.rec_options.SetTraceFileName(self.traceFileName)
+        self.analyzerObj.StartRecording(recOptionsFullPath)  # here you need to pass rec options file path or empty string
         print("StartRecording")
 
-        # sleep(timeout)  # put some timeout before stop recording
-
     def stopRecording(self):
-        self.dispatchedAnalyzerObj.StopRecording(False)
+        self.analyzerObj.StopRecording(False)
         print("StopRecording")
 
         # You can use this to get default file path for recording
@@ -108,16 +122,34 @@ class analyzerHandler(object):
 
         del self.rec_options  # delete recording options instance
 
-        while (isTraceReady == False):
+        while (self.CopyOfPEEvent.trace_ready == False):
             sleep(0.2)
             pythoncom.PumpWaitingMessages()
-            print("Awaiting for event tells us the trace is ready")
+            print("PumpWaitingMessages")
 
-        del self.dispatchedAnalyzerObj  # delete analyzer dispatch instance
-        os.system("TASKKILL /F /IM PETracer.exe")
-# analyzer = analyzerHandler()
-# # analyzer.startRecording()
-# # sleep(3)
-# # analyzer.stopRecording()
-# # print("EXIT")
-# # exit(0)
+        del self.analyzerObj  # delete analyzer dispatch instance
+
+# analyzerHandler = analyzerHandler()
+# analyzerHandler.startRecordingWithProvidedData()
+#
+# analyzerHandler.startRecordingWithProvidedData(analyzerObj)
+#
+# sleep(timeout)  # put some timeout before stop recording
+#
+# Analyzer.StopRecording(False)
+# print("StopRecording")
+#
+# # You can use this to get default file path for recording
+# print(rec_options.GetFileName())
+#
+# del rec_options  # delete recording options instance
+#
+# while (trace_ready == False):
+#     sleep(0.2)
+#     pythoncom.PumpWaitingMessages()
+#     print("PumpWaitingMessages")
+#
+# del Analyzer  # delete analyzer dispatch instance
+#
+# print("EXIT")
+# exit(0)
