@@ -42,7 +42,7 @@ class analyzerHandler():
 
     def startRecordingWithAnalyzer(self,recOptionsFullPath,saveTraceFullPath,savedTraceName,hostPc,testLog):
         os.system("TASKKILL /F /IM PETracer.exe")
-        traceCreatedPerAnalyzer[0] = False
+        traceCreatedPerAnalyzer.insert(0,False)
         self.CopyOfPEEvent = type('copyOfPEevent', PEEvent.__bases__, dict(PEEvent.__dict__)) # Lecroy's implement for events limitng us from sending data into the PEevent class, therfore instead of using workarounds or not using the events wre creating a new class and not a new instance each time which will be released at the end of each run
         self.CopyOfPEEvent.saveTraceFullPath = saveTraceFullPath + "\\" + savedTraceName + ".pex"
         self.CopyOfPEEvent.trace_ready = 0
