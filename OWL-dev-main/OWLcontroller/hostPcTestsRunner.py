@@ -96,7 +96,7 @@ class hostPcTestsRunner():
                 self.controllerPc.stopRecordingWithAnalyzer(analyzerHandler)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has stopped for the following test: " + test.testname)
                 self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test),self.hostPc, testLog)
-    
+
                 if testResult:
                     numOfPass += 1
                     self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Passed")

@@ -58,7 +58,9 @@ class VSEventHandler(object):
 
 class VSE():
     def startVerificationScriptEngine(self, traceFullPathAndName, vScriptFullPathAndName,hostPc, testLog, controller):
-        self.CopyOfPEEvent = type('copyOfPEevent', PEEvent.__bases__, dict(PEEvent.__dict__))
+        from copy import deepcopy
+        #self.CopyOfPEEvent = type('copyOfPEevent', PEEvent.__bases__, dict(PEEvent.__dict__))
+        self.CopyOfPEEvent = deepcopy(PEEvent)
         self.CopyOfPEEvent.hostPc = hostPc
         self.CopyOfPEEvent.testLog = testLog
         self.CopyOfPEEvent.controller = controller
