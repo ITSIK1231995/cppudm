@@ -68,5 +68,7 @@ class VSE():
             print ("VSE's results: FAILED !!!")
             controller.updateRunTimeStateInTerminal(hostPc, testLog,"\nVSE's results: FAILED !!!")
         os.system("TASKKILL /F /IM PETracer.exe")
+        del self.CopyOfPEEvent
         print("VSE script execution has finished")
         controller.updateRunTimeStateInTerminal(hostPc, testLog,"\nVSE script execution has finished")
+        return Result

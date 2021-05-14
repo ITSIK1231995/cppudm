@@ -53,7 +53,7 @@ class ControllerPc():
         hostPcTestsRunner(self, hostPc).runAllTests()
 
     def startVSE(self,traceFullPathAndName, vScriptFullPathAndName, hostPc,testLog):
-        VSE().startVerificationScriptEngine(traceFullPathAndName, vScriptFullPathAndName,hostPc,testLog,self)
+        return VSE().startVerificationScriptEngine(traceFullPathAndName, vScriptFullPathAndName,hostPc,testLog,self)
 
     #for each hostPc we create a thread that well manage the execution of its tests
     def dispatchThreads(self):
