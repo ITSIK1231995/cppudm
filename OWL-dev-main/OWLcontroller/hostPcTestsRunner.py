@@ -91,11 +91,12 @@ class hostPcTestsRunner():
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
                 analyzerHandler = self.controllerPc.createAnalyzerInstance()
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has started for the following test: "+ test.testname)
-                self.controllerPc.startRecordingWithAnalyzer(analyzerHandler, self.getTraceFullPathAndName(test),self.getRecordOptionFilePath(test),self.hostPc, testLog)
+                traceFullPathAndName = self.getTraceFullPathAndName(test)
+                self.controllerPc.startRecordingWithAnalyzer(analyzerHandler, traceFullPathAndName,self.getRecordOptionFilePath(test),self.hostPc, testLog)
                 sequenceOfOperationsDoneindicator = self.runSequanceOfOperations(test, self.controllerPc, testLog)
                 self.controllerPc.stopRecordingWithAnalyzer(analyzerHandler)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has stopped for the following test: " + test.testname)
-                verificationScriptResult = self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test),self.hostPc, testLog)
+                verificationScriptResult = self.controllerPc.startVSE(traceFullPathAndName, self.getVSEFullPathAndName(test),self.hostPc, testLog)
 
                 if sequenceOfOperationsDoneindicator and verificationScriptResult == 1: # verificationScriptResult == 1 is the value that Lecroy's API returns from VSE when the VSE has passed.
                     numOfPass += 1
