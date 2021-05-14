@@ -95,7 +95,7 @@ class hostPcTestsRunner():
                 testResult = self.runSequanceOfOperations(test, self.controllerPc, testLog)
                 self.controllerPc.stopRecordingWithAnalyzer(analyzerHandler)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has stopped for the following test: " + test.testname)
-                verificationScriptOutPut = self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test))
+                verificationScriptOutPut = self.controllerPc.startVSE(self.getTraceFullPathAndName(test), self.getVSEFullPathAndName(test),self.hostPc, testLog)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, verificationScriptOutPut)
                 if testResult:
                     numOfPass += 1
