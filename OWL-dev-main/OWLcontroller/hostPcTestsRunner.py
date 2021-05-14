@@ -71,7 +71,7 @@ class hostPcTestsRunner():
         return os.getcwd() + "\\" + self.resultFilePath
 
     def getTraceFullPathAndName(self,test):
-        return self.getSavedTraceFullPath() + "\\" + test.testname + ".pex"
+        return self.getSavedTraceFullPath() + "\\" + test.testname + "_ " + self.getCurrentTime() +".pex"
 
     def getVSEFullPathAndName(self,test):
         return os.getcwd() + "\\" + test.verificationscript
@@ -91,7 +91,7 @@ class hostPcTestsRunner():
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has started ")
                 analyzerHandler = self.controllerPc.createAnalyzerInstance()
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has started for the following test: "+ test.testname)
-                self.controllerPc.startRecordingWithAnalyzer(analyzerHandler, test, self.getSavedTraceFullPath(),self.getRecordOptionFilePath(test),self.hostPc, testLog)
+                self.controllerPc.startRecordingWithAnalyzer(analyzerHandler, self.getTraceFullPathAndName(test),self.getRecordOptionFilePath(test),self.hostPc, testLog)
                 sequenceOfOperationsDoneindicator = self.runSequanceOfOperations(test, self.controllerPc, testLog)
                 self.controllerPc.stopRecordingWithAnalyzer(analyzerHandler)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Analyzer recording has stopped for the following test: " + test.testname)
