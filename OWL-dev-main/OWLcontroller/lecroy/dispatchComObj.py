@@ -45,7 +45,7 @@ class dispatchComObj():
         events_class = getevents(clsid)
         if events_class is None:
             raise ValueError("This COM object does not support events.")
-        result_class = new_type("COMEventClass", (disp_class, events_class, user_event_class), {"__setattr__" : _event_setattr_})
+        result_class = new_type("COMEventClass", (disp_class, events_class, user_event_class), {"__setattr__" : dispatchComObj._event_setattr_})
         instance = result_class(disp._oleobj_) # This only calls the first base class __init__.
         events_class.__init__(instance, instance)
         args = [instance] + arguments
