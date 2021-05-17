@@ -40,7 +40,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             repeatTestBox.setRange(0,1000)
             repeatTestBox.valueChanged.connect(self.repeatTestBoxChanged)
             statusLbl = QtWidgets.QLabel(groupBox)
-            statusLbl.setGeometry(QtCore.QRect(270, 3, 100, 14))
+            statusLbl.setGeometry(QtCore.QRect(270, 3, 150, 14))
             statusLbl.setAlignment(QtCore.Qt.AlignCenter)
             statusLbl.setObjectName("TestState_"+test.testname)
             groupBox.setFixedHeight(25)
@@ -95,7 +95,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def prepareTestRepeatsSummary(self, hostPc, testName):
         parsedTestRepeatsSummary = namedtuple('parsedTestRepeatsSummary', ['stateForColor', 'resultsStr'])
         if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]["testRepeatsCurrStatus"].name == testState.RUNNING.name:
-            return parsedTestRepeatsSummary(testState.RUNNING, "Running")
+            return parsedTestRepeatsSummary(testState.RUNNING, "Running ("" Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED]) + ")")
         if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED] > 0:
             return parsedTestRepeatsSummary(testState.FAILED, " Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED]))
         elif self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED] > 0:

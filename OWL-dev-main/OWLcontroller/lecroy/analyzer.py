@@ -21,10 +21,6 @@ class PEEvent(object):
             self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog,
                                                                    "PEEvent::OnTraceCreated failed with exception: %s" % e)
 
-    @staticmethod
-    def getTraceReadinessState(self):
-        return self.__class__.trace_ready
-
     def OnStatusReport(self, subsystem, state, percent_done):
         try:
             print("PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))

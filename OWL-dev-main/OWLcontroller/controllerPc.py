@@ -1,6 +1,5 @@
 import json
 import sys
-import time
 import traceback
 from PyQt5.uic.properties import QtWidgets
 from configControl.confParser import confParser
@@ -13,8 +12,6 @@ import datetime
 from lecroy.VSE import VSE
 from validator import *
 import lecroy.analyzer
-
-
 
 class ControllerPc():
     def __init__(self,conf='defaultConfiguration.json'):
