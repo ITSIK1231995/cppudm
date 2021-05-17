@@ -15,7 +15,6 @@ class PEEvent(object):
             trace_obj.Save(self.__class__.saveTraceFullPath)  # Save trace file
             trace_obj.Close()  # close trace file
             del trace_obj  # delete trace dispatch instance
-            # self.__class__.trace_ready = True  # set global flag to True
             traceCreatedPerAnalyzer[self.__class__.trace_ready] = True
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)

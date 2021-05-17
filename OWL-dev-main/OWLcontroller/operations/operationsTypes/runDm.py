@@ -15,16 +15,17 @@ class runDM(operationWithSocket):
         return True
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Run Dm command has started \n ")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nDrive Master operation has started \n ")
         socket = operationWithSocket.createCommunication(self, controllerPc,hostPc,testLog)
         if (socket == False):
             return False
         messegeToServer = {"operation": "runDM", "param": opParams[0]}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog,"\nDrive Master request has been sent to the Host PC")
         messegeFromServer = socket.recv(1024).decode()  # receive response from the server
         socket.close()
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n message from server:\n" + "\n" + messegeFromServer + "\n")
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Run Dm command has ended")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nDrive Master operation has ended")
 
 
 
