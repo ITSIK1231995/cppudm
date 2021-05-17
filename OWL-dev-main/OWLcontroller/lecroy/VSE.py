@@ -20,7 +20,7 @@ def _event_setattr_(self, attr, val):
         # Otherwise just stash it away in the instance.
         self.__dict__[attr] = val
 
-def DispatchWithEvents(clsid, user_event_class, arguments):
+def DispatchWithEventsNew(clsid, user_event_class, arguments):
     # Create/Get the object.
     disp = Dispatch(clsid)
     if not disp.__class__.__dict__.get("CLSID"): # Eeek - no makepy support - try and build it.
@@ -56,28 +56,26 @@ def DispatchWithEvents(clsid, user_event_class, arguments):
         user_event_class.__init__(*args)
     return EventsProxy(instance)
 
-
-
-# ---
 class PEEvent(object):
-    def __init__(self,updateTerminalInfo,testlog):
-        self.currLogTerminalInfo = updateTerminalInfo
-
+    def __init__(self,hostPc,testLog,controller):
+        self.hostPc = hostPc
+        self.testLog = testLog
+        self.controller = controller
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
-            #self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog,"\nPEEvent::OnTraceCreated - %s" % trace)
+            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"\nPEEvent::OnTraceCreated - %s" % trace)
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
-            #self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog,"\nPEEvent::OnTraceCreated failed with exception: %s" % e)
+            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"\nPEEvent::OnTraceCreated failed with exception: %s" % e)
 
     def OnStatusReport(self, subsystem, state, percent_done):
         try:
             print("PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
-            #self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog, "PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
+            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog, "PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
         except Exception as e:
             print("PEEvent::OnStatusReport failed with exception: %s" % e)
-            #self.__class__.controller.updateRunTimeStateInTerminal(self.__class__.hostPc, self.__class__.testLog,"PEEvent::OnStatusReport failed with exception: %s" % e)
+            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"PEEvent::OnStatusReport failed with exception: %s" % e)
 
 # class for for handling VSE events
 class VSEventHandler(object):
@@ -110,31 +108,12 @@ class VSEventHandler(object):
             print("VSEventHandler::OnNotifyClient - failed with exception: %s" % e)
             self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"VSEventHandler::OnNotifyClient - failed with exception: %s" % e)
 
-# i = 0
 class VSE():
     def startVerificationScriptEngine(self, traceFullPathAndName, vScriptFullPathAndName,hostPc, testLog, controller):
-        # from pathlib import Path
-        # import win32com
-        # global i
-        # gen_py_path = r'C:\Users\qa\AppData\Local\Temp\gen_py' + "\\" + str(i)
-        #
-        # Path(gen_py_path).mkdir(parents=True, exist_ok=True)
-        # win32com.__gen_path__ = gen_py_path
-        # i += 1
-        # win32api.GetTempPath()
-
-        # self.CopyOfPEEvent = deepcopy(PEEvent)
-        # self.CopyOfPEEvent.hostPc = hostPc
-        # self.CopyOfPEEvent.testLog = testLog
-        # self.CopyOfPEEvent.controller = controller
-        Analyzer = DispatchWithEvents("CATC.PETracer",  PEEvent, [hostPc,testLog,controller])  # using dispatch with events
+        Analyzer = DispatchWithEventsNew("CATC.PETracer", PEEvent,[hostPc,testLog,controller])  # using dispatch with events
         Trace = Analyzer.OpenFile(traceFullPathAndName)
         VSEngine = Trace.GetVScriptEngine(vScriptFullPathAndName)
-        # self.copyOfVSEventHandler = type('VSEventHandler', VSEventHandler.__bases__, dict(VSEventHandler.__dict__))
-        # self.copyOfVSEventHandler.hostPc = hostPc
-        # self.copyOfVSEventHandler.testLog = testLog
-        # self.copyOfVSEventHandler.controller = controller
-        handler = DispatchWithEvents(VSEngine, VSEventHandler,[hostPc,testLog])
+        handler = DispatchWithEventsNew(VSEngine, VSEventHandler,[hostPc,testLog,controller])
         VSEngine.Tag = 12
         Result = VSEngine.RunVScript()  # run VSE script and get result
         if Result == 1:

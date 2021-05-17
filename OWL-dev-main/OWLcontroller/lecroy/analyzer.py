@@ -68,3 +68,4 @@ class analyzerHandler():
             pythoncom.PumpWaitingMessages()
             print("PumpWaitingMessages")
         del self.analyzerObj  # delete analyzer dispatch instance
+        os.system("TASKKILL /F /IM PETracer.exe")
