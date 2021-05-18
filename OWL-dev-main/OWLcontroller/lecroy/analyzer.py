@@ -1,19 +1,19 @@
-from win32com.client import DispatchWithEvents, Dispatch
-from time import sleep, time
+from win32com.client import Dispatch
+from time import sleep
 import pythoncom
 import os
-
 from lecroy.dispatchComObj import dispatchComObj
 
 traceCreatedPerAnalyzer = []
 
 class PEEvent(object):
-    def __init__(self,SavedTraceFullPathAndName,trace_ready,hostPc,testLog,controller):
+    def __init__(self,SavedTraceFullPathAndName,traceReady,hostPc,testLog,controller):
         self.saveTraceFullPath = SavedTraceFullPathAndName
-        self.trace_ready = trace_ready
+        self.traceReady = traceReady
         self.hostPc = hostPc
         self.testLog = testLog
         self.controller = controller
+
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
@@ -22,21 +22,19 @@ class PEEvent(object):
             trace_obj.Save(self.saveTraceFullPath)  # Save trace file
             trace_obj.Close()  # close trace file
             del trace_obj  # delete trace dispatch instance
-            traceCreatedPerAnalyzer[self.trace_ready] = True
+            traceCreatedPerAnalyzer[self.traceReady] = True
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
-            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,
-                                                                   "PEEvent::OnTraceCreated failed with exception: %s" % e)
+            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"PEEvent::OnTraceCreated failed with exception: %s" % e)
 
     def OnStatusReport(self, subsystem, state, percent_done):
         try:
             print("PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
-            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,
-                                                                   "PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
+            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
         except Exception as e:
             print("PEEvent::OnStatusReport failed with exception: %s" % e)
-            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,
-                                                                   "PEEvent::OnStatusReport failed with exception: %s" % e)
+            self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"PEEvent::OnStatusReport failed with exception: %s" % e)
+
 class analyzerHandler():
     def __init__(self,controller):
         self.traceFileName = "data.pex"  # default trace file name used in recording options
@@ -45,14 +43,8 @@ class analyzerHandler():
     def startRecordingWithAnalyzer(self,recOptionsFullPath,SavedTraceFullPathAndName,hostPc,testLog):
         os.system("TASKKILL /F /IM PETracer.exe")
         traceCreatedPerAnalyzer.insert(0, False)
-        # self.CopyOfPEEvent = type('copyOfPEevent', PEEvent.__bases__, dict(PEEvent.__dict__)) # Lecroy's implement for events limitng us from sending data into the PEevent class, therfore instead of using workarounds or not using the events wre creating a new class and not a new instance each time which will be released at the end of each run
-        # self.CopyOfPEEvent.saveTraceFullPath = SavedTraceFullPathAndName
-        # self.CopyOfPEEvent.trace_ready = 0
-        # self.CopyOfPEEvent.hostPc = hostPc
-        # self.CopyOfPEEvent.testLog = testLog
-        # self.CopyOfPEEvent.controller = self.controller
-        trace_ready = 0
-        self.analyzerObj = dispatchComObj.DispatchWithEventsWithParams("CATC.PETracer", PEEvent,[SavedTraceFullPathAndName,trace_ready,hostPc,testLog,self.controller])
+        traceReady = 0
+        self.analyzerObj = dispatchComObj.DispatchWithEventsWithParams("CATC.PETracer", PEEvent,[SavedTraceFullPathAndName,traceReady,hostPc,testLog,self.controller])
         self.rec_options = self.analyzerObj.GetRecordingOptions()
         self.rec_options.SetTraceFileName(self.traceFileName)
         self.analyzerObj.StartRecording(recOptionsFullPath)  # here you need to pass rec options file path or empty string
@@ -63,10 +55,8 @@ class analyzerHandler():
         self.analyzerObj.StopRecording(False)
         print("Stop Analyzer record")
         self.controller.updateRunTimeStateInTerminal(self.analyzerObj.hostPc, self.analyzerObj.testLog, "\n Stop Analyzer record")
-        # You can use this to get default file path for recording
-        print(self.rec_options.GetFileName())
         del self.rec_options  # delete recording options instance
-        while (traceCreatedPerAnalyzer[self.analyzerObj.trace_ready] == False):
+        while (traceCreatedPerAnalyzer[self.analyzerObj.traceReady] == False):
             sleep(0.2)
             pythoncom.PumpWaitingMessages()
             print("PumpWaitingMessages")

@@ -54,8 +54,7 @@ class hostPcTestsRunner():
 
     def updateUiAndControlleWithTestStatusrAfterEachRepat(self,test,numOfPass,numOfFails,repeat):
         self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]][test.testname] = \
-            {"testRepeatsCurrStatus": testState.RUNNING if repeat < self.hostPc["tests"][test.testname][
-                'repeatAmount'] - 1 else testState.FINISHED,
+            {"testRepeatsCurrStatus": testState.RUNNING if repeat < self.hostPc["tests"][test.testname]['repeatAmount'] - 1 else testState.FINISHED,
              # if we did not finished all the repeats we the state will be running otherwise it'll be according to the results
              "testRepeatsSummary": {testState.PASSED: numOfPass, testState.FAILED: numOfFails}}
         self.controllerPc.updateTestStatusInRunTime(self.hostPc, test)
@@ -79,7 +78,7 @@ class hostPcTestsRunner():
     def runAllTests(self):
         self.printToLog("starting running tests")
         stopOnFailure = self.hostPc['stopOnFailure']
-        hostFinalStatus = testState.PASSED  # if True host final session status is pass , otherwise fail
+        hostFinalStatus = testState.PASSED  # if True host final session status is pass , otherwise host final session status is fail
         for test in self.testToRun:
             numOfPass = 0
             numOfFails = 0

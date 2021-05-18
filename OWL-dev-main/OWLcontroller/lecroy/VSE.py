@@ -1,14 +1,12 @@
 import os
-
 from lecroy.dispatchComObj import dispatchComObj
-
 
 class PEEvent(object):
     def __init__(self,hostPc,testLog,controller):
         self.hostPc = hostPc
         self.testLog = testLog
         self.controller = controller
-        
+
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
@@ -73,7 +71,6 @@ class VSE():
             print ("\nVerification Script Engine final result: FAILED !!!")
             controller.updateRunTimeStateInTerminal(hostPc, testLog,"\nVerification Script Engine final result: FAILED !!!")
         os.system("TASKKILL /F /IM PETracer.exe")
-        # del self.CopyOfPEEvent
         print("Verification Script Engine procedure has finished")
         controller.updateRunTimeStateInTerminal(hostPc, testLog,"\nVerification Script Engine procedure has finished")
         return Result

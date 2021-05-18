@@ -15,7 +15,6 @@ class hostPcTestEnvServer():
         # get the hostname
         host = socket.gethostname()
         port = 5000  # initiate port no above 1024
-
         self.server_socket = socket.socket()  # get instance
         # look closely. The bind() function takes tuple as argument
         self.server_socket.bind((host, port))  # bind host address and port together
@@ -40,7 +39,6 @@ class hostPcTestEnvServer():
             print("data received")
             if data and data.decode('utf-8') != "Test":
                 data = json.loads(data.decode('utf-8'))
-                # if isinstance(data, dict):
                 mappedOperations = allOperations()
                 if 'param' in data.keys():
                     logging.info("executing operation = " + data['operation']+", param = " + data['param'])
@@ -60,7 +58,7 @@ if __name__ == '__main__':
     except Exception as e:
         traceback.print_tb(e.__traceback__)
         logging.exception("exception on main")
-        logging.exception("server shuting down")
+        logging.exception("server shouting down")
         logging.shutdown()
         sys.exit()
 

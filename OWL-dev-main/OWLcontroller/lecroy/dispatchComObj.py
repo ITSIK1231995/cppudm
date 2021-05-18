@@ -4,7 +4,7 @@ from win32com.client import getevents
 from win32com.client import EventsProxy
 import pythoncom
 # This class is reimplementing python's win32com dispatch function
-# inorder to be allowed to create Lecroy's events classes instances and sending them params
+# in order to be allowed to create Lecroy's events classes instances and sending them params
 # (Lecroy implemented the events classes w/o enabling access to the __init__ funcs of the classes So this class will allow way more flexibility on this matter
 
 class dispatchComObj():
