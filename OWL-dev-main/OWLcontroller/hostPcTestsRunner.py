@@ -1,8 +1,6 @@
 import datetime
 import os
-import subprocess
 import threading
-import time
 from collections import namedtuple
 from UI.GUI.teststate import testState
 from operations.allOperations import allOperations
@@ -92,11 +90,11 @@ class hostPcTestsRunner():
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Lecroy's Analyzer recording procedure has started")
                 traceFullPathAndName = self.getTraceFullPathAndName(test)
                 self.controllerPc.startRecordingWithAnalyzer(analyzerHandler, traceFullPathAndName,self.getRecordOptionFilePath(test),self.hostPc, testLog)
-                sequenceOfOperationsDoneindicator = self.runSequanceOfOperations(test, self.controllerPc, testLog)
+                sequenceOfOperationsIsDone = self.runSequanceOfOperations(test, self.controllerPc, testLog)
                 self.controllerPc.stopRecordingWithAnalyzer(analyzerHandler)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Lecroy's Analyzer recording procedure has finished")
                 verificationScriptResult = self.controllerPc.startVSE(traceFullPathAndName, self.getVSEFullPathAndName(test),self.hostPc, testLog)
-                if sequenceOfOperationsDoneindicator and verificationScriptResult == 1: # verificationScriptResult == 1 is the value that Lecroy's API returns from VSE when the VSE has passed.
+                if sequenceOfOperationsIsDone and verificationScriptResult == 1: # verificationScriptResult == 1 is the value that Lecroy's API returns from VSE when the VSE has passed.
                     numOfPass += 1
                     self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, "\n" + test.testname + " Has Passed")
                 else:
@@ -126,22 +124,22 @@ class hostPcTestsRunner():
         if isinstance(operation, str):
             return opraion(operation, mappedOperations.operationsImplementation[operation])
 
-    def runSequanceOfOperations(self, test, controllPc, testLog):
+    def runSequanceOfOperations(self, test, controllPc, testLog): #TODO need to remove ControlPC and
         for operation in test.flowoperations:
             if isinstance(operation, dict):
                 self.printToLog("starting Operations= " + operation['name'])
-                operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self,self.controllerPc,self.hostPc,testLog, operation['params'])
-                if operationOutPut == False:
-                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation['name'] + " op failed"))
-                    self.printToLog("finished Operations= " + operation['name'] + ", op failed")
+                operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self,self.controllerPc,self.hostPc,testLog, operation['params']) #TODO  need to  delete to if isisntace in this function and than just use inline if when we have params that the run OP is getting (if the function has param we sending it and if not we arent
+                if not operationOutPut:
+                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation['name'] + " Op failed"))
+                    self.printToLog("finished Operations= " + operation['name'] + ", Op failed")
                     return False
-                self.printToLog("finished Operations= " + operation['name'] + ", op succeeded")
+                self.printToLog("finished Operations= " + operation['name'] + ", Op succeeded")
             elif isinstance(operation, str):
                 self.printToLog("starting Operations= " + operation)
                 operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self, self.controllerPc,self.hostPc, testLog, [])
-                if operationOutPut == False:
-                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation + " op failed"))
-                    self.printToLog("finished Operations= " + operation + ", op failed")
+                if not operationOutPut:
+                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation + " Op failed"))
+                    self.printToLog("finished Operations= " + operation + ", Op failed")
                     return False
-                self.printToLog("finished Operations= " + operation + ", op succeeded")
+                self.printToLog("finished Operations= " + operation + ", Op succeeded")
         return True

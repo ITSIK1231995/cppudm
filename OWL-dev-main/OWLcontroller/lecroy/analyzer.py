@@ -4,7 +4,7 @@ import pythoncom
 import os
 from lecroy.dispatchComObj import dispatchComObj
 
-traceCreatedPerAnalyzer = []
+isTraceCreatedPerAnalyzer = []
 
 class PEEvent(object):
     def __init__(self,SavedTraceFullPathAndName,traceReady,hostPc,testLog,controller):
@@ -22,7 +22,7 @@ class PEEvent(object):
             trace_obj.Save(self.saveTraceFullPath)  # Save trace file
             trace_obj.Close()  # close trace file
             del trace_obj  # delete trace dispatch instance
-            traceCreatedPerAnalyzer[self.traceReady] = True
+            isTraceCreatedPerAnalyzer[self.traceReady] = True
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
             self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"PEEvent::OnTraceCreated failed with exception: %s" % e)
@@ -42,21 +42,21 @@ class analyzerHandler():
 
     def startRecordingWithAnalyzer(self,recOptionsFullPath,SavedTraceFullPathAndName,hostPc,testLog):
         os.system("TASKKILL /F /IM PETracer.exe")
-        traceCreatedPerAnalyzer.insert(0, False)
-        traceReady = 0
-        self.analyzerObj = dispatchComObj.DispatchWithEventsWithParams("CATC.PETracer", PEEvent,[SavedTraceFullPathAndName,traceReady,hostPc,testLog,self.controller])
+        traceReady = 0 #TODO need to change the name of it to  analzyer index
+        isTraceCreatedPerAnalyzer.insert(traceReady, False) # the "0" indicates a place in the traceCreatedPerAnalyzer list, each item in this list will represent analyzer
+        self.analyzerObj = dispatchComObj.DispatchWithEventsAndParams("CATC.PETracer", PEEvent, [SavedTraceFullPathAndName, traceReady, hostPc, testLog, self.controller])
         self.rec_options = self.analyzerObj.GetRecordingOptions()
         self.rec_options.SetTraceFileName(self.traceFileName)
         self.analyzerObj.StartRecording(recOptionsFullPath)  # here you need to pass rec options file path or empty string
         print("Start Analyzer record")
-        self.controller.updateRunTimeStateInTerminal(self.analyzerObj.hostPc, self.analyzerObj.testLog,"\n Start Analyzer record")
+        self.controller.updateRunTimeStateInTerminal(self.analyzerObj.hostPc, self.analyzerObj.testLog,"\n Start Analyzer record") #TODO need to change the name of updateRunTimeStateInTerminal to updateTernimalAndLog
 
     def stopRecording(self):
         self.analyzerObj.StopRecording(False)
         print("Stop Analyzer record")
         self.controller.updateRunTimeStateInTerminal(self.analyzerObj.hostPc, self.analyzerObj.testLog, "\n Stop Analyzer record")
         del self.rec_options  # delete recording options instance
-        while (traceCreatedPerAnalyzer[self.analyzerObj.traceReady] == False):
+        while (isTraceCreatedPerAnalyzer[self.analyzerObj.traceReady] == False):
             sleep(0.2)
             pythoncom.PumpWaitingMessages()
             print("PumpWaitingMessages")

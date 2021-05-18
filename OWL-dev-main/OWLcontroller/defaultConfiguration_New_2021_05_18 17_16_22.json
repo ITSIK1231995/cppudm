@@ -1,0 +1,162 @@
+{
+    "hostPcServerPort": 5000,
+    "attempsToCreateSocket": 40,
+    "defaultExecutionOptions": [
+        "Legacy Mode Host Pc",
+        "Legacy Mode Exerciser"
+    ],
+    "defaultExecutionMode": "Errinj Mode",
+    "resultPath": "results",
+    "legacyModePath": "legacyModeConfigFiles\\testsByGroups",
+    "errinjModePath": "errinjModeConfigFiles\\experiment",
+    "analyzerMinVersion": "VERSION",
+    "hostPCs": [
+        {
+            "IP": "10.100.102.12",
+            "groupName": "Hermes",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM6",
+                "chanel": 1
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.25",
+            "groupName": "Hermes",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM3",
+                "chanel": 1
+            },
+            "tests": {},
+            "checked": false,
+            "postPingWaitingTime": 25
+        },
+        {
+            "IP": "10.100.102.22",
+            "groupName": "Hermes",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 2
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.55",
+            "groupName": "Hermes",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 2
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.145",
+            "groupName": "Hermes",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 2
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.144",
+            "groupName": "Hermes",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 3
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.111",
+            "groupName": "Hermes",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 3
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.123",
+            "groupName": "calypso",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 3
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.124",
+            "groupName": "calypso",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 4
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.125",
+            "groupName": "calypso",
+            "stopOnFailure": false,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 4
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.100.102.126",
+            "groupName": "calypso",
+            "stopOnFailure": true,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 2
+            },
+            "tests": {},
+            "checked": false
+        },
+        {
+            "IP": "10.0.130.200",
+            "stopOnFailure": false,
+            "checked": true,
+            "groupName": "Hermes",
+            "tests": {},
+            "postPingWaitingTime": 0
+        },
+        {
+            "IP": "10.112.0.98",
+            "stopOnFailure": false,
+            "checked": true,
+            "groupName": "Hermes",
+            "tests": {
+                "Hermes - Power On Ready drive master": {
+                    "repeatAmount": 1,
+                    "checked": true
+                }
+            },
+            "postPingWaitingTime": 10,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 1
+            }
+        }
+    ]
+}

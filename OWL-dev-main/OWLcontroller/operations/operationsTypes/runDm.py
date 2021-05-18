@@ -21,10 +21,10 @@ class runDM(operationWithSocket):
             return False
         messegeToServer = {"operation": "runDM", "param": opParams[0]}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog,"\nDrive Master request has been sent to the Host PC")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog,"\nDrive Master request has been sent to the System Under Test")
         messegeFromServer = socket.recv(1024).decode()  # receive response from the server
         socket.close()
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n message from server:\n" + "\n" + messegeFromServer + "\n")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Message from server:\n" + "\n" + messegeFromServer + "\n")
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nDrive Master operation has ended")
 
 

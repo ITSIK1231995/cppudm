@@ -1,7 +1,8 @@
 {
-    "hostPcServerPort": 5000,
+    "hostPcServerPort": 4000,
     "attempsToCreateSocket": 40,
     "defaultExecutionOptions": [
+        "Errinj Mode",
         "Legacy Mode Host Pc",
         "Legacy Mode Exerciser"
     ],
@@ -23,10 +24,6 @@
                 "hermes - power on ready 0": {
                     "repeatAmount": 5,
                     "checked": false
-                },
-                "hermes - power on ready 3": {
-                    "repeatAmount": 1,
-                    "checked": true
                 },
                 "hermes - power on ready 5": {
                     "repeatAmount": 0,
@@ -70,10 +67,6 @@
                 "hermes - power on ready 0": {
                     "repeatAmount": 5,
                     "checked": false
-                },
-                "hermes - power on ready 3": {
-                    "repeatAmount": 44,
-                    "checked": true
                 }
             },
             "checked": false
@@ -89,10 +82,6 @@
             "tests": {
                 "hermes - power on ready 0": {
                     "repeatAmount": 5,
-                    "checked": false
-                },
-                "hermes - power on ready 3": {
-                    "repeatAmount": 41,
                     "checked": false
                 },
                 "hermes - power on ready 5": {
@@ -113,10 +102,6 @@
             "tests": {
                 "hermes - power on ready 5": {
                     "repeatAmount": 50,
-                    "checked": true
-                },
-                "hermes - power on ready 3": {
-                    "repeatAmount": 44,
                     "checked": true
                 },
                 "hermes - power on ready 0": {
@@ -142,10 +127,6 @@
                 "hermes - power on ready 0": {
                     "repeatAmount": 5,
                     "checked": false
-                },
-                "hermes - power on ready 3": {
-                    "repeatAmount": 44,
-                    "checked": true
                 },
                 "hermes - power on ready 2 reboot": {
                     "repeatAmount": 0,
@@ -225,10 +206,6 @@
             "groupName": "Hermes",
             "tests": {
                 "hermes - power on ready 0": {
-                    "repeatAmount": 0,
-                    "checked": false
-                },
-                "hermes - power on ready 3": {
                     "repeatAmount": 0,
                     "checked": false
                 },

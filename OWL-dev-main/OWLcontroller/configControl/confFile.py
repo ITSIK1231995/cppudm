@@ -28,7 +28,7 @@ class testConfErrinj(confFile):
 class testConfLegacySequenceFlow(confFile):
     def __setattr__(self, key, value):
         if isinstance(value, str):
-            super.__setattr__(self,key.lower().strip(),value.lower().strip()) if hasattr(self, key.lower().strip()) else ''
+            super.__setattr__(self,key.lower().strip(),value.strip()) if hasattr(self, key.lower().strip()) else ''
         else:
             super.__setattr__(self, key, value)
     results = ""

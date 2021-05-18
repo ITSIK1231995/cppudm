@@ -32,10 +32,10 @@ class powerOnWithClicker(operation):
                       " > " + hostPc['clicker']['COM'])
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc,testLog)
         if hostPcIsOn:
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Host Pc is On")
+            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n System Under Test is On")
             controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n power On With Clicker done successfully")
         else:
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Host Pc is Off\n power On With Clicker Failed")
+            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n System Under Test is Off\n power On With Clicker Failed")
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Power on with clicker has ended")
         return hostPcIsOn # if the host is up the clicker done well, and should return True
 

@@ -17,7 +17,7 @@ class dispatchComObj():
             # Otherwise just stash it away in the instance.
             self.__dict__[attr] = val
     @staticmethod
-    def DispatchWithEventsWithParams(clsid, user_event_class, arguments):
+    def DispatchWithEventsAndParams(clsid, user_event_class, arguments):
         # Create/Get the object.
         disp = Dispatch(clsid)
         if not disp.__class__.__dict__.get("CLSID"): # Eeek - no makepy support - try and build it.

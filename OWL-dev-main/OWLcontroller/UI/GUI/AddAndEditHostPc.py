@@ -25,13 +25,13 @@ class AddAndEditHostPc(QDialog):
         mainLayout.addWidget(buttonBox)
         self.setLayout(mainLayout)
         if editMode:
-            self.setWindowTitle("Edit HostPC")
+            self.setWindowTitle("Edit System Under Test")
             self.fillWithData()
         else:
-            self.setWindowTitle("Add HostPC")
+            self.setWindowTitle("Add System Under Test")
 
     def createFormGroupBox(self):
-        self.formGroupBox = QGroupBox("host Pc Settings")
+        self.formGroupBox = QGroupBox("System Under Test Settings")
         layout = QFormLayout()
         IPBox = QLineEdit()
         if self.editMode:
@@ -40,11 +40,11 @@ class AddAndEditHostPc(QDialog):
         COMBox = QLineEdit()
         layout.addRow(QLabel("Clicker COM:"),COMBox)
         chanelBox = QSpinBox()
-        layout.addRow(QLabel("Clicker chanel:"),chanelBox)
+        layout.addRow(QLabel("Clicker Chanel:"),chanelBox)
         stopOnFailure = QCheckBox()
-        layout.addRow(QLabel("stop on failure:"), stopOnFailure)
+        layout.addRow(QLabel("Stop On Failure:"), stopOnFailure)
         postPingWaitTimeBox = QSpinBox()
-        postPingWait = QLabel("post ping waiting time:")
+        postPingWait = QLabel("Post Ping Waiting Time:")
         postPingWait.setToolTip("In some hosts ping stops before the PC is off, this is the amount of time the controll PC will wait before sending the clicker command")
         postPingWaitTimeBox.setMaximum(1000000)
         postPingWaitTimeBox.setMinimum(0)

@@ -54,14 +54,14 @@ class VSEventHandler(object):
             print("VSEventHandler::OnNotifyClient - failed with exception: %s" % e)
             self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"VSEventHandler::OnNotifyClient - failed with exception: %s" % e)
 
-class VSE():
-    def startVerificationScriptEngine(self, traceFullPathAndName, vScriptFullPathAndName,hostPc, testLog, controller):
+class verificationScriptEngine():
+    def startVerificationScript(self, traceFullPathAndName, vScriptFullPathAndName, hostPc, testLog, controller):
         print("\nVerification Script Engine procedure has started")
         controller.updateRunTimeStateInTerminal(hostPc, testLog,"\nVerification Script Engine procedure has started")
-        Analyzer = dispatchComObj.DispatchWithEventsWithParams("CATC.PETracer", PEEvent, [hostPc, testLog, controller])  # using dispatch with events
+        Analyzer = dispatchComObj.DispatchWithEventsAndParams("CATC.PETracer", PEEvent, [hostPc, testLog, controller])  # using dispatch with events
         Trace = Analyzer.OpenFile(traceFullPathAndName)
         VSEngine = Trace.GetVScriptEngine(vScriptFullPathAndName)
-        handler = dispatchComObj.DispatchWithEventsWithParams(VSEngine, VSEventHandler, [hostPc, testLog, controller])
+        handler = dispatchComObj.DispatchWithEventsAndParams(VSEngine, VSEventHandler, [hostPc, testLog, controller])
         VSEngine.Tag = 12
         Result = VSEngine.RunVScript()  # run VSE script and get result
         if Result == 1:

@@ -34,9 +34,9 @@ class turnOnWithLan(operation):
         return hostPcMacAdress
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n turn on with lan command has started \n ")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Turn on with lan command has started \n ")
 
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n wake on lun magic packet has been sent ")
+        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Wake on lun magic packet has been sent ")
         macAdress = turnOnWithLan.fetchMacAddress(hostPc["IP"])
                 # wake on lan
         send_magic_packet(macAdress,ip_address=hostPc["IP"],port= controllerPc.configs.defaultConfContent['hostPcServerPort'])

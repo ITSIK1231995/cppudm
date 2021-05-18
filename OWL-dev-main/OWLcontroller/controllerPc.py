@@ -9,7 +9,7 @@ import _thread
 from UI.GUI.viewGui import mainWindow
 from datetime import datetime
 import datetime
-from lecroy.VSE import VSE
+from lecroy.verificationScriptEngine import verificationScriptEngine
 from validator import *
 import lecroy.analyzer
 
@@ -50,7 +50,7 @@ class ControllerPc():
         hostPcTestsRunner(self, hostPc).runAllTests()
 
     def startVSE(self,traceFullPathAndName, vScriptFullPathAndName, hostPc,testLog):
-        return VSE().startVerificationScriptEngine(traceFullPathAndName, vScriptFullPathAndName,hostPc,testLog,self)
+        return verificationScriptEngine().startVerificationScript(traceFullPathAndName, vScriptFullPathAndName, hostPc, testLog, self)
 
     #for each hostPc we create a thread that well manage the execution of its tests
     def dispatchThreads(self):

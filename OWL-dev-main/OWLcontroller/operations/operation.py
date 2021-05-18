@@ -37,8 +37,9 @@ class operation(object):
         return False
 
     def waitForPcToTurnOff(self,controllerPc,hostPc,testLog):
-        attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        for i in range(attempsToConnectSocket):
+        maxTimeToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxTimeToCreateSocket
+        while time.time() < timeToStopTryingCreatingSocket:
             # response = os.system("ping -n 4 " + hostPc["IP"])
             response = subprocess.run(["ping","-n","4",hostPc["IP"]], stdout=subprocess.PIPE).stdout.decode('utf-8')
             # and then check the response...
@@ -57,15 +58,14 @@ class operation(object):
     def checkIfPcisOn(self,controllerPc,hostPc):
         clientSocket = socket.socket()  # instantiate
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-        attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        i = 0
+        maxTimeToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxTimeToCreateSocket
         while True:
             try:
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
             except socket.error as e:
-                if i < attempsToConnectSocket:
-                    i += 1
+                if time.time() < timeToStopTryingCreatingSocket:
                     continue
                 else:
                     return False

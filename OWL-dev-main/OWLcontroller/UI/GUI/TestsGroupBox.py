@@ -31,16 +31,16 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             groupBox = QtWidgets.QGroupBox()
             groupBox.setObjectName("GroupBox_"+test.testname)
             checkBox = QtWidgets.QCheckBox(groupBox)
-            checkBox.setGeometry(QtCore.QRect(0, 1, 200, 21))
+            checkBox.setGeometry(QtCore.QRect(0, 1, 230, 21))
             checkBox.setObjectName("testCheckBox_"+test.testname)
             checkBox.clicked.connect(self.onCheckBoxClicked)
             repeatTestBox = QtWidgets.QSpinBox(groupBox)
-            repeatTestBox.setGeometry(QtCore.QRect(200, 0, 47, 23))
+            repeatTestBox.setGeometry(QtCore.QRect(220, 0, 47, 23))
             repeatTestBox.setObjectName("repeatTestBox_"+test.testname)
             repeatTestBox.setRange(0,1000)
             repeatTestBox.valueChanged.connect(self.repeatTestBoxChanged)
             statusLbl = QtWidgets.QLabel(groupBox)
-            statusLbl.setGeometry(QtCore.QRect(270, 3, 150, 14))
+            statusLbl.setGeometry(QtCore.QRect(300, 3, 150, 14))
             statusLbl.setAlignment(QtCore.Qt.AlignCenter)
             statusLbl.setObjectName("TestState_"+test.testname)
             groupBox.setFixedHeight(25)
@@ -78,9 +78,9 @@ class TestsGroupBox(QtWidgets.QGroupBox):
 
     def retranslateUi(self):
         self.setToolTip("tests list")
-        self.setTitle(self.groupName + " tests")
+        self.setTitle(self.groupName + " Tests")
         self.setStyleSheet("background-color:rgb(224,224,224)")
-        self.checkAllBox.setText("Check all")
+        self.checkAllBox.setText("Check All")
         for test in self.tests:
             self.testsRows[test.testname].checkBox.setText(test.testname)
             self.testsRows[test.testname].statusLbl.setText("Not Started")
@@ -103,7 +103,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
 
     def loadHostPCSTestParams(self, hostPc):
         self.myHostPc = hostPc
-        self.setTitle(self.groupName + " tests,   for " + self.myHostPc['IP'])
+        self.setTitle(self.groupName + " Tests,   For " + self.myHostPc['IP'])
         for test in self.tests:
             if test.testname in self.myHostPc['tests']:
                 savedTestParmsPerHostPc = self.myHostPc['tests'][test.testname]

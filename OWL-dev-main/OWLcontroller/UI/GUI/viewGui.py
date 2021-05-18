@@ -151,8 +151,9 @@ class mainWindow(object):
         self.actionLegacy_Mode_Host_PC.setObjectName("actionLegacy_Mode_Host_PC")
         self.actionLegacy_Mode_Exerciser = QtWidgets.QAction(skippedTestsNumber)
         self.actionLegacy_Mode_Exerciser.setObjectName("actionLegacy_Mode_Exerciser")
-        self.actionErrinj_Mode = QtWidgets.QAction(skippedTestsNumber)
-        self.actionErrinj_Mode.setObjectName("actionErrinj_Mode")
+        # disable Errinj Mode has it canceled for now
+        # self.actionErrinj_Mode = QtWidgets.QAction(skippedTestsNumber)
+        # self.actionErrinj_Mode.setObjectName("actionErrinj_Mode")
         self.menufiles.addAction(self.actionSave_configuration)
         self.menufiles.addAction(self.actionLoad_configuration)
         self.menuTools.addSeparator()
@@ -161,7 +162,7 @@ class mainWindow(object):
         self.menuTools.addAction(self.actionPreferences)
         self.menuMode.addAction(self.actionLegacy_Mode_Host_PC)
         self.menuMode.addAction(self.actionLegacy_Mode_Exerciser)
-        self.menuMode.addAction(self.actionErrinj_Mode)
+        # self.menuMode.addAction(self.actionErrinj_Mode)  # disable Errinj Mode has it canceled for now
         self.menubar.addAction(self.menufiles.menuAction())
         self.menubar.addAction(self.menuMode.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
@@ -217,13 +218,13 @@ class mainWindow(object):
         self.menuTools.setTitle(_translate("skippedTestsNumber", "Tools"))
         self.menuAbout.setTitle(_translate("skippedTestsNumber", "About"))
         self.menuMode.setTitle(_translate("skippedTestsNumber", "Mode"))
-        self.actionSave_configuration.setText(_translate("skippedTestsNumber", "Save configuration"))
-        self.actionLoad_configuration.setText(_translate("skippedTestsNumber", "Load configuration"))
+        self.actionSave_configuration.setText(_translate("skippedTestsNumber", "Save Configuration"))
+        self.actionLoad_configuration.setText(_translate("skippedTestsNumber", "Load Configuration"))
         self.actionSettings.setText(_translate("skippedTestsNumber", "Settings"))
         self.actionPreferences.setText(_translate("skippedTestsNumber", "Preferences"))
-        self.actionLegacy_Mode_Host_PC.setText(_translate("skippedTestsNumber", "Legacy Mode - Host PC"))
+        self.actionLegacy_Mode_Host_PC.setText(_translate("skippedTestsNumber", "Legacy Mode - System Under Test"))
         self.actionLegacy_Mode_Exerciser.setText(_translate("skippedTestsNumber", "Legacy Mode - Exerciser"))
-        self.actionErrinj_Mode.setText(_translate("skippedTestsNumber", "Errinj Mode"))
+        # self.actionErrinj_Mode.setText(_translate("skippedTestsNumber", "Errinj Mode"))  # disable Errinj Mode has it canceled for now
 
     def runBtnPressed(self):
         self.controller.startExecution()
