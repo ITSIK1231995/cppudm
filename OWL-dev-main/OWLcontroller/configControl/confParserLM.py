@@ -54,34 +54,48 @@ class confParserLM():
     def getCurrPath(self):
         return os.getcwd().strip()
 
-    def parseSequanceFile(self, sectionName,controlPc,lMConfFile):
-        try:
-            flowOperationsFile = open((findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile))), encoding="utf8")
-            FlowOperations = json.load(flowOperationsFile)
-            flowOperationsFile.close()
-        except Exception as e:
-            sequenceFileName = self.getparamValue(sectionName,'sequancefile',lMConfFile).strip()
-            sequenceFileInvalidSyntaxDescription = str("The system detected an invalid syntax in the following Json file: \n" + self.getCurrPath() + '\\' + sequenceFileName + "\nPlease fix the file's content according to the following error message \n" + str(e) + "\n \n ")
-            if "corruptedSequenceFile" not in controlPc.preRunValidationErorrs.keys():
-                controlPc.preRunValidationErorrs["corruptedSequenceFile"] = []
-                controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName :sequenceFileInvalidSyntaxDescription})
-            else:
-                for corruptedSequenceFileDict in controlPc.preRunValidationErorrs['corruptedSequenceFile']:
-                    if sequenceFileName in corruptedSequenceFileDict:
-                        break
+    def parseSequanceFile(self,sectionName,controlPc,lMConfFile ):
+        operationsList = []
+        with open (findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile))) as a_file:
+            for line in a_file:
+                seperateOpFromParam = line.split()
+                if len(seperateOpFromParam) > 1:
+                    opName = seperateOpFromParam[0][1:-1:]
+                    opParam = seperateOpFromParam[1][2:-2:]
+                    operationsList.append({"name": opName, "params": opParam})
                 else:
-                    controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName: sequenceFileInvalidSyntaxDescription})
-            return None # When the sequence file is corrupted we are sending a "False" boolean in order to indicate this
-        return FlowOperations #Otherwise we are sending the loaded json file
+                    opName = seperateOpFromParam[0][1:-1:][:-1:]
+                    operationsList.append(opName)
+                    print(opName, " ")
+        return operationsList
+
+    # def parseSequanceFile(self, sectionName,controlPc,lMConfFile):
+    #     try:
+    #          flowOperationsFile = open((findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile))), encoding="utf8")
+    #         FlowOperations = json.load(flowOperationsFile)
+    #         flowOperationsFile.close()
+    #         #self.parseOwlTestFile(findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile)))
+    #     except Exception as e:
+    #         sequenceFileName = self.getparamValue(sectionName,'sequancefile',lMConfFile).strip()
+    #         sequenceFileInvalidSyntaxDescription = str("The system detected an invalid syntax in the following Json file: \n" + self.getCurrPath() + '\\' + sequenceFileName + "\nPlease fix the file's content according to the following error message \n" + str(e) + "\n \n ")
+    #         if "corruptedSequenceFile" not in controlPc.preRunValidationErorrs.keys():
+    #             controlPc.preRunValidationErorrs["corruptedSequenceFile"] = []
+    #             controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName :sequenceFileInvalidSyntaxDescription})
+    #         else:
+    #             for corruptedSequenceFileDict in controlPc.preRunValidationErorrs['corruptedSequenceFile']:
+    #                 if sequenceFileName in corruptedSequenceFileDict:
+    #                     break
+    #             else:
+    #                 controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName: sequenceFileInvalidSyntaxDescription})
+    #         return None # When the sequence file is corrupted we are sending a "False" boolean in order to indicate this
+    #     return FlowOperations #Otherwise we are sending the loaded json file
 
     def createSequanceFileConf(self, sectionName,controlPc,lMConfFile):
         testConfiguration = configControl.confFile.testConfLegacySequenceFlow()
         sequenceFile = self.parseSequanceFile(sectionName,controlPc,lMConfFile)
         if sequenceFile == None:
             return None
-        testConfiguration.flowoperations = []
-        for operation in sequenceFile['operationsList']:
-            testConfiguration.flowoperations.append(operation)
+        testConfiguration.flowoperations = sequenceFile
         return testConfiguration
 
     def addingParamsToConf(self, sectionParams,testConf,sectionName,lMConfFile):
