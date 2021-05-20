@@ -15,7 +15,7 @@ class browser(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-    def getChoosedFolderName(self,name):
+    def getChoosedFolderName(self,name,browserType):
         folderName = self.openFileNameDialog(name)
         self.show()
         self.hide()
@@ -45,4 +45,6 @@ class browser(QWidget):
         fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
                                                   "All Files (*);;Text Files (*.txt)", options=options)
         if fileName:
-            print(fileName)
+            return fileName
+        else:
+            return None

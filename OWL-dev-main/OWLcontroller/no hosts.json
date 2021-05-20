@@ -1,0 +1,14 @@
+{
+    "hostPcServerPort": 5000,
+    "attempsToCreateSocket": 40,
+    "defaultExecutionOptions": [
+        "Legacy Mode Host Pc",
+        "Legacy Mode Exerciser"
+    ],
+    "defaultExecutionMode": "Legacy Mode Host Pc",
+    "resultPath": "results",
+    "legacyModePath": "TestConfigIni",
+    "errinjModePath": "errinjModeConfigFiles\\experiment",
+    "analyzerMinVersion": "VERSION",
+    "hostPCs": []
+}

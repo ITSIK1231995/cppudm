@@ -14,7 +14,8 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         self.vbox = QVBoxLayout()
         self.groupName = groupName
         self.tests = tests
-        self.myHostPc = self.controller.configs.defaultConfContent['hostPCs'][0]
+        if len(self.controller.configs.defaultConfContent['hostPCs']) != 0:
+            self.myHostPc = self.controller.configs.defaultConfContent['hostPCs'][0]
         self.testTableSetup()
         self.scrollSetup()
         self.checkAllSetup()

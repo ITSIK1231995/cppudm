@@ -2,11 +2,8 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog,
                              QDialogButtonBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
                              QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
                              QVBoxLayout,QCheckBox,QRadioButton)
-
-import sys
 from collections import namedtuple
 from UI.GUI.GUIUtills import *
-
 
 class AddAndEditHostPc(QDialog):
     def __init__(self,editMode,hostPc,mainWindowRef):
@@ -36,7 +33,9 @@ class AddAndEditHostPc(QDialog):
         IPBox = QLineEdit()
         if self.editMode:
             IPBox.setReadOnly(True)
-        layout.addRow(QLabel("IP:"),IPBox)
+        layout.addRow(QLabel("IP \ DNS:"),IPBox)
+        aliasBox = QLineEdit()
+        layout.addRow(QLabel("Alias:"), aliasBox)
         COMBox = QLineEdit()
         layout.addRow(QLabel("Clicker COM:"),COMBox)
         chanelBox = QSpinBox()
@@ -50,21 +49,19 @@ class AddAndEditHostPc(QDialog):
         postPingWaitTimeBox.setMinimum(0)
         layout.addRow(postPingWait, postPingWaitTimeBox)
         self.formGroupBox.setLayout(layout)
-        formObjectsNamedTuple = namedtuple('formObjects', ['IPBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
-        self.formObjects = formObjectsNamedTuple(IPBox, COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
+        formObjectsNamedTuple = namedtuple('formObjects', ['IPBox','aliasBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
+        self.formObjects = formObjectsNamedTuple(IPBox,aliasBox,COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
 
     def fillWithData(self):
-
         self.formObjects.IPBox.setText(self.hostPc["IP"])
+        self.formObjects.aliasBox.setText(self.hostPc["alias"])
         if  "clicker" in self.hostPc.keys():
             if "COM" in self.hostPc["clicker"]:
                 self.formObjects.COMBox.setText(self.hostPc["clicker"]["COM"])
             if "chanel" in self.hostPc["clicker"]:
                 self.formObjects.chanelBox.setValue(int(self.hostPc["clicker"]["chanel"]))
-
         if "postPingWaitingTime" in self.hostPc.keys():
             self.formObjects.postPingWaitTimeBox.setValue(int(self.hostPc["postPingWaitingTime"]))
-
         self.formObjects.stopOnFailure.setChecked(self.hostPc["stopOnFailure"])
 
     def validIP(self,IP):
@@ -94,21 +91,27 @@ class AddAndEditHostPc(QDialog):
             }
         self.hostPc["stopOnFailure"] = self.formObjects.stopOnFailure.isChecked()
         self.hostPc["postPingWaitingTime"] = self.formObjects.postPingWaitTimeBox.value()
-
+        self.hostPc["alias"] = self.formObjects.aliasBox.text()
+        if self.formObjects.aliasBox.text() != "" and\
+                self.formObjects.aliasBox.text() != None:
+            self.mainWindowRef.hostExercisersGroupBox.editSpecificHostPcCheckBoxLabel(self.hostPc["IP"], self.formObjects.aliasBox.text())
+        else:
+            self.mainWindowRef.hostExercisersGroupBox.editSpecificHostPcCheckBoxLabel(self.hostPc["IP"],self.hostPc["IP"])
         self.close()
 
     def acceptAddMode(self):
         newHostPCIP = self.formObjects.IPBox.text()
-        if not self.validIP(newHostPCIP):
-            GUIUtills.PopUpWarning("IP is not writen correctly")
-        elif  self.IpExsists(newHostPCIP):
-            GUIUtills.PopUpWarning("IP already exists")
+        # if not self.validIP(newHostPCIP):
+        #     GUIUtills.PopUpWarning("IP is not writen correctly")
+        if  self.IpExsists(newHostPCIP):
+            GUIUtills.PopUpWarning("IP / DNS is already exists")
         else:
             newHostPc = {
                 "IP": newHostPCIP,
+                "alias" : self.formObjects.aliasBox.text(),
                 "stopOnFailure": self.formObjects.stopOnFailure.isChecked(),
                 "checked" : False,
-                "groupName": list(self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.keys())[0], # defult is the first group
+                "groupName": list(self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.keys())[0], # default is the first group
                 "tests" : {},
                 "postPingWaitingTime" : self.formObjects.postPingWaitTimeBox.value()
             }

@@ -23,7 +23,7 @@ class operationWithSocket(operation):
         try:
             clientSocket.connect((hostPc["IP"], port))  # connect to the server
         except socket.error as e:
-            #controllerPc.updateRunTimeState(hostPc, "\n " + str(e) + "\n ")
+            controllerPc.updateRunTimeStateInTerminal(hostPc,testLog, "\n " + str(e) + "\n ")
             return False
         return clientSocket
 

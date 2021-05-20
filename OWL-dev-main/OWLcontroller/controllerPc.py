@@ -68,10 +68,9 @@ class ControllerPc():
     def updateUiWithHostNewStatus(self, hostPcWithNewState):
         self.view.updateHostPcLabels(hostPcWithNewState)
 
-    def savedDefaultConfContentIntoJson(self):
+    def savedDefaultConfContentIntoJson(self,fileName):
         logging.info("Saving new Default Conf Content")
-        currTime = self.getCurrentTimeFile()
-        defaultConfName = 'defaultConfiguration_New_' + currTime + ".json"
+        defaultConfName = fileName  + ".json"
         with open(defaultConfName, 'w+') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
             print(json_dumps_str, file=fout)

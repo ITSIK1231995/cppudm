@@ -36,9 +36,10 @@ class operation(object):
                 pass
         return False
 
+#TODO the following two methoods reimplemnetd to be in minutes and not in connection attemps need to check them on a host pc
     def waitForPcToTurnOff(self,controllerPc,hostPc,testLog):
-        maxTimeToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        timeToStopTryingCreatingSocket = time.time() + 60 * maxTimeToCreateSocket
+        maxMinutesToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket
         while time.time() < timeToStopTryingCreatingSocket:
             # response = os.system("ping -n 4 " + hostPc["IP"])
             response = subprocess.run(["ping","-n","4",hostPc["IP"]], stdout=subprocess.PIPE).stdout.decode('utf-8')
@@ -58,8 +59,8 @@ class operation(object):
     def checkIfPcisOn(self,controllerPc,hostPc):
         clientSocket = socket.socket()  # instantiate
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-        maxTimeToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        timeToStopTryingCreatingSocket = time.time() + 60 * maxTimeToCreateSocket
+        maxMinutesToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket
         while True:
             try:
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server

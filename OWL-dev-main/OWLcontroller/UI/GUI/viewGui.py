@@ -1,3 +1,5 @@
+from PyQt5.QtCore import QFile
+
 from UI.GUI import browser
 from UI.GUI.ScrollLabel import ScrollLabel
 from UI.GUI.exerHostGroupBox import exerHostGroupBox
@@ -181,18 +183,23 @@ class mainWindow(object):
                         outPutcorruptedSequenceFile += str(seqFileErr)
                 GUIUtills.PopUpWarning(outPutcorruptedSequenceFile)
                 self.controller.exitSystem()
-
             for listOfErrors in self.controller.preRunValidationErorrs:
                 for Error in self.controller.preRunValidationErorrs[listOfErrors]:
                     GUIUtills.PopUpWarning(Error)
 
     def loadConfBtnClicked(self):
-        fileChoosedPath = browser("Load Configuration").getChoosedFolderName("Load Configuration")
+        fileChoosedPath = browser("Load Configuration").getChoosedFolderName("Load Configuration","load")
         if fileChoosedPath is not "":
             self.controller.reload(fileChoosedPath)
 
+    def getFileNameFromUser(self):
+        fileNameFromUser = browser("Save Configuration").saveFileDialog()
+        return fileNameFromUser
+
     def saveConfBtnClicked(self):
-        self.controller.savedDefaultConfContentIntoJson()
+        fileName = self.getFileNameFromUser()
+        if fileName is not None:
+            self.controller.savedDefaultConfContentIntoJson(fileName)
 
     def retranslateUi(self, skippedTestsNumber):
         _translate = QtCore.QCoreApplication.translate
@@ -255,9 +262,10 @@ class mainWindow(object):
         self.setDefultHostPc()
 
     def setDefultHostPc(self):
-        defaultHostPC = self.controller.configs.defaultConfContent['hostPCs'][0]
-        self.currentHostPc = defaultHostPC
-        self.setNewHostPC(defaultHostPC)
+        if len(self.controller.configs.defaultConfContent['hostPCs']) != 0:
+            defaultHostPC = self.controller.configs.defaultConfContent['hostPCs'][0]
+            self.currentHostPc = defaultHostPC
+            self.setNewHostPC(defaultHostPC)
 
     def getCurrentTestsGroupBoxWithLevelTuple(self):
         currentTGBStackLevel = self.stackedLayout.currentIndex()
@@ -292,7 +300,7 @@ class mainWindow(object):
         self.terminalLbl.setGeometry(QtCore.QRect(285, 470, 540, 180))
         self.terminalLbl.setObjectName("Terminal")
         self.terminalLbl.setStyleSheet("background-color:rgb(224,224,224)")
-        self.terminalLbl.setText("tipesh \n pyqt")
+        self.terminalLbl.setText("")
 
     def setDisplayedTestGroup(self, groupName):
         if self.currentHostPc is not None:
