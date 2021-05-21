@@ -6,6 +6,7 @@ from collections import OrderedDict
 import json
 import os
 from configControl.configTypes.constans import constans
+import re
 
 def convertToString(line):
     return str(line)
@@ -56,40 +57,23 @@ class confParserLM():
 
     def parseSequanceFile(self,sectionName,controlPc,lMConfFile ):
         operationsList = []
-        with open (findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile))) as a_file:
-            for line in a_file:
-                seperateOpFromParam = line.split()
-                if len(seperateOpFromParam) > 1:
-                    opName = seperateOpFromParam[0][1:-1:]
-                    opParam = seperateOpFromParam[1][2:-2:]
-                    operationsList.append({"name": opName, "params": opParam})
-                else:
-                    opName = seperateOpFromParam[0][1:-1:][:-1:]
+        with open (findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile))) as owlTestFile:
+            for operationLine in owlTestFile:
+                opName = re.findall('"([^"]*)"', operationLine)[0]
+                opParam = self.getStringBetweenBrackets(operationLine)
+                if opParam is None:
                     operationsList.append(opName)
-                    print(opName, " ")
+                else:
+                    operationsList.append({"name" : opName, "params" : opParam})
         return operationsList
 
-    # def parseSequanceFile(self, sectionName,controlPc,lMConfFile):
-    #     try:
-    #          flowOperationsFile = open((findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile))), encoding="utf8")
-    #         FlowOperations = json.load(flowOperationsFile)
-    #         flowOperationsFile.close()
-    #         #self.parseOwlTestFile(findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile)))
-    #     except Exception as e:
-    #         sequenceFileName = self.getparamValue(sectionName,'sequancefile',lMConfFile).strip()
-    #         sequenceFileInvalidSyntaxDescription = str("The system detected an invalid syntax in the following Json file: \n" + self.getCurrPath() + '\\' + sequenceFileName + "\nPlease fix the file's content according to the following error message \n" + str(e) + "\n \n ")
-    #         if "corruptedSequenceFile" not in controlPc.preRunValidationErorrs.keys():
-    #             controlPc.preRunValidationErorrs["corruptedSequenceFile"] = []
-    #             controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName :sequenceFileInvalidSyntaxDescription})
-    #         else:
-    #             for corruptedSequenceFileDict in controlPc.preRunValidationErorrs['corruptedSequenceFile']:
-    #                 if sequenceFileName in corruptedSequenceFileDict:
-    #                     break
-    #             else:
-    #                 controlPc.preRunValidationErorrs["corruptedSequenceFile"].append({sequenceFileName: sequenceFileInvalidSyntaxDescription})
-    #         return None # When the sequence file is corrupted we are sending a "False" boolean in order to indicate this
-    #     return FlowOperations #Otherwise we are sending the loaded json file
-
+    def getStringBetweenBrackets(self,test_str):
+        regex = r"(?<=\[)([^]]+)(?=\])"
+        matches = re.finditer(regex, test_str, re.MULTILINE)
+        for matchNum, match in enumerate(matches):
+            matchNum = matchNum + 1
+            return "{match}".format(match=match.group())
+        
     def createSequanceFileConf(self, sectionName,controlPc,lMConfFile):
         testConfiguration = configControl.confFile.testConfLegacySequenceFlow()
         sequenceFile = self.parseSequanceFile(sectionName,controlPc,lMConfFile)
