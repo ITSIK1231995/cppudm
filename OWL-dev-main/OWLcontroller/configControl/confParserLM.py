@@ -72,9 +72,11 @@ class confParserLM():
         ''' will return whatever is between the brackets ([]) in ths string it gets '''
         regex = r"(?<=\[)([^]]+)(?=\])"
         matches = re.finditer(regex, operationFromOwlTestFile, re.MULTILINE)
+        paramsList = []
         for matchNum, match in enumerate(matches):
             matchNum = matchNum + 1
-            return "{match}".format(match=match.group())
+            paramsList.append( "{match}".format(match=match.group()))
+        return paramsList
 
     def getOperationName(self,operationFromOwlTestFile):
         """ Will return everything between quotes """
