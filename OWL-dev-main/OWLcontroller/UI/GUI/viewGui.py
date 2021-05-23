@@ -22,7 +22,6 @@ from collections import OrderedDict
 class mainWindow(object):
     def setupUi(self, skippedTestsNumber, controller):
         self.controller = controller
-        # If there's valid data in configs.legacyMode (user's json files)
         self.displayPreRunValidationErorrs()
 
         skippedTestsNumber.setObjectName("skippedTestsNumber")
@@ -243,7 +242,6 @@ class mainWindow(object):
     def createTestScreens(self):
         self.widget = QWidget(self.centralwidget)
         self.widget.setGeometry(QtCore.QRect(285, 150, 540, 280))
-
         self.stackedLayout = QStackedLayout(self.widget)
         self.testsGroupBoxWithLeveltuples = OrderedDict()
         TestsGroupBoxWithLeveltuple = namedtuple('TestRow', ['testsGroupBox', 'stackLevel'])
@@ -269,8 +267,7 @@ class mainWindow(object):
 
     def getCurrentTestsGroupBoxWithLevelTuple(self):
         currentTGBStackLevel = self.stackedLayout.currentIndex()
-        return next(
-            (TGB for TGB in self.testsGroupBoxWithLeveltuples.values() if TGB.stackLevel == currentTGBStackLevel), None)
+        return next((TGB for TGB in self.testsGroupBoxWithLeveltuples.values() if TGB.stackLevel == currentTGBStackLevel), None)
 
     def setNewHostPC(self, hostPc):
         self.currentHostPc = hostPc

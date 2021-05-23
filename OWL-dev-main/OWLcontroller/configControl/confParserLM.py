@@ -59,21 +59,27 @@ class confParserLM():
         operationsList = []
         with open (findFile(self.getparamValue(sectionName, 'sequancefile',lMConfFile))) as owlTestFile:
             for operationLine in owlTestFile:
-                opName = re.findall('"([^"]*)"', operationLine)[0]
-                opParam = self.getStringBetweenBrackets(operationLine)
+                opName = self.getOperationName(operationLine)
+                opParam = self.getOperationParam(operationLine)
                 if opParam is None:
                     operationsList.append(opName)
                 else:
                     operationsList.append({"name" : opName, "params" : opParam})
         return operationsList
 
-    def getStringBetweenBrackets(self,test_str):
+#TODO need to check if its work because at home i didnt have host pc
+    def getOperationParam(self, operationFromOwlTestFile):
+        ''' will return whatever is between the brackets ([]) in ths string it gets '''
         regex = r"(?<=\[)([^]]+)(?=\])"
-        matches = re.finditer(regex, test_str, re.MULTILINE)
+        matches = re.finditer(regex, operationFromOwlTestFile, re.MULTILINE)
         for matchNum, match in enumerate(matches):
             matchNum = matchNum + 1
             return "{match}".format(match=match.group())
-        
+
+    def getOperationName(self,operationFromOwlTestFile):
+        """ Will return everything between quotes """
+        return re.findall('"([^"]*)"', operationFromOwlTestFile)[0]
+
     def createSequanceFileConf(self, sectionName,controlPc,lMConfFile):
         testConfiguration = configControl.confFile.testConfLegacySequenceFlow()
         sequenceFile = self.parseSequanceFile(sectionName,controlPc,lMConfFile)
