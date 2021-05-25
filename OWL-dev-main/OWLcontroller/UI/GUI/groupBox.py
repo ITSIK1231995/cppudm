@@ -1,5 +1,7 @@
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
+
+from UI.GUI import systemModes
 from UI.GUI.GUIUtills import *
 
 class groupBox(QtWidgets.QGroupBox):
@@ -9,7 +11,11 @@ class groupBox(QtWidgets.QGroupBox):
         self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
         self.vbox = QVBoxLayout()
-        self.groupNames = mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.keys()
+        if mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            currentModeTestsDict = mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
+        elif mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            currentModeTestsDict = mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
+        self.groupNames = currentModeTestsDict.keys()
         self.groupListSetup()
         self.scrollSetup()
 

@@ -6,7 +6,7 @@ class confFile(object):
     verificationscript = ''
 
     def __setattr__(self, key, value):
-        super.__setattr__(self,key.lower().strip(),value.lower().strip()) if hasattr(self, key.lower().strip()) else ''
+        super.__setattr__(self,key.lower().strip(),value.strip()) if hasattr(self, key.lower().strip()) else ''
 
     def __repr__(self):
         output = ''

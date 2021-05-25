@@ -63,15 +63,18 @@ class AddAndEditHostPc(QDialog):
         if "postPingWaitingTime" in self.hostPc.keys():
             self.formObjects.postPingWaitTimeBox.setValue(int(self.hostPc["postPingWaitingTime"]))
         self.formObjects.stopOnFailure.setChecked(self.hostPc["stopOnFailure"])
+    #
+    # def validIP(self,IP):
+    #     try:
+    #         parts = IP.split('.')
+    #         return len(parts) == 4 and all(0 <= int(part) < 256 for part in parts)
+    #     except ValueError:
+    #         return False  # one of the 'parts' not convertible to integer
+    #     except (AttributeError, TypeError):
+    #         return False  # `ip` isn't even a string
 
     def validIP(self,IP):
-        try:
-            parts = IP.split('.')
-            return len(parts) == 4 and all(0 <= int(part) < 256 for part in parts)
-        except ValueError:
-            return False  # one of the 'parts' not convertible to integer
-        except (AttributeError, TypeError):
-            return False  # `ip` isn't even a string
+        return not str(IP) == ""
 
     def IpExsists(self,IP):
         allHostPcs = self.mainWindowRef.controller.configs.defaultConfContent["hostPCs"]
@@ -101,9 +104,9 @@ class AddAndEditHostPc(QDialog):
 
     def acceptAddMode(self):
         newHostPCIP = self.formObjects.IPBox.text()
-        # if not self.validIP(newHostPCIP):
-        #     GUIUtills.PopUpWarning("IP is not writen correctly")
-        if  self.IpExsists(newHostPCIP):
+        if not self.validIP(newHostPCIP):
+            GUIUtills.PopUpWarning("IP is not writen correctly")
+        elif  self.IpExsists(newHostPCIP):
             GUIUtills.PopUpWarning("IP / DNS is already exists")
         else:
             newHostPc = {

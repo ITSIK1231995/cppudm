@@ -67,7 +67,7 @@ class confParserLM():
                     operationsList.append({"name" : opName, "params" : opParam})
         return operationsList
 
-#TODO need to check if its work because at home i didnt have host pc
+#TODO need to make the param list be splited with (,) between params
     def getOperationParam(self, operationFromOwlTestFile):
         ''' will return whatever is between the brackets ([]) in ths string it gets '''
         regex = r"(?<=\[)([^]]+)(?=\])"

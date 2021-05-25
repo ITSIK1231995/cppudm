@@ -22,6 +22,8 @@ class ControllerPc():
         self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
+        self.currentSystemExecutionMode = self.getDefaultExeutionModeFromDefaultConfiguration()
+        self.firstGuiInit = True # preRunValidationErorrs should be displayed only if its the first GUI init
         logging.info("Initiating GUI")
         self.GUIInit()
 
@@ -33,6 +35,7 @@ class ControllerPc():
         self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
+        self.currentSystemExecutionMode = self.getDefaultExeutionModeFromDefaultConfiguration()
         logging.info("Initiating GUI")
         self.GUIInit()
 
@@ -74,6 +77,12 @@ class ControllerPc():
         with open(defaultConfName, 'w+') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
             print(json_dumps_str, file=fout)
+
+    def getDefaultExeutionModeFromDefaultConfiguration(self):
+        if "Host Pc" in self.configs.defaultConfContent['defaultExecutionMode']:
+            return systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC
+        elif "Exerciser" in self.configs.defaultConfContent['defaultExecutionMode']:
+            return systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER
 
     def updateRunTimeStateInTerminal(self, hostPc, testLog, update):
         currentDatetime = self.getCurrentTime()

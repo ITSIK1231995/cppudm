@@ -1,5 +1,7 @@
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
+
+from UI.GUI import systemModes
 from UI.GUI.AddAndEditHostPc import *
 from UI.GUI.colorConvertor import *
 
@@ -16,12 +18,13 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.controller = mainWindowRef.controller
         if self.controller.configs:
             self.hostPcs = self.controller.configs.defaultConfContent['hostPCs']
-        self.hostPCTableSetup()
-        self.scrollSetup()
-        self.addHostBtnSetup()
-        if len(self.hostPcs) != 0:
-            self.currHostPc = self.getFirstHostPc()
-            self.setColortoCurrHostCheckBox()
+            if controlPc.currentSystemExecutionMode.name == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC.name:
+                self.hostPCTableSetup()
+                self.scrollSetup()
+                self.addHostBtnSetup()
+                if len(self.hostPcs) != 0:
+                    self.currHostPc = self.getFirstHostPc()
+                    self.setColortoCurrHostCheckBox()
 
     def getFirstHostPc(self):
         return self.hostPcs[0]
@@ -147,14 +150,15 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.setToolTip("System Under Test list")
         self.setTitle("Exercisers / SUTs")
         self.setStyleSheet("background-color:rgb(224,224,224)")
-        for hostPc in self.hostPcs:
-            if hostPc["alias"] != ""\
-                and hostPc["alias"] != None:
-                self.hostPcRows[hostPc['IP']].checkBox.setText(hostPc['alias'])
-            else:
-                self.hostPcRows[hostPc['IP']].checkBox.setText(hostPc['IP'])
-            self.hostPcRows[hostPc['IP']].checkBox.setChecked(hostPc['checked'])
-            self.hostPcRows[hostPc['IP']].editButton.setText("Edit")
-            self.hostPcRows[hostPc['IP']].showButton.setText("Show")
-            self.hostPcRows[hostPc['IP']].delButton.setText("Delete")
-        self.addHostPcBtn.setText("Add System Under Test")
+        if self.controller.currentSystemExecutionMode.name == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC.name:
+            for hostPc in self.hostPcs:
+                if hostPc["alias"] != ""\
+                    and hostPc["alias"] != None:
+                    self.hostPcRows[hostPc['IP']].checkBox.setText(hostPc['alias'])
+                else:
+                    self.hostPcRows[hostPc['IP']].checkBox.setText(hostPc['IP'])
+                self.hostPcRows[hostPc['IP']].checkBox.setChecked(hostPc['checked'])
+                self.hostPcRows[hostPc['IP']].editButton.setText("Edit")
+                self.hostPcRows[hostPc['IP']].showButton.setText("Show")
+                self.hostPcRows[hostPc['IP']].delButton.setText("Delete")
+            self.addHostPcBtn.setText("Add System Under Test")

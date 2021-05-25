@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QFile
+from psutil._common import enum
 
-from UI.GUI import browser
+from UI.GUI import browser, systemModes
 from UI.GUI.ScrollLabel import ScrollLabel
 from UI.GUI.exerHostGroupBox import exerHostGroupBox
 from UI.GUI.groupBox import *
@@ -18,11 +19,10 @@ from PyQt5.QtWidgets import (
     QPlainTextEdit, QMenu, QAction)
 from collections import OrderedDict
 
-
 class mainWindow(object):
     def setupUi(self, skippedTestsNumber, controller):
         self.controller = controller
-        self.displayPreRunValidationErorrs()
+        self.displayPreRunValidationErorrs() if controller.firstGuiInit else ""
 
         skippedTestsNumber.setObjectName("skippedTestsNumber")
         skippedTestsNumber.resize(840, 666)
@@ -229,7 +229,9 @@ class mainWindow(object):
         self.actionSettings.setText(_translate("skippedTestsNumber", "Settings"))
         self.actionPreferences.setText(_translate("skippedTestsNumber", "Preferences"))
         self.actionLegacy_Mode_Host_PC.setText(_translate("skippedTestsNumber", "Legacy Mode - System Under Test"))
+        self.actionLegacy_Mode_Host_PC.triggered.connect(self.hostPcModeChoosed)
         self.actionLegacy_Mode_Exerciser.setText(_translate("skippedTestsNumber", "Legacy Mode - Exerciser"))
+        self.actionLegacy_Mode_Exerciser.triggered.connect(self.exerciserModeChoosed)
         # self.actionErrinj_Mode.setText(_translate("skippedTestsNumber", "Errinj Mode"))  # disable Errinj Mode has it canceled for now
 
     def runBtnPressed(self):
@@ -238,6 +240,16 @@ class mainWindow(object):
     def stopBtnPressed(self):
         self.controller.stopExecution()
 
+    def exerciserModeChoosed(self):
+        print ("exerciser mode")
+        self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER
+        self.controller.firstGuiInit = False
+        self.controller.GUIInit()
+
+    def hostPcModeChoosed(self):
+        print("host pc mode")
+        self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC
+        self.controller.GUIInit()
     # in this functions we create a stack of tests GroupBox, watch per group, in order to switch accordingly
     def createTestScreens(self):
         self.widget = QWidget(self.centralwidget)
@@ -246,8 +258,13 @@ class mainWindow(object):
         self.testsGroupBoxWithLeveltuples = OrderedDict()
         TestsGroupBoxWithLeveltuple = namedtuple('TestRow', ['testsGroupBox', 'stackLevel'])
         stackLevel = 0
+        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            currentModeTestsDict = self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
+        elif self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            currentModeTestsDict = self.controller.configs.legacyMode.legacyTestsByGroup
+
         if self.controller.configs:
-            for groupName, groupTests in self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.items():
+            for groupName, groupTests in currentModeTestsDict.items():
                 self.testsGroupBoxWithLeveltuples[groupName] = TestsGroupBoxWithLeveltuple(
                     TestsGroupBox(self.centralwidget, self, groupName, groupTests)
                     , stackLevel)
