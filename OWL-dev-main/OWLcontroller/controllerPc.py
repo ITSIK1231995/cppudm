@@ -24,12 +24,12 @@ class ControllerPc():
         self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
-        self.currentSystemExecutionMode = self.getDefaultExeutionModeFromDefaultConfiguration()
-        self.firstGuiInit = True # preRunValidationErorrs should be displayed only if its the first GUI init
+        self.currentSystemExecutionMode = self.getDefaultExeutionModeFromDefaultConfiguration()  #TODO  look at this
+        self.firstGuiInit = True # preRunValidationErorrs should be displayed only if its the first GUI init #TODO  look at this
         logging.info("Initiating GUI")
         self.GUIInit()
 
-    def reload(self,conf):
+    def reload(self,conf): #TODO need to put part of this code outside this function and than use the funciton in th __init_ and in the reload
         logging.info("Parsing reloading")
         logging.info("Parsing configs")
         self.runtimeHostPcsData = {}
@@ -41,7 +41,7 @@ class ControllerPc():
         logging.info("Initiating GUI")
         self.GUIInit()
 
-    def createAnalyzerInstance(self):
+    def createAnalyzerInstance(self):  #TODO  look at this
         analyzerHandler = lecroy.analyzer.analyzerHandler(self)
         return analyzerHandler
 
@@ -51,7 +51,7 @@ class ControllerPc():
     def stopRecordingWithAnalyzer(self, analyzerHandler):
         analyzerHandler.stopRecording()
 
-    def threadMain(self,hostPc):
+    def threadMain(self,hostPc): #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
         hostPcTestsRunner(self, hostPc).runAllTests()
 
     def startVSE(self,traceFullPathAndName, vScriptFullPathAndName, hostPc,testLog):
@@ -61,9 +61,9 @@ class ControllerPc():
     def dispatchThreads(self):
         logging.info("dispatching Threads")
         self.runtimeHostPcsData = {}
-        hostPcs = self.configs.defaultConfContent['hostPCs']
+        hostPcs = self.configs.defaultConfContent['hostPCs'] #TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
         for hostPc in hostPcs:
-            if hostPc["checked"]:
+            if hostPc["checked"]: #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
                 self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
 
@@ -96,10 +96,10 @@ class ControllerPc():
             testLog.write(terminalAddition)
             testLog.flush()
 
-    def getCurrentTimeFile(self):
+    def getCurrentTimeFile(self): # TODO move to utils of the backend
         return self.getCurrentTime().replace("-", "_").replace(":", "_")
 
-    def getCurrentTime(self):
+    def getCurrentTime(self): # TODO move to utils of the backend
         now = datetime.datetime.now()
         return str(now.strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -108,7 +108,7 @@ class ControllerPc():
 
     def GUIInit(self):
         self.app = QtWidgets.QApplication.instance()
-        while self.app is None: # TODO : remove this
+        while self.app is None:
             try:
                 self.app = QtWidgets.QApplication(sys.argv)
                 break
@@ -121,17 +121,23 @@ class ControllerPc():
         self.app.exec_()
 
     def startExecution(self):
-        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:
-            self.haltThreads = False
-            self.dispatchThreads()
-            logging.info("Running tests")
-            print("Running tests")
+        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
+            self.startExecutionForHostPcSystemMode()
 
-    def stopExecution(self):
-        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:
-            logging.info("Stop pressed, Halting threads")
-            self.haltThreads = True
-            print("Stopping tests")
+    def stopExecution(self): #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
+        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:  #TODO  look at this
+            self.stopExecutionForHostPcSystemMode()
+
+    def startExecutionForHostPcSystemMode(self): #TODO  look at this
+        self.haltThreads = False
+        self.dispatchThreads()
+        logging.info("Running tests")
+        print("Running tests")
+
+    def stopExecutionForHostPcSystemMode(self):  #TODO  look at this
+        logging.info("Stop pressed, Halting threads")
+        self.haltThreads = True
+        print("Stopping tests")
 
     def exitSystem(self):
         exit(0)

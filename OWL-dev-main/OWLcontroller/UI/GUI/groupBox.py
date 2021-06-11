@@ -1,6 +1,5 @@
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
-
 from UI.GUI import systemModes
 from UI.GUI.GUIUtills import *
 
@@ -12,11 +11,11 @@ class groupBox(QtWidgets.QGroupBox):
         self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
         self.vbox = QVBoxLayout()
-        self.groupNames = self.getDictOfTestByGroupsForCurrentSystemMode().keys()
+        self.groupNames = self.getDictOfTestByGroupsForCurrentSystemMode().keys()  #TODO  look at this
         self.groupListSetup()
         self.scrollSetup()
 
-    def getDictOfTestByGroupsForCurrentSystemMode(self):
+    def getDictOfTestByGroupsForCurrentSystemMode(self):  #TODO  look at this
         if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
             return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
         elif self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
@@ -53,7 +52,7 @@ class groupBox(QtWidgets.QGroupBox):
 
     def displaySwitchGroupWarningPopUp(self):
         return GUIUtills.PopUpWarning("Are you sure you want to switch group?\n "
-                                      "Wwitching will delete all tests configured for current System Under Test")
+                                      "Switching will delete all tests configured for current System Under Test")
 
     def cahngeSelected(self, groupName):
         for checkBox in self.groupCheckBoxArr.values():

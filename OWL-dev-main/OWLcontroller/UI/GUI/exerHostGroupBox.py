@@ -17,14 +17,14 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.vbox = QVBoxLayout()
         self.controller = mainWindowRef.controller
         if self.controller.configs:
-            if self.controller.currentSystemExecutionMode.name == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC.name:
+            if self.controller.currentSystemExecutionMode.name == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC.name:  #TODO  look at this
                 self.hostPcs = self.controller.configs.defaultConfContent['hostPCs']
             else:
                 self.hostPcs = self.controller.configs.defaultConfContent['Exercisers']
             self.hostPCTableSetup()
             self.scrollSetup()
             self.addHostBtnSetup()
-            if len(self.hostPcs) != 0:
+            if len(self.hostPcs) != 0:  #TODO  look at this
                 self.currHostPc = self.getFirstHostPc()
                 self.setColortoCurrHostCheckBox()
 
@@ -153,7 +153,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.setTitle("Exercisers / SUTs")
         self.setStyleSheet("background-color:rgb(224,224,224)")
 
-        for hostPc in self.hostPcs:
+        for hostPc in self.hostPcs:  #TODO  look at this
             if hostPc["alias"] != ""\
                 and hostPc["alias"] != None:
                 self.hostPcRows[hostPc['IP']].checkBox.setText(hostPc['alias'])
