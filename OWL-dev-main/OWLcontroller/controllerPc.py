@@ -2,6 +2,8 @@ import json
 import sys
 import traceback
 from PyQt5.uic.properties import QtWidgets
+
+from UI.GUI.systemModes import systemExecutionModes
 from configControl.confParser import confParser
 from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
@@ -119,15 +121,17 @@ class ControllerPc():
         self.app.exec_()
 
     def startExecution(self):
-        self.haltThreads = False
-        self.dispatchThreads()
-        logging.info("Running tests")
-        print("Running tests")
+        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:
+            self.haltThreads = False
+            self.dispatchThreads()
+            logging.info("Running tests")
+            print("Running tests")
 
     def stopExecution(self):
-        logging.info("Stop pressed, Halting threads")
-        self.haltThreads = True
-        print("Stopping tests")
+        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:
+            logging.info("Stop pressed, Halting threads")
+            self.haltThreads = True
+            print("Stopping tests")
 
     def exitSystem(self):
         exit(0)

@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog,
                              QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
                              QVBoxLayout,QCheckBox,QRadioButton)
 from collections import namedtuple
+
+from UI.GUI import systemModes
 from UI.GUI.GUIUtills import *
 
 class AddAndEditHostPc(QDialog):
@@ -63,7 +65,7 @@ class AddAndEditHostPc(QDialog):
         if "postPingWaitingTime" in self.hostPc.keys():
             self.formObjects.postPingWaitTimeBox.setValue(int(self.hostPc["postPingWaitingTime"]))
         self.formObjects.stopOnFailure.setChecked(self.hostPc["stopOnFailure"])
-    #
+    #  #TODO  look at this
     # def validIP(self,IP):
     #     try:
     #         parts = IP.split('.')
@@ -77,7 +79,7 @@ class AddAndEditHostPc(QDialog):
         return not str(IP) == ""
 
     def IpExsists(self,IP):
-        allHostPcs = self.mainWindowRef.controller.configs.defaultConfContent["hostPCs"]
+        allHostPcs = self.getHostsDictForCurrentSystemMode()
         for hostPC in allHostPcs:
             if hostPC["IP"] == IP:
                 return True
@@ -95,12 +97,25 @@ class AddAndEditHostPc(QDialog):
         self.hostPc["stopOnFailure"] = self.formObjects.stopOnFailure.isChecked()
         self.hostPc["postPingWaitingTime"] = self.formObjects.postPingWaitTimeBox.value()
         self.hostPc["alias"] = self.formObjects.aliasBox.text()
+        # TODO  look at this
         if self.formObjects.aliasBox.text() != "" and\
                 self.formObjects.aliasBox.text() != None:
             self.mainWindowRef.hostExercisersGroupBox.editSpecificHostPcCheckBoxLabel(self.hostPc["IP"], self.formObjects.aliasBox.text())
         else:
             self.mainWindowRef.hostExercisersGroupBox.editSpecificHostPcCheckBoxLabel(self.hostPc["IP"],self.hostPc["IP"])
         self.close()
+
+    def getTestsByGroupDictForCurrentSystemMode(self): #TODO Go over this
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
+        else:
+            return self.mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
+
+    def getHostsDictForCurrentSystemMode(self):#TODO Go over this
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            return self.mainWindowRef.controller.configs.defaultConfContent["hostPCs"]
+        else:
+            return self.mainWindowRef.controller.configs.defaultConfContent["Exercisers"]
 
     def acceptAddMode(self):
         newHostPCIP = self.formObjects.IPBox.text()
@@ -114,7 +129,7 @@ class AddAndEditHostPc(QDialog):
                 "alias" : self.formObjects.aliasBox.text(),
                 "stopOnFailure": self.formObjects.stopOnFailure.isChecked(),
                 "checked" : False,
-                "groupName": list(self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.keys())[0], # default is the first group
+                "groupName": list(self.getTestsByGroupDictForCurrentSystemMode().keys())[0], # default is the first group #TODO Go over this
                 "tests" : {},
                 "postPingWaitingTime" : self.formObjects.postPingWaitTimeBox.value()
             }
@@ -123,7 +138,7 @@ class AddAndEditHostPc(QDialog):
                     "COM" : self.formObjects.COMBox.text(),
                     "chanel" : self.formObjects.stopOnFailure.isChecked()
                 }
-            self.mainWindowRef.controller.configs.defaultConfContent["hostPCs"].append(newHostPc)
+            self.getHostsDictForCurrentSystemMode().append(newHostPc) #TODO Go over this
             self.mainWindowRef.hostExercisersGroupBox.addHostPcRow(newHostPc)
             self.mainWindowRef.hostExercisersGroupBox.retranslateUi()
             self.close()

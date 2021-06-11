@@ -4,33 +4,36 @@ from PyQt5 import QtWidgets, uic, QtCore
 from UI.GUI import systemModes
 from UI.GUI.GUIUtills import *
 
+
 class groupBox(QtWidgets.QGroupBox):
-    def __init__(self, centralwidget,mainWindowRef):
-        super(groupBox, self).__init__( centralwidget)
+    def __init__(self, centralwidget, mainWindowRef):
+        super(groupBox, self).__init__(centralwidget)
         self.mainWindowRef = mainWindowRef
         self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
         self.vbox = QVBoxLayout()
-        if mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
-            currentModeTestsDict = mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
-        elif mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
-            currentModeTestsDict = mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
-        self.groupNames = currentModeTestsDict.keys()
+        self.groupNames = self.getDictOfTestByGroupsForCurrentSystemMode().keys()
         self.groupListSetup()
         self.scrollSetup()
 
+    def getDictOfTestByGroupsForCurrentSystemMode(self):
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
+        elif self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            return self.mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
+
     def groupListSetup(self):
         self.groupCheckBoxArr = {}
-        first=True
+        first = True
         for groupName in self.groupNames:
             self.groupCheckBoxArr[groupName] = QtWidgets.QCheckBox(self)
             self.groupCheckBoxArr[groupName].setGeometry(QtCore.QRect(0, 0, 64, 18))
-            self.groupCheckBoxArr[groupName].setObjectName("groupCheckBox_"+groupName)
+            self.groupCheckBoxArr[groupName].setObjectName("groupCheckBox_" + groupName)
             self.groupCheckBoxArr[groupName].clicked.connect(self.onChacked)
             self.vbox.addWidget(self.groupCheckBoxArr[groupName])
 
-            if first: # set first option to be the default
-                first=False
+            if first:  # set first option to be the default
+                first = False
                 self.groupCheckBoxArr[groupName].setChecked(True)
                 self.mainWindowRef.setDisplayedTestGroup(groupName)
 
@@ -50,9 +53,9 @@ class groupBox(QtWidgets.QGroupBox):
 
     def displaySwitchGroupWarningPopUp(self):
         return GUIUtills.PopUpWarning("Are you sure you want to switch group?\n "
-                       "Wwitching will delete all tests configured for current System Under Test")
+                                      "Wwitching will delete all tests configured for current System Under Test")
 
-    def cahngeSelected(self,groupName):
+    def cahngeSelected(self, groupName):
         for checkBox in self.groupCheckBoxArr.values():
             if checkBox.objectName().split('_')[1] == groupName:
                 checkBox.setChecked(True)
@@ -75,4 +78,3 @@ class groupBox(QtWidgets.QGroupBox):
         self.setStyleSheet("background-color:rgb(224,224,224)")
         for groupName in self.groupNames:
             self.groupCheckBoxArr[groupName].setText(groupName)
-

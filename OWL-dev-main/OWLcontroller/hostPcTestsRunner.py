@@ -5,16 +5,16 @@ from collections import namedtuple
 from UI.GUI.teststate import testState
 from operations.allOperations import allOperations
 import logging
-
+#TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
 class hostPcTestsRunner():
     def __init__(self, controllerPc, hostPc):
         self.controllerPc = controllerPc
         self.hostPc = hostPc
-        self.testToRun = self.getRelevantTestForHostPc()
+        self.testToRun = self.getRelevantTestForHostPc()  #TODO  look at this
         self.threadLock = threading.Lock()
         logging.info("HostPc worker thread " + hostPc["IP"] + " started")
 
-    def getRelevantTestForHostPc(self):
+    def getRelevantTestForHostPc(self):  #TODO  look at this
         allTests = self.controllerPc.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc["groupName"]]
         relevantTests = []
         for test in allTests:
@@ -124,22 +124,22 @@ class hostPcTestsRunner():
         if isinstance(operation, str):
             return opraion(operation, mappedOperations.operationsImplementation[operation])
 
-    def runSequanceOfOperations(self, test, controllPc, testLog): #TODO need to remove ControlPC and
+    def runSequanceOfOperations(self, test, controllPc, testLog):  # TODO need to remove ControlPC and  #TODO  look at this
         for operation in test.flowoperations:
-            if isinstance(operation, dict):
-                self.printToLog("starting Operations= " + operation['name'])
-                operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self,self.controllerPc,self.hostPc,testLog, operation['params']) #TODO  need to  delete to if isisntace in this function and than just use inline if when we have params that the run OP is getting (if the function has param we sending it and if not we arent
-                if not operationOutPut:
-                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation['name'] + " Op failed"))
-                    self.printToLog("finished Operations= " + operation['name'] + ", Op failed")
-                    return False
-                self.printToLog("finished Operations= " + operation['name'] + ", Op succeeded")
-            elif isinstance(operation, str):
-                self.printToLog("starting Operations= " + operation)
-                operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self, self.controllerPc,self.hostPc, testLog, [])
-                if not operationOutPut:
-                    self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation + " Op failed"))
-                    self.printToLog("finished Operations= " + operation + ", Op failed")
-                    return False
-                self.printToLog("finished Operations= " + operation + ", Op succeeded")
+            self.printToLog("starting Operations= " + operation['name'])
+            operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self, self.controllerPc,self.hostPc, testLog,operation['params'] if isinstance(operation,dict) else [])
+            if not operationOutPut:
+                self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,
+                                                                   (operation['name'] + " Op failed"))
+                self.printToLog("finished Operations= " + operation['name'] + ", Op failed")
+                return False
+            self.printToLog("finished Operations= " + operation['name'] + ", Op succeeded")
+            # elif isinstance(operation, str):
+            #     self.printToLog("starting Operations= " + operation)
+            #     operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self, self.controllerPc,self.hostPc, testLog, [])
+            #     if not operationOutPut:
+            #         self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation + " Op failed"))
+            #         self.printToLog("finished Operations= " + operation + ", Op failed")
+            #         return False
+            #     self.printToLog("finished Operations= " + operation + ", Op succeeded")
         return True

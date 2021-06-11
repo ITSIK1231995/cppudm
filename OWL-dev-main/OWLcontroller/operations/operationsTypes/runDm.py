@@ -26,7 +26,7 @@ class runDM(operationWithSocket):
         socket.close()
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Message from server:\n" + "\n" + messegeFromServer + "\n")
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nDrive Master operation has ended")
-
+        return True
 
 
 

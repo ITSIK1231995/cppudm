@@ -10,3 +10,4 @@ class GUIUtills:
         msgBox.setWindowTitle("Warning")
         msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         return msgBox.exec() == QMessageBox.Ok
+

@@ -1,7 +1,4 @@
-from PyQt5.QtCore import QFile
-from psutil._common import enum
-
-from UI.GUI import browser, systemModes
+from UI.GUI import browser
 from UI.GUI.ScrollLabel import ScrollLabel
 from UI.GUI.exerHostGroupBox import exerHostGroupBox
 from UI.GUI.groupBox import *
@@ -22,7 +19,7 @@ from collections import OrderedDict
 class mainWindow(object):
     def setupUi(self, skippedTestsNumber, controller):
         self.controller = controller
-        self.displayPreRunValidationErorrs() if controller.firstGuiInit else ""
+        self.displayPreRunValidationErorrs() if controller.firstGuiInit else "" #TODO  look at this
 
         skippedTestsNumber.setObjectName("skippedTestsNumber")
         skippedTestsNumber.resize(840, 666)
@@ -34,7 +31,7 @@ class mainWindow(object):
         self.createTestScreens()
         self.createTerminal(skippedTestsNumber)
 
-        self.hostExercisersGroupBox = exerHostGroupBox(self.centralwidget, self, self.controller)
+        self.hostExercisersGroupBox = exerHostGroupBox(self.centralwidget, self)
         self.selectGroupBox = groupBox(self.centralwidget, self)
 
         self.scrollArea_2 = QtWidgets.QScrollArea(self.centralwidget)
@@ -173,7 +170,7 @@ class mainWindow(object):
         # self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(skippedTestsNumber)
 
-    def displayPreRunValidationErorrs(self):
+    def displayPreRunValidationErorrs(self): #TODO  look at this
         if len(self.controller.preRunValidationErorrs) != 0:
             if 'corruptedSequenceFile' in self.controller.preRunValidationErorrs:
                 outPutcorruptedSequenceFile = ""
@@ -192,8 +189,7 @@ class mainWindow(object):
             self.controller.reload(fileChoosedPath)
 
     def getFileNameFromUser(self):
-        fileNameFromUser = browser("Save Configuration").saveFileDialog()
-        return fileNameFromUser
+        return browser("Save Configuration").saveFileDialog()
 
     def saveConfBtnClicked(self):
         fileName = self.getFileNameFromUser()
@@ -240,15 +236,16 @@ class mainWindow(object):
     def stopBtnPressed(self):
         self.controller.stopExecution()
 
-    def exerciserModeChoosed(self):
-        print ("exerciser mode")
+    def exerciserModeChoosed(self): #TODO go over this
         self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER
+        self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Legacy Mode Exerciser"
         self.controller.firstGuiInit = False
         self.controller.GUIInit()
 
-    def hostPcModeChoosed(self):
-        print("host pc mode")
+    def hostPcModeChoosed(self):#TODO go over this
         self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC
+        self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Legacy Mode Host Pc"
+        self.controller.firstGuiInit = False
         self.controller.GUIInit()
     # in this functions we create a stack of tests GroupBox, watch per group, in order to switch accordingly
     def createTestScreens(self):
@@ -258,27 +255,33 @@ class mainWindow(object):
         self.testsGroupBoxWithLeveltuples = OrderedDict()
         TestsGroupBoxWithLeveltuple = namedtuple('TestRow', ['testsGroupBox', 'stackLevel'])
         stackLevel = 0
-        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
-            currentModeTestsDict = self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
-        elif self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
-            currentModeTestsDict = self.controller.configs.legacyMode.legacyTestsByGroup
-
+        testsByGroupDictForCurrentSystemMode = self.getDictOfTestsByGroupForCurrentSystemMode() #TODO  look at this
         if self.controller.configs:
-            for groupName, groupTests in currentModeTestsDict.items():
+            for groupName, groupTests in testsByGroupDictForCurrentSystemMode.items():
                 self.testsGroupBoxWithLeveltuples[groupName] = TestsGroupBoxWithLeveltuple(
                     TestsGroupBox(self.centralwidget, self, groupName, groupTests)
                     , stackLevel)
                 self.stackedLayout.addWidget(self.testsGroupBoxWithLeveltuples[groupName].testsGroupBox)
                 stackLevel += 1
 
+    def getDictOfTestsByGroupForCurrentSystemMode(self): #TODO  look at this
+        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            return self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
+        elif self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            return self.controller.configs.legacyMode.legacyTestsByGroup
+
     def retranslateUiTestsGroupBoxs(self):
         for groupName, testsGroupBoxWithLevelTuple in self.testsGroupBoxWithLeveltuples.items():
             testsGroupBoxWithLevelTuple.testsGroupBox.retranslateUi()
         self.setDefultHostPc()
 
-    def setDefultHostPc(self):
-        if len(self.controller.configs.defaultConfContent['hostPCs']) != 0:
-            defaultHostPC = self.controller.configs.defaultConfContent['hostPCs'][0]
+    def setDefultHostPc(self): #TODO  look at this
+        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            hostLists = self.controller.configs.defaultConfContent['hostPCs']
+        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            hostLists = self.controller.configs.defaultConfContent['Exercisers']
+        if len(hostLists) != 0:
+            defaultHostPC = hostLists[0]
             self.currentHostPc = defaultHostPC
             self.setNewHostPC(defaultHostPC)
 
@@ -288,7 +291,7 @@ class mainWindow(object):
 
     def setNewHostPC(self, hostPc):
         self.currentHostPc = hostPc
-        if self.currentHostPc is not None:
+        if self.currentHostPc is not None: #TODO  look at this
             self.stackedLayout.setCurrentIndex(self.testsGroupBoxWithLeveltuples[hostPc['groupName']].stackLevel)
             self.selectGroupBox.cahngeSelected(hostPc['groupName'])
             testsGroupBoxWithLevelTuple = self.getCurrentTestsGroupBoxWithLevelTuple()
@@ -306,7 +309,7 @@ class mainWindow(object):
             self.terminalLbl.setText("")
 
     def updateCurrentTernimal(self, hostPc):
-        if self.currentHostPc == hostPc:
+        if self.currentHostPc == hostPc: #TODO  look at this
             self.terminalLbl.setText(self.controller.runtimeHostPcsData[hostPc["IP"]]['terminal'])
 
     def createTerminal(self, skippedTestsNumber):
@@ -317,10 +320,10 @@ class mainWindow(object):
         self.terminalLbl.setText("")
 
     def setDisplayedTestGroup(self, groupName):
-        if self.currentHostPc is not None:
-            self.currentHostPc['groupName'] = groupName
-            self.currentHostPc['tests'] = {}
-            self.setNewHostPC(self.currentHostPc)
+        if self.currentHostPc is not None: #TODO  look at this
+                self.currentHostPc['groupName'] = groupName
+                self.currentHostPc['tests'] = {}
+                self.setNewHostPC(self.currentHostPc)
         else:
             self.stackedLayout.setCurrentIndex(self.testsGroupBoxWithLeveltuples[groupName].stackLevel)
 

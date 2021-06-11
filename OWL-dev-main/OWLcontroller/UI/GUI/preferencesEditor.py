@@ -37,13 +37,13 @@ class PreferencesEditor(QDialog):
         legacyModePathBox = QLineEdit()
         legacyModePathBox.setEnabled(False)
         layout.addRow(QLabel("Legacy Mode Path:"), legacyModePathBox)
-        # disable Errinj Mode has it canceled for now
+        # disable Errinj Mode has it canceled for now  #TODO  look at this
         # errinjModePathBox = QLineEdit()
         # layout.addRow(QLabel("Errinj Mode Path:"), errinjModePathBox)
         analyzerMinVersionBox = QLineEdit()
         layout.addRow(QLabel("Analyzer Min Version:"), analyzerMinVersionBox)
         self.formGroupBox.setLayout(layout)
-        # disable Errinj Mode has it canceled for now
+        # disable Errinj Mode has it canceled for now  #TODO  look at this
         # formObjectsNamedTuple = namedtuple('formObjects', ['portBox', 'conectionAttempsBox','defaultExecutionModeBox','resultPathBox','legacyModePathBox','errinjModePathBox','analyzerMinVersionBox'])
         # self.formObjects = formObjectsNamedTuple(portBox, conectionAttempsBox,defaultExecutionModeBox,resultPathBox,legacyModePathBox,errinjModePathBox,analyzerMinVersionBox)
         formObjectsNamedTuple = namedtuple('formObjects', ['portBox', 'conectionAttempsBox','defaultExecutionModeBox','resultPathBox','legacyModePathBox','analyzerMinVersionBox'])
@@ -57,7 +57,7 @@ class PreferencesEditor(QDialog):
         self.formObjects.defaultExecutionModeBox.setCurrentText(defaultConf["defaultExecutionMode"])
         self.formObjects.resultPathBox.setText(defaultConf["resultPath"])
         self.formObjects.legacyModePathBox.setText(defaultConf["legacyModePath"]) #disable Errinj Mode has it canceled for now
-        # self.formObjects.errinjModePathBox.setText(defaultConf["errinjModePath"])
+        # self.formObjects.errinjModePathBox.setText(defaultConf["errinjModePath"])  #TODO  look at this
         self.formObjects.analyzerMinVersionBox.setText(defaultConf["analyzerMinVersion"])
 
     def isFormValid(self):
@@ -80,7 +80,7 @@ class PreferencesEditor(QDialog):
             defaultConf["attempsToCreateSocket"] = self.formObjects.conectionAttempsBox.value()
             defaultConf["defaultExecutionMode"] = str(self.formObjects.defaultExecutionModeBox.currentText())
             defaultConf["resultPath"] = self.formObjects.resultPathBox.text()
-            defaultConf["legacyModePath"] = self.formObjects.legacyModePathBox.text() #disable Errinj Mode has it canceled for now
+            defaultConf["legacyModePath"] = self.formObjects.legacyModePathBox.text() #disable Errinj Mode has it canceled for now #TODO  look at this
             # defaultConf["errinjModePath"] = self.formObjects.errinjModePathBox.text()
             defaultConf["analyzerMinVersion"] = self.formObjects.analyzerMinVersionBox.text()
 

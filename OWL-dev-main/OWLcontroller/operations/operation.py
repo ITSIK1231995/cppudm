@@ -23,8 +23,9 @@ class operation(object):
         controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, " \n Pinging Host until it's On  \n ")
         clientSocket = socket.socket()
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
-        attempsToConnectSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        for i in range(attempsToConnectSocket):
+        maxMinutesToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket  # TODO GO over this
+        while time.time() < timeToStopTryingCreatingSocket: #TODO  look at this
             try:
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
@@ -32,15 +33,15 @@ class operation(object):
                 controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOn - PC is ON")
                 return True
             except socket.error as e:
-                controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOn - PC is OFF atempt " + str(i))
+                controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOn - PC is OFF More "+ str(int(timeToStopTryingCreatingSocket -  time.time()) //60) + " minutes left to get a TO")
                 pass
         return False
 
 #TODO the following two methoods reimplemnetd to be in minutes and not in connection attemps need to check them on a host pc
     def waitForPcToTurnOff(self,controllerPc,hostPc,testLog):
         maxMinutesToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket
-        while time.time() < timeToStopTryingCreatingSocket:
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket #TODO GO over this
+        while time.time() < timeToStopTryingCreatingSocket: #TODO  look at this
             # response = os.system("ping -n 4 " + hostPc["IP"])
             response = subprocess.run(["ping","-n","4",hostPc["IP"]], stdout=subprocess.PIPE).stdout.decode('utf-8')
             # and then check the response...
@@ -49,11 +50,11 @@ class operation(object):
                     len(re.findall("timed out", response)) == 4:
             # if "unreachable" in response or "timed out" in response:
                 if 'postPingWaitingTime' in hostPc:
-                    controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Awaiting for " + str(hostPc['postPingWaitingTime']) + "seconds")
+                    controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Awaiting for " + str(hostPc['postPingWaitingTime']) + " seconds")
                     time.sleep(hostPc['postPingWaitingTime'])
                 controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOff - PC is OFF")
                 return True
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOff - PC is ON attempt " + str(i))
+            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOff - PC is ON: More "+ str(int(timeToStopTryingCreatingSocket -  time.time()) //60) + " minutes left to get a TO") #TODO GO over this
         return False
 
     def checkIfPcisOn(self,controllerPc,hostPc):
