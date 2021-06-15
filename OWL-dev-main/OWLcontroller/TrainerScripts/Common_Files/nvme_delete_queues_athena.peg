@@ -1,0 +1,120 @@
+
+
+;commands numbers start at #7 and #8
+
+Repeat=Begin 
+{
+    Count=2 ; number of I/O queues
+    Counter=QueueNumber
+}
+
+; Delete SQ command
+/*Structure=NVMe 
+{
+    Location = Mem64
+    Offset = (0x180 + 0x80 * QueueNumber); Start address for after #6 admin queue
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_DELETE_SQ
+    CID = ( (QueueNumber*2) + 6)
+    Queue_ID = (QueueNumber + 1)
+}*/
+; Command will already written to host memory
+; Just send the doorbell
+
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( [ ( ( (QueueNumber*2) +7 )<<24 ) ] )
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( [ ( ( (QueueNumber*2) +7)<<24 ) ] )
+}
+
+; Delete CQ command
+/*Structure=NVMe 
+{
+    Location = Mem64
+    Offset = (0x1C0 + 0x80 * QueueNumber) ; Start address for after #6 admin queue
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_DELETE_CQ
+    CID = ( (QueueNumber*2) + 7)
+    Queue_ID = (QueueNumber + 1)
+}*/
+; Command will already written to host memory
+; Just send the doorbell
+
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( [ ( ( (QueueNumber*2) +8)<<24 ) ] )
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+/*
+wait=TLP
+{
+	TLPType =Msg
+	MessageCode=Assert_INTA
+}
+*/
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( [ ( ( (QueueNumber*2) +8)<<24 ) ] )
+}
+
+Repeat=End
+
+; saving the commands into bin file
+/*AddressSpace = Read
+{
+	Location = Mem64
+	Offset = 0x180	; Start address for after #6 admin queue
+	Size = 0x200	; 4 commands * 64 bytes per command
+	SaveTo = "BIN_FILES\dump_delete_queues_Athena.bin"
+}*/

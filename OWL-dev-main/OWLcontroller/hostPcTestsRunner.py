@@ -1,7 +1,12 @@
 import datetime
 import os
 import threading
+import time
 from collections import namedtuple
+import pythoncom
+import win32com.client
+
+from UI.GUI.systemModes import systemExecutionModes
 from UI.GUI.teststate import testState
 from operations.allOperations import allOperations
 import logging
@@ -15,7 +20,10 @@ class hostPcTestsRunner():
         logging.info("HostPc worker thread " + hostPc["IP"] + " started")
 
     def getRelevantTestForHostPc(self):  #TODO  look at this
-        allTests = self.controllerPc.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc["groupName"]]
+        if self.controllerPc.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:
+            allTests = self.controllerPc.configs.legacyMode.legacyFlowOperationsTestsByGroups[self.hostPc["groupName"]]
+        if self.controllerPc.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            allTests = self.controllerPc.configs.legacyMode.legacyTestsByGroup[self.hostPc["groupName"]]
         relevantTests = []
         for test in allTests:
             if test.testname in self.hostPc["tests"].keys() and \
@@ -32,10 +40,7 @@ class hostPcTestsRunner():
 
     def createLog(self, test):
         self.threadLock.acquire()
-        timeStamp = self.getCurrentTime()
-        logPath = self.controllerPc.configs.defaultConfContent["resultPath"] + "\\" + test.results[:-1]
-        self.resultFilePath = logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
-        fileName = self.resultFilePath + "\\" + "terminal.log"
+        fileName = self.createLogRelativePathAndName(test) #TODO go over this
         if not os.path.exists(fileName):
             os.makedirs(self.resultFilePath)
             logObj = open(fileName, "w")
@@ -43,6 +48,14 @@ class hostPcTestsRunner():
             logObj = open(fileName, "a")
         self.threadLock.release()
         return logObj
+
+    def createLogRelativePathAndName(self, test): #TODO go over this
+        timeStamp = self.getCurrentTime()
+        logPath = self.controllerPc.configs.defaultConfContent["resultPath"] + "\\" + test.results[:-1]\
+            if self.controllerPc.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC\
+            else self.controllerPc.configs.defaultConfContent["resultPath"]
+        self.resultFilePath = logPath + "\\" + test.testname + "__" + self.hostPc["IP"] + "__" + timeStamp
+        return self.resultFilePath + "\\" + "terminal.log"
 
     def updateUiAndControllerWithTestStatuses(self,test,numOfPass,numOfFails):
         self.controllerPc.runtimeHostPcsData[self.hostPc["IP"]][test.testname] = \
@@ -89,10 +102,15 @@ class hostPcTestsRunner():
                 analyzerHandler = self.controllerPc.createAnalyzerInstance()
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Lecroy's Analyzer recording procedure has started")
                 traceFullPathAndName = self.getTraceFullPathAndName(test)
-                self.controllerPc.startRecordingWithAnalyzer(analyzerHandler, traceFullPathAndName,self.getRecordOptionFilePath(test),self.hostPc, testLog)
-                sequenceOfOperationsIsDone = self.runSequanceOfOperations(test, self.controllerPc, testLog)
+                analyzerObj = self.controllerPc.startRecordingWithAnalyzer(analyzerHandler, traceFullPathAndName,self.getRecordOptionFilePath(test),self.hostPc, testLog)
+                if self.controllerPc.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:
+                    sequenceOfOperationsIsDone = self.runSequanceOfOperations(test, self.controllerPc, testLog)
+                if self.controllerPc.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_EXCERCISER:
+                    sequenceOfOperationsIsDone = self.runTestOnExcerciser(analyzerObj,test,analyzerHandler)
                 self.controllerPc.stopRecordingWithAnalyzer(analyzerHandler)
                 self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog,"\n Lecroy's Analyzer recording procedure has finished")
+                del analyzerHandler
+                del analyzerObj
                 verificationScriptResult = self.controllerPc.startVSE(traceFullPathAndName, self.getVSEFullPathAndName(test),self.hostPc, testLog)
                 if sequenceOfOperationsIsDone and verificationScriptResult == 1: # verificationScriptResult == 1 is the value that Lecroy's API returns from VSE when the VSE has passed.
                     numOfPass += 1
@@ -124,6 +142,22 @@ class hostPcTestsRunner():
         if isinstance(operation, str):
             return opraion(operation, mappedOperations.operationsImplementation[operation])
 
+    def runTestOnExcerciser(self,analyzerObj,test,analyzerHandler):
+        # analyzerObjNew = win32com.client.Dispatch("CATC.PETracer")
+        print ("\nload generation option")
+        analyzerObj.GetGenerationOptions().Load(os.getcwd() + "\\" +  test.generationoptions)
+        print("\nend generation option")
+        print("\nStart trainer init ")
+        result = analyzerObj.StartGeneration(os.getcwd() + "\\" + test.trainerinitscript, 0, 0)
+        while analyzerHandler.getGenerationState() != 1:
+            time.sleep(0.2)
+            pythoncom.PumpWaitingMessages()
+            print("PumpWaitingMessages")
+        analyzerHandler.generationStateToZero()
+        print(" Start  generation script begin")
+        analyzerObj.StartGeneration(os.getcwd() + "\\" + test.trainerscript, 0, 0)
+        return True
+
     def runSequanceOfOperations(self, test, controllPc, testLog):  # TODO need to remove ControlPC and  #TODO  look at this
         for operation in test.flowoperations:
             self.printToLog("starting Operations= " + operation['name'])
@@ -134,12 +168,4 @@ class hostPcTestsRunner():
                 self.printToLog("finished Operations= " + operation['name'] + ", Op failed")
                 return False
             self.printToLog("finished Operations= " + operation['name'] + ", Op succeeded")
-            # elif isinstance(operation, str):
-            #     self.printToLog("starting Operations= " + operation)
-            #     operationOutPut = self.getOprationObject(operation).opraionObj.runOp(self, self.controllerPc,self.hostPc, testLog, [])
-            #     if not operationOutPut:
-            #         self.controllerPc.updateRunTimeStateInTerminal(self.hostPc, testLog, (operation + " Op failed"))
-            #         self.printToLog("finished Operations= " + operation + ", Op failed")
-            #         return False
-            #     self.printToLog("finished Operations= " + operation + ", Op succeeded")
         return True

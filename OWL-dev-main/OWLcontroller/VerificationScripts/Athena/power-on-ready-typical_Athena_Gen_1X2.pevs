@@ -1,0 +1,338 @@
+#########################################################################
+#   Copyright (c) 2018, SanDisk											#
+#   File: power_on_ready_typical.pevs									#
+#   Description: Verification script for Power On Ready tests			#
+#########################################################################
+
+set ModuleType  = "Verification Script";            # Should be set for all verification scripts
+set OutputType  = "VS";                             # Should be set for all verification scripts that 
+                                                    # output only Report string and Result.
+set InputType   = "VS";                                 
+
+set DecoderDesc = "Power-On-Ready Latency Measurement Verification";
+
+# include main Verification Script Engine definitions
+%include  "VSTools.inc"
+
+######################################################################################
+#                            Global Variables and Constants                          #
+######################################################################################
+const LINK_PERST_DEASSERTED = 4;
+const LINK_PERST_ASSERTED = 32;
+
+#const _NVME_ADMIN_COMPLETION_CMD = 25;
+#const _NVME_NVM_COMPLETION_CMD = 24;
+
+const MAX_TRAINING_TIME 		= Time(0 * MILLI_SECS);
+const MAX_BAR0_ACCESS_LATENCY	= Time(125 * MILLI_SECS);
+const MAX_ADMIN_COMMAND_LATENCY = Time(250 * MILLI_SECS);
+const MAX_MEDIA_COMMAND_LATENCY = Time(500 * MILLI_SECS);
+const MAX_PERSTToCSTSRDYLatency = Time(0 * MILLI_SECS); 
+const Link_width_1 = 1;	#New
+const Link_width_2 = 2;	#New
+const Link_width_4 = 4;	#New
+const Link_Speed_1 = 0;	#New Const for Gen1
+const Link_Speed_2 = 1;	#New Const for Gen2
+const Link_Speed_3 = 2;	#New Const for Gen3
+
+set   EventCount = 0;
+
+set FirstPERSTDeassertionTimestamp = 0;
+set BAR0AccessTimestamp = 0;
+set NVMeIdentifyControllerTimestamp = 0;
+set NVMeReadTimestamp = 0;
+#set Link_width_read = 0;		#New
+#set Link_speed_read = 0;		#New
+set Link_time_read = 0;
+set Link_width = 0;
+set Link_speed = 999;  # initial value is 999 due to GEN1 is 0
+set CCENTimestamp = 0;
+set CSTSRDYTimestamp = 0;
+set CCSHNTimestamp = 0;
+set CSTSSHSTTimestamp = 0;
+set LinkTrainingGen3Timestamp = 0;
+
+set TS1Count = 0;
+set TS2Count = 0;
+set TimeToGen3 = 0;
+set BAR0AccessLatency = 0;
+set AdminCommandLatency = 0;
+set MediaCommandLatency = 0;
+set TimeToReadLinkWidth = 0; 	#New
+set TimeToReadLinkSpeed = 0;	#New
+set PERSTToCSTSRDYLatency = 0;
+set CCENToCSTSRDYLatency = 0;
+set CCSHNToSHSTLatency = 0;
+
+set BAR0Val = 0x00;
+set FailureCount = 0;
+
+OnStartScript()
+{    
+	ReportText("Power On Ready Verification Script Started..");
+	EventCount = 0;
+	
+	FirstPERSTDeassertionTimestamp = 0;
+	BAR0AccessTimestamp = 0;
+	NVMeIdentifyControllerTimestamp = 0;
+	NVMeReadTimestamp = 0;
+	
+	Link_width = 0;
+	Link_speed = 999;
+	Link_time_read = 0;
+        
+    # Examples:
+    #SendAllChannels();    
+    #DontSendTraceEvent( _PKT_ORDERED_SET );
+    #SendTlpType   ( _PE_ALL_TYPES );
+    #SendDllpType  ( _PE_ALL_TYPES );
+    #FilterDllpType( _DLLP_TYPE_INIT_FC );
+    #FilterDllpType( _DLLP_TYPE_UPDATE_FC );
+           
+    
+    # Uncomment the line below - if you want don't care about result of script running
+    #
+    #ScriptForDisplayOnly();
+    
+    
+    # Uncomment the line below - if you want to disable output from
+    # ReportText()-functions. 
+    #
+    # DisableOutput();
+	
+	SendAllChannels();
+	SendLevel(_NVME);
+	SendTraceEvent(_PKT_LINK_CONDITION);
+	SendTraceEvent(_PKT_ORDERED_SET);
+	SendTraceEvent(_NVME_CONTROLLER_REG);
+	SendTraceEvent(_NVME_ADMIN_COMPLETION_CMD);
+	SendTraceEvent(_NVME_NVM_COMPLETION_CMD);	
+	SendTlpType(_TLP_TYPE_CFGWR_0);
+}
+
+ProcessEvent()
+{
+		
+        #report  = Format("Event:# %u,", EventCount );
+		#report += Format( "Packet : %d,     "  , in.Index );
+		#report += Format( "Trace Event : %d,      "   , in.TraceEvent );
+        #report += Format( "Channel : %s,     "  , GetChannelName() );
+        #report += Format( "Event : %s,      "   , GetEventName() );   
+        #report += Format( "Time  : %s,      "   , TimeToText( in.Time ) );
+        #ReportText( report );
+        		
+		if(in.LinkConditionType == LINK_PERST_DEASSERTED && FirstPERSTDeassertionTimestamp == 0) {
+			FirstPERSTDeassertionTimestamp = in.Time;
+			report = Format( "\nFound First PERST# DeAssertion at: %s", TimeToText(in.Time) );
+			ReportText( report );
+		}
+		else if(in.OrderedSetType == ORDSET_TYPE_SDS && LinkTrainingGen3Timestamp == 0) {
+			LinkTrainingGen3Timestamp = in.Time;
+			TimeToGen3 = SubtractTime(LinkTrainingGen3Timestamp, FirstPERSTDeassertionTimestamp);
+			report = Format( "\nTime to Link Training in Gen3: %s", TimeToText(TimeToGen3) );
+			report += Format( "\nPacket: %d", in.Index );
+			ReportText( report );
+		}
+		else if(in.TLPType == TLP_TYPE_ID_CFGWR_0) {
+			# BAR0
+			if(in.Register == 0x10) {
+				if(in.RegisterData != 0xFFFFFFFF && BAR0AccessTimestamp == 0) {
+					BAR0AccessTimestamp = in.Time;
+					BAR0Val = in.RegisterData;
+					BAR0AccessLatency = SubtractTime(BAR0AccessTimestamp, FirstPERSTDeassertionTimestamp);
+					report = Format( "\nBAR0 Access Latency: %s", TimeToText(BAR0AccessLatency) );
+					if(IsLessTime(BAR0AccessLatency, MAX_BAR0_ACCESS_LATENCY)) {
+						report += "\nPASS";
+					} else {
+						report += "\nFAIL";
+						FailureCount += 1;
+					}
+					ReportText( report );
+					
+					# Saving data for link width and speed
+					Link_width = in.LinkWidth;
+					Link_speed = in.Speed;
+					Link_time_read = in.Time;
+				}
+			}
+		}
+		
+		else if(in.TraceEvent == _NVME_ADMIN_COMPLETION_CMD && NVMeIdentifyControllerTimestamp == 0) {
+			#if ( in.nvmeOpcode == _NVME_ASC_IDENTIFY)
+			#{
+			#	ReportText( "NVME_ACQ_IDENTIFY" );
+			#}
+			NVMeIdentifyControllerTimestamp = in.Time;
+			AdminCommandLatency = SubtractTime(NVMeIdentifyControllerTimestamp, FirstPERSTDeassertionTimestamp);
+			report = Format( "\nAdmin Command Service Latency: %s", TimeToText(AdminCommandLatency) );
+			
+			if(IsLessTime(AdminCommandLatency, MAX_ADMIN_COMMAND_LATENCY)) {
+				report += "\nPASS";
+			} else {
+				report += "\nFAIL";
+				FailureCount += 1;
+			}
+			ReportText( report );
+		}		
+		
+		else if(in.TraceEvent == _NVME_NVM_COMPLETION_CMD && NVMeReadTimestamp == 0) {
+			#if ( in.nvmeOpcode == _NVME_NSC_READ)
+			#{
+			#	ReportText( "NVME_IOCQ_READ" );
+			#}
+			NVMeReadTimestamp = in.Time;
+			MediaCommandLatency = SubtractTime(NVMeReadTimestamp, FirstPERSTDeassertionTimestamp);
+			report = Format( "\nMedia Command Service Latency: %s", TimeToText(MediaCommandLatency) );
+			if(IsLessTime(MediaCommandLatency, MAX_MEDIA_COMMAND_LATENCY)) {
+				report += "\nPASS";
+			} else {
+				report += "\nFAIL";
+				FailureCount += 1;
+			}
+			ReportText( report );
+		}
+		
+		else if(in.TraceEvent == _NVME_CONTROLLER_REG) {
+			if(in.nvmeType == _NVME_CC) {
+				# Find Packet where CC.EN was set to 1
+				if((in.nvmeRegisterValue & 0x01) == 0x01 && CCENTimestamp == 0) {
+					CCENTimestamp = in.Time;
+				}
+				# Find Packet where CC.SHN was set to 01
+				if((in.nvmeRegisterValue & 0x00004000) > 0 && CCSHNTimestamp == 0) {
+					CCSHNTimestamp = in.Time;
+				}
+				#ReportText( Format( "\nCC = %X", in.nvmeRegisterValue ) );	
+			} else if(in.nvmeType == _NVME_CSTS) {
+				# Find Packet where CSTS.RDY was set to 1
+				if(CSTSRDYTimestamp == 0 && CCENTimestamp != 0 && (in.nvmeRegisterValue & 0x01) == 0x01) {
+					CSTSRDYTimestamp = in.Time;
+					PERSTToCSTSRDYLatency = SubtractTime(CSTSRDYTimestamp, FirstPERSTDeassertionTimestamp);
+					CCENToCSTSRDYLatency = SubtractTime(CSTSRDYTimestamp, CCENTimestamp);
+					report = Format( "\nCC EN to CSTS RDY Latency: %s", TimeToText(CCENToCSTSRDYLatency) );
+					report += Format( "\nPERST# to CSTS RDY Latency: %s", TimeToText(PERSTToCSTSRDYLatency) );
+					ReportText( report );
+				}
+				# Find Packet where CSTS.SHN was set to 10
+				if(CSTSSHSTTimestamp == 0 && CCSHNTimestamp != 0 && (in.nvmeRegisterValue & 0x08) > 0) {
+					CSTSSHSTTimestamp = in.Time;
+					CCSHNToSHSTLatency = SubtractTime(CSTSSHSTTimestamp, CCSHNTimestamp);
+					report = Format( "\nCC SHN to CSTS SHST Latency: %s", TimeToText(CCSHNToSHSTLatency) );
+					ReportText( report );
+				}
+				#ReportText( Format( "\nCSTS = %X", in.nvmeRegisterValue ) );
+			}
+		}
+        EventCount++;
+           
+    return Complete();
+}
+
+OnFinishScript()
+{
+	ReportText( Format("\nProcessed %d Events" , EventCount) );
+	if(FirstPERSTDeassertionTimestamp == 0) {
+		ReportText("PERST# De-Assertion Event Not Found");
+		FailureCount += 1;
+	}
+	if(BAR0AccessTimestamp == 0) {
+		ReportText("BAR0 Access Event Not Found");
+		FailureCount += 1;
+	}
+	if(NVMeIdentifyControllerTimestamp == 0) {
+		ReportText("Admin Command Event Not Found");
+		FailureCount += 1;
+	}
+	if(NVMeReadTimestamp == 0) {
+		ReportText("Media Command Event Not Found");
+		FailureCount += 1;
+	}
+	
+	ReportText("\n*** Link Speed and Width data: ***");
+
+	####################Verifing Link Width###########################
+	# unless Pass message was printed the test Failed
+	if(Link_width == Link_width_1)
+	{		
+		#TimeToReadLinkWidth = SubtractTime(Link_time_read, FirstPERSTDeassertionTimestamp);	#Mesuring the time it took from the PERST deassertion to the LINKrEADING WIDTH
+		report = "Link Width = 1 Lane - Fail ";
+		ReportText( report );
+		FailureCount += 1;
+	}
+	else if(Link_width == Link_width_2)
+	{
+		#TimeToReadLinkWidth = SubtractTime(Link_time_read, FirstPERSTDeassertionTimestamp);	#Mesuring the time it took from the PERST deassertion to the LINKrEADING WIDTH
+		report = "Link Width = 2 Lanes - Pass";
+		ReportText( report );
+	}
+	else if(Link_width == Link_width_4)
+	{
+		#TimeToReadLinkWidth = SubtractTime(Link_time_read, FirstPERSTDeassertionTimestamp);	#Mesuring the time it took from the PERST deassertion to the LINKrEADING WIDTH
+		report = "Link Width = 4 Lanes - Fail ";
+		ReportText( report );
+		FailureCount += 1;
+	}
+	###################################################################
+	
+	####################Verifing Link Speed############################
+	# unless Pass message was printed the test Failed
+	if(Link_speed == Link_Speed_1)
+	{
+		#TimeToReadLinkSpeed = SubtractTime(Link_time_read, FirstPERSTDeassertionTimestamp);	#Mesuring the time it took from the PERST deassertion to the LINK Speed READING
+		report = "Link Speed = 2.5GT/Sec-Gen1 - Pass\n " ;										# reporting link speed = 2.5GT/Sec
+		ReportText( report );		
+	}
+	else if(Link_speed == Link_Speed_2)
+	{
+		#TimeToReadLinkSpeed = SubtractTime(Link_time_read, FirstPERSTDeassertionTimestamp);	#Mesuring the time it took from the PERST deassertion to the LINK Speed READING
+		report = "Link Speed = 5GT/Sec - Gen2 - Fail\n" ;
+		ReportText( report );
+		FailureCount += 1;
+	}
+	else if(Link_speed == Link_Speed_3)
+	{
+		#TimeToReadLinkSpeed = SubtractTime(Link_time_read, FirstPERSTDeassertionTimestamp);	#Mesuring the time it took from the PERST deassertion to the LINK Speed READING
+		report = "Link Speed = 8GT/Sec-Gen3 - Fail\n";
+		ReportText( report );
+		FailureCount += 1;
+	}
+	###################################################################
+	
+	
+	ReportText("==================Typical Power On Ready Latency:==================");
+	ReportText( Format( "PERST# De-Assertion to Link Training Completed:\t %s", TimeToText(TimeToGen3) ) );
+	ReportText( Format( "PERST# De-Assertion to BAR0 Access Latency:\t %s", TimeToText(BAR0AccessLatency) ) );
+	ReportText( Format( "PERST# De-Assertion to CSTS RDY Latency:\t %s", TimeToText(PERSTToCSTSRDYLatency) ) );
+	ReportText( Format( "PERST# De-Assertion to Admin Command Latency:\t %s", TimeToText(AdminCommandLatency) ) );
+	ReportText( Format( "(RTD3 Resume) PERST# De-Assertion to 4k READ Command Latency:\t %s", TimeToText(MediaCommandLatency) ) );
+	ReportText( Format( "CC EN to CSTS RDY Latency:\t\t\t %s", TimeToText(CCENToCSTSRDYLatency) ) );
+	ReportText( Format( "(RDT3 Entry) CC SHN to CSTS SHST Latency:\t\t\t %s", TimeToText(CCSHNToSHSTLatency) ) );
+	ReportText("===================================================================");
+	
+	if(FailureCount == 0) {
+		ScriptPassed();
+	} else {
+		ScriptFailed();
+	}
+    return 0;
+}
+
+
+GetLinkConditionTypeName(link_condition_type)
+{
+	link_condition_type_name = 
+	select {
+		link_condition_type == 0						: "Link Condition Unknown";
+		link_condition_type == 1						: "Link Down";
+		link_condition_type == 2						: "Link Up";
+		link_condition_type == LINK_PERST_DEASSERTED	: "Link PERST# DeAsserted";
+		link_condition_type == 8						: "Link WAKE# Asserted";
+		link_condition_type == 16						: "Link WAKE# DeAsserted";
+		link_condition_type == LINK_PERST_ASSERTED		: "Link PERST# Asserted";
+		link_condition_type == 64						: "Link Skew";
+		link_condition_type == 128						: "Link CLQREQ# Asserted";
+		link_condition_type == 256						: "Link CLQREQ# DeAsserted";
+		default											: Format( "Reserved(%d)", link_condition_type );
+	};
+	return link_condition_type_name;
+}

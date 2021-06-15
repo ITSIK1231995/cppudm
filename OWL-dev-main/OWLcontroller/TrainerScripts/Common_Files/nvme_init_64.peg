@@ -1,0 +1,211 @@
+Config=Definitions
+{
+	CR_CQ_CMD_NUM = 1	
+	CQ_NUM = 10
+	CQ_SIZE = 0x10	
+	HOST_NVM_CMDS_CQ_SIZE = (CR_CQ_CMD_NUM*CQ_NUM*CQ_SIZE)	
+	CR_SQ_CMD_NUM = 1
+	SQ_NUM = 10
+	SQ_SIZE = 0x40	
+	HOST_NVM_CMDS_SQ_SIZE = (CR_SQ_CMD_NUM*SQ_NUM*SQ_SIZE)	
+	HOST_NVM_CMDS_SQ_BASE_OFFSET = (HOST_NVM_CMDS_BASE_OFFSET + HOST_NVM_CMDS_CQ_SIZE)
+	;memory 96k -18000h (memoey end )
+		
+}
+
+; Reset controller
+; Disable NVM by writing to the Controller Configuration register
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    AddressHi = 0xffffffff  
+    AddressLo = ( CONTROLLER_REGISTERS_BASE + 0x14 )
+    Payload = ( 00004600 )
+}
+
+; Poll for the Ready to go to zero
+Loop=Begin 
+{
+    Count=50000 
+}
+
+packet="Temp_OneDwordRead"
+{
+    AddressHi = 0xffffffff  
+    AddressLo = ( CONTROLLER_REGISTERS_BASE + 0x1C ) ; Controller Status Register
+    StoreData = ( FROM_MEM64, 0x12002 )	; WARNING: Hope 0x12002 offset is somewhere in the Completion Queue area
+}
+
+
+Loop=Break 
+{
+    Location=Mem64
+    Offset = 0x12002;
+    FieldSize = Dword
+    Endian = Little
+    FieldAction = MaskAND
+    Mask = 0x1
+    Result = 0 ;
+}
+
+Loop=End
+
+
+;---------------------------------------------
+; setting AQA – Admin Queue Attributes
+
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xf
+    AddressHi = 0xffffffff  
+    AddressLo = (HIM_BAR0_REGS_BASE_ADDR +0x24)
+    ;Payload = 0xff0fff0f
+    Payload = 0x20002000
+}
+
+Packet=TLP 
+{
+    TLPType=MRd64
+    AddressHi = 0xffffffff  
+    AddressLo = HIM_BAR0_REGS_BASE_ADDR
+    NVMeControllerReg = AQA_AdminQeueAttrb
+}
+
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+wait=1000
+;----------------------------------------------------------------
+; setting - ASQ – Admin Submission Queue Base Address - 0x11800000
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 2
+    LastDwBe = 0xf
+    FirstDwBe = 0xf
+    AddressHi = 0xffffffff  
+    AddressLo = (HIM_BAR0_REGS_BASE_ADDR +0x28)
+    ;Payload = (0x00008011 0x00000000)
+    Payload = ( 0x0080AA2F 0x04000000)
+   
+}
+
+
+Packet=TLP 
+{
+    TLPType=MRd64
+    AddressHi = 0xffffffff  
+    AddressLo = HIM_BAR0_REGS_BASE_ADDR
+    NVMeControllerReg = ASQ_AdminSQBaseAddr
+    
+}
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+;-----------------------------------------------------------------------
+; ACQ – Admin Completion Queue Base Address- 0x11825000
+
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 2
+    LastDwBe = 0xf
+    FirstDwBe = 0xf
+    AddressHi = 0xffffffff  
+    AddressLo = (HIM_BAR0_REGS_BASE_ADDR +0x30)
+    ;Payload = (0x00508211 0x00000000)
+    ;Payload = (0x2FACD000 0x40000000)
+    Payload = (0x0090AA2F 0x04000000)
+   
+}
+
+
+
+Packet=TLP 
+{
+    TLPType=MRd64
+    AddressHi = 0xffffffff  
+    AddressLo = HIM_BAR0_REGS_BASE_ADDR
+    NVMeControllerReg = ACQ_AdminCQBaseAddr
+    
+}
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+;--------------------------------------------
+; CC – Controller Configuration 
+; read this register , then write , then read again 
+; set CCEN
+
+
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xf
+    AddressHi = 0xffffffff  
+    AddressLo = (HIM_BAR0_REGS_BASE_ADDR +0x14)
+    Payload = 0x01004600
+   
+}
+
+Packet=TLP 
+{
+    TLPType=MRd64
+    AddressHi = 0xffffffff  
+    AddressLo = HIM_BAR0_REGS_BASE_ADDR
+    NVMeControllerReg = CC_ControllerConfig
+    
+}
+
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+
+wait=1000000
+
+Loop=Begin
+
+; CSTS – Controller Status 
+; poling on csts_ready bit 
+
+Packet=TLP 
+{
+    TLPType=MRd64
+    AddressHi = 0xffffffff  
+    AddressLo = HIM_BAR0_REGS_BASE_ADDR 
+    NVMeControllerReg = CSTS_ControllerStatus
+    StoreData = ( FROM_MEM64, 0x12002 )
+
+}
+
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+Loop=Break 
+{
+    Location = Mem64
+    Offset = 0x12002;
+    FieldSize = Dword
+    Endian = Little
+    FieldAction = MaskAND
+    Mask = 0x1
+    Result = 0x1 ;
+}
+
+Loop=End

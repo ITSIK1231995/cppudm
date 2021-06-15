@@ -1,0 +1,92 @@
+
+; File to perform shutdown of PCIe . usually after NVMe shutdown a prior to D3Hot/Cold flow
+
+
+; pcie shutdown: perform CfgWr commands as part of the ShutDown flow
+; disable MSI-X, (Disable MSI,) disable Memory space and Bus Master. 
+
+
+
+; Disable MSI-X
+
+packet=TLP {    
+	TLPType=CfgRd0
+	Length=1
+    FirstDwBe = 0x0C
+    Register = MSI_X_CAPABILITY_ADDRESS        
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+
+packet=TLP {    
+	TLPType=CfgWr0
+	Length=1
+    FirstDwBe = 0x0C
+    Register = MSI_X_CAPABILITY_ADDRESS    
+    Payload = (0x11001000)
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+packet=TLP {    
+	TLPType=CfgRd0
+	Length=1
+    FirstDwBe = 0x0C
+    Register = MSI_X_CAPABILITY_ADDRESS        
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+
+
+; Disable Memory Address Space
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 9
+	FirstDwBe=0x1
+	Register=PCIE_PCFG_STTCMD
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 8
+	FirstDwBe=0x1
+	Register=PCIE_PCFG_STTCMD
+	Payload=0x0
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 9
+	FirstDwBe=0x1
+	Register=PCIE_PCFG_STTCMD
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+

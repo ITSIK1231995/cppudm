@@ -1,0 +1,23 @@
+; Title: pme_turn_off_link_detect.peg
+; Author: Matan Raveh <matan.raveh@wdc.com>
+; Date: 04/2020
+; *********************************************
+; script file to initiate PME_Turn_off message,
+; followed by changing link state to recovery.
+; *********************************************
+
+wait = 1000000000 ; wait 1 second
+
+;[Test] Send PME_Turn_Off message
+packet=TLP
+{
+    TLPType = Msg
+    MessageCode = PME_Turn_Off
+    MessageRoute = FromRootComplex
+}
+
+wait = 100000000 ; wait 100ms to make sure no PME_TO_ACK or L23 occurs
+
+; Put the drive into Recovery
+Link=Recovery
+wait = 50000000	;wait (50ms) is needed for recovery to be completed

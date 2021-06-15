@@ -1,0 +1,45 @@
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0x100    
+    NVMeStructType=AdminCommand
+    OpcodeAdmin=ADMIN_SET_FEATURES
+    FUSE = Normal
+    CID = 4    
+    PRP1_Low = 0
+    PRP1_High = 0
+    PRP2_Low = 0
+    PRP2_High = 0
+    FeatureID = PowerMgmt
+    PwrState = 4
+}
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( 05000000 )  
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( 05000000 )     
+}

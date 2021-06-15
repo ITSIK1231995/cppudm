@@ -1,0 +1,34 @@
+; Title: gen2_check.peg
+; Description: Trainer script to check Gen 2 compatibility
+; Author: Madhur Jain
+; Date: 03/02/2018
+
+/* Initiate Trainer reset */
+
+;Link=PERST_Assert
+
+;Config=General 
+;{
+;    TrainerReset = Yes
+;}
+
+include="linkup_gen2.peg"
+include="ex_scripts_defs.peg"
+include="pcfgs_init.peg"
+
+include="pciewritemsixtable.peg"
+
+include="pciereadmsixtable.peg"
+
+include="nvme_init.peg"
+include="nvme_admin_cmd_idenitfy_controller.peg"
+Config=Definitions
+{
+	NUM_IO_QUEUES = 0x01
+}
+include="nvme_create_queues.peg"
+include="nvme_read.peg"
+;include="nvme_set_feature.peg"
+include="nvme_shutdown.peg"
+include="linkdown.peg"
+

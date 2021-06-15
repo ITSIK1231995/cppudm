@@ -1,0 +1,176 @@
+; Command will already written to host memory
+; Just send the doorbell
+/*
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0x40
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_SET_FEATURES
+    CID = 1
+    PRP1_Low = 0
+    PRP1_High = 0
+    PRP2_Low = 0
+    PRP2_High = 0
+    FeatureID = NumQueues
+    NCplQRqstd = 0x08
+    NSubmQRqstd = 0x08
+}
+*/
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( 02000000 )   
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( 02000000 )   
+}
+
+Repeat=Begin 
+{
+    Count=NUM_IO_QUEUES
+    ;Count=2
+    Counter=QueueNumber
+}
+
+; Create CQ
+; Each Queue Occupies 64bytes * 1024 = 65536bytes (10000h)
+; Submission Queue is followed by Completion Queue in Memory
+/*
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = (0x80 + 0x80 * QueueNumber)
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_CREATE_CQ
+    FUSE = Normal
+    CID = 2
+    PRP1_Low = (0x2FABA000 + 0x20000 * QueueNumber)
+    PRP1_High = 0x00000004
+    PRP2_Low = 0
+    PRP2_High = 0
+    Queue_ID = (QueueNumber+1)
+    QueueSize = 0x3FF ;1024
+    PhysContig = Yes
+    IntEnable = Yes
+    IntVector = (QueueNumber+1)
+}
+*/
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( [ (((QueueNumber*2+3) & 0xff)<<24) ] )
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( [ (((QueueNumber*2+3) & 0xff)<<24) ] )    
+}
+
+; Create SQ
+; Command will already written to host memory
+; Just send the doorbell
+/*
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = (0xC0 + 0x80 * QueueNumber)  
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_CREATE_SQ
+    FUSE = Normal
+    CID = 3
+    ;PRP1_Low = (HOST_NVM_CMDS_BASE_ADDR + ( 3*CQ_NUM*CQ_SIZE)) ; CQ_NUM=4096 , CQ_SIZE=10h , need alexay to help me to understand it 
+    ;PRP1_Low = (HOST_NVM_CMDS_CQ128 +0x10000000 )
+    PRP1_Low = (0x2FAAA000 + 0x20000 * QueueNumber)
+    PRP1_High =0x00000004
+    PRP2_Low = 0
+    PRP2_High = 0
+    Queue_ID = (QueueNumber+1)
+    QueueSize = 0x3FF ;1024
+    PhysContig = Yes
+    CQID = (QueueNumber+1)
+    QPriority = Low
+}
+*/
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( [ (((QueueNumber*2+4) & 0xff)<<24) ] )  
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+/*
+wait=TLP
+{
+	TLPType =Msg
+	MessageCode=Assert_INTA
+}
+*/
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( [ (((QueueNumber*2+4) & 0xff)<<24) ] )     
+}
+
+Repeat=End

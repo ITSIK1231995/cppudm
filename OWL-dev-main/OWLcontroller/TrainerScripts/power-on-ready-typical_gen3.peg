@@ -1,0 +1,34 @@
+; Title: power-on-ready-typical.peg
+; Description: Trainer script to measure typical power on ready time
+; Author: Madhur Jain
+; Date: 01/30/2018
+
+/* Initiate Trainer reset */
+
+;Link=PERST_Assert
+
+;Config=General 
+;{
+;    TrainerReset = Yes
+;}
+
+include="Common_Files\linkup_gen3.peg"
+include="Common_Files\ex_scripts_defs_64.peg"
+include="Common_Files\pcfgs_init_64.peg"
+include="Common_Files\pciemsixtable_64.peg"
+
+include="Common_Files\nvme_init_64.peg"
+include="Common_Files\nvme_admin_cmd_idenitfy_controller_64.peg"
+include="Common_Files\NVMe_CPBL_VER_REG.peg"
+
+Config=Definitions
+{
+	NUM_IO_QUEUES = 0x01
+}
+include="Common_Files\nvme_create_queues_64.peg"
+include="Common_Files\nvme_read_64.peg"
+
+include="Common_Files\nvme_shutdown_64.peg"
+include="Common_Files\pcie_shutdown_64.peg"
+include="Common_Files\linkdown.peg"
+

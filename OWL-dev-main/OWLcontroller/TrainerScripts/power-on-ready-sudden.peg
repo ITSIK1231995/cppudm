@@ -1,0 +1,72 @@
+; Title: power-on-ready-sudden.peg
+; Description: Trainer script to measure sudden power on ready time
+; Author: Madhur Jain
+; Date: 01/30/2018
+
+include="Common_Files\linkup.peg"
+include="Common_Files\ex_scripts_defs.peg"
+include="Common_Files\pcfgs_init.peg"
+
+include="Common_Files\pciemsixtable.peg"
+
+include="Common_Files\nvme_init.peg"
+include="Common_Files\nvme_admin_cmd_idenitfy_controller.peg"
+
+Config=Definitions
+{
+	NUM_IO_QUEUES = 0x08
+}
+include="Common_Files\nvme_create_queues.peg"
+
+;include="Common_Files\nvme_read.peg"
+include="Common_Files\nvme_write_queue1.peg"
+;include="Common_Files\nvme_write_queue2.peg"
+;include="Common_Files\nvme_write_2.peg"
+
+/*
+AddressSpace=Read 
+{
+    Location=Mem64
+    Offset = HOST_NVM_CMDS_SQ1
+    Size =   0x10000	; Queue Depth (1024) * 64 bytes per command
+    SaveTo = "BIN_FILES\Write10k_Queue1_128G_PingPongPattern.bin"
+}
+*/
+; Ungraceful Shutdown
+; TODO: Turn Off Power
+;wait=500000
+
+include="Common_Files\linkdown.peg"
+
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x0	; Start address for admin queue
+	Size = 0x480	; 18 commands (Idfy, Set Num Queue, 8 Queues) * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_idfyctrlr_create_8_queue.bin"
+}
+
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x2000	; Start address for Queue 1
+	Size = 0x40		; 1 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_4k_read.bin"
+}
+
+include="Common_Files\linkup.peg"
+include="Common_Files\pcfgs_init.peg"
+
+include="Common_Files\pciemsixtable.peg"
+
+include="Common_Files\nvme_init.peg"
+include="Common_Files\nvme_admin_cmd_idenitfy_controller.peg"
+Config=Definitions
+{
+	NUM_IO_QUEUES = 0x01
+}
+include="Common_Files\nvme_create_queues.peg"
+include="Common_Files\nvme_read.peg"
+include="Common_Files\nvme_shutdown.peg"
+
+include="Common_Files\linkdown.peg"

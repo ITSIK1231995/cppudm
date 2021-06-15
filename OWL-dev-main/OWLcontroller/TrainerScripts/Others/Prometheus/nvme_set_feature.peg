@@ -1,0 +1,91 @@
+Config=Definitions
+{
+	PEER_TO_PEER_READ_TLP = 0xD5
+}
+
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0x100
+    NVMeStructType=AdminCommand
+    OpcodeAdmin=ADMIN_SET_FEATURES
+    CID = 4
+    FeatureID = PEER_TO_PEER_READ_TLP
+}
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( 05000000 )   
+}
+
+; Wait for the Controller to process the command. 
+; This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+    ;Timeout = 1000000
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( 05000000 )   
+}
+
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0x140
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_IDENTIFY
+    CID = 5
+    PRP1_Low = 0x3F25B190
+    PRP1_High = 0x8
+    PRP2_Low = 0x3F25C000
+    PRP2_High = 0x8
+    CNS = Controller
+}
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( 06000000 )   
+}
+
+; Wait for the Controller to process the command. 
+; This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( 06000000 )   
+}

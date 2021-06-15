@@ -1,0 +1,70 @@
+; fill MSIX-table with the follwoing field : 
+ 
+Repeat=Begin 
+{
+    Count=MSIX_VECTORS_NUM
+    Counter = MsiXVectCntr
+}
+
+; Vector 0
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE) )
+    Payload = 0x0C10E0FE
+    ;Payload = ( [MSIX_HOST_BASE_ADDR_BE | (((MsiXVectCntr * 0x10) & 0xff) << 24) | (((MsiXVectCntr * 0x10) & 0xff00) << 8) | (((MsiXVectCntr * 0x10) & 0xff0000) >> 8) | (((MsiXVectCntr * 0x10) & 0xff000000) >> 24)])   
+}
+
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = (  (MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE)) + 0x4 )
+    Payload = ( 0 )   
+}
+
+
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( (MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE)) + 0x8 )
+    Payload = Random   
+    ;Payload = ([MSIX_MSG_BASE_BE  | ((MsiXVectCntr & 0xff) << 24)  | ((MsiXVectCntr & 0xff00) << 8)  | ((MsiXVectCntr & 0xff0000) >> 8)  | ((MsiXVectCntr & 0xff000000) >> 24)])
+}
+
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( (MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE)) + 0xC )
+    Payload = ( 0 )   
+}
+
+wait = 10000
+
+Repeat=End
+
+; Enable MSI-X by writing Message Control in MSI-X capability structure
+packet=TLP {    
+	TLPType=CfgWr0
+	Length=1
+    FirstDwBe = 0xF
+    Register = MSI_X_CAPABILITY_ADDRESS    
+    ;Payload = ( 0x801F0080 )
+    Payload=(0x11c00081)
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}

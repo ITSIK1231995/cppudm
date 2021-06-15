@@ -1,0 +1,167 @@
+; This script implements creation of one Submission Queue and one Completion Queue on the controller
+
+;include="nvme_definitions.peg"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Read the config registers needed for automatic NVMe decoding of the trace
+
+packet="Temp_ConfigRead0"
+{    
+    Register = 0x8
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+packet="Temp_ConfigRead0"
+{    
+    Register = 0x10
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+packet="Temp_OneDwordRead"
+{
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x24 )
+    
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+packet="Temp_OneDwordRead"
+{
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x28 )
+    
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+
+packet="Temp_OneDwordRead"
+{
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x2C )
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+packet="Temp_OneDwordRead"
+{
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x30 )
+    
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+
+packet="Temp_OneDwordRead"
+{
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x34 )
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Pre-program command in the Host Memory Region. This is the Mem_64 Host region
+; defined in the generation options file "nvme_host_gen_options.gen"
+
+Structure=NVMe 
+{
+	Location=Mem64
+    Offset = 0
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_CREATE_CQ
+    CID = 0
+    PRP1_Low = 0x2FAC8000
+    PRP1_High = 0x4
+    Queue_ID = 1
+    QueueSize = 0x3FF
+    PhysContig = Yes
+    IntEnable = Yes
+    IntVector = 1
+}
+
+Structure=NVMe 
+{
+	Location=Mem64
+    Offset = 64
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_CREATE_SQ
+    CID = 1
+    Queue_ID = 1
+    QueueSize = 0x3FF
+    PhysContig = Yes
+    CQID = 1
+    QPriority = Urgent
+    PRP1_Low = 0x2FAB8000
+    PRP1_High = 0x4
+}
+
+
+; Write Admin dorbell
+packet="Temp_OneDwordWrite"
+{
+    Tag = 0
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x1000 )
+    Payload = ( 01000000 )
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+wait=TLP
+{
+    TLPType = MWr32
+    Address = ADMIN_INT_VECTOR_ADDRESS
+}
+
+; Write Admin Completion Queue Head
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x1004 )
+    Payload = ( 01000000 )
+}
+
+; Write Admin dorbell - 2
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x1000 )
+    Payload = ( 02000000 )
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+wait=TLP
+{
+    TLPType = MWr32
+    Address = ADMIN_INT_VECTOR_ADDRESS
+}
+
+; Write Admin Completion Queue Head - 2
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( CONTROLLER_REGISTERS_BASE + 0x1004 )
+    Payload = ( 02000000 )
+}

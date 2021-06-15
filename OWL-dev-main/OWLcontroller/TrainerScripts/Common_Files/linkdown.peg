@@ -1,0 +1,6 @@
+wait=500000
+Link=Disabled
+wait=500000
+Link=PERST_Assert
+wait=250000000
+

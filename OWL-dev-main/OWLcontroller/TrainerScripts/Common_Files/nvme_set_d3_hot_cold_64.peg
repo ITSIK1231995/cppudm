@@ -1,0 +1,61 @@
+
+;read PMCSR before setting d3hot
+packet = TLP {
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=Power_Management_Control_Status_Report
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+;set to D3HOT
+Packet=TLP
+{
+    TLPType=CfgWr0
+    ;Tag = 0
+    FirstDwBe=0xF
+    Register = Power_Management_Control_Status_Report
+    Payload = 0x0B000000
+}
+
+/*wait =TLP 
+{
+    TLPType=Cpl
+}*/
+
+; read the D3Hot setting
+packet = TLP {
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=Power_Management_Control_Status_Report
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+wait=5000000
+
+;send PME_Turn_Off
+Packet=TLP
+{
+    TLPType=Msg
+    MessageCode = PME_Turn_Off
+    MessageRoute = FromRootComplex
+}
+
+;wait for the drive to ACK PME_TO before power down
+;wait=500000000 /* 500ms */
+Wait=TLP 
+{
+    TLPType=Msg
+    MessageCode = PME_TO_Ack
+    Timeout = 500000000
+}
+

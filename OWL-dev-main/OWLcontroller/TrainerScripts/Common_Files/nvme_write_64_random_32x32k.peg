@@ -1,0 +1,156 @@
+/*
+; writing random 32K x 5 data into memory
+; 32K data data is in 2FCA8000 (which is offest 0x200000), 0x208000, 0x210000, 0x218000, 0x220000
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x200000
+	Size = 0x28000
+	LoadFrom = "BIN_FILES\random_32x5KB.bin"
+}
+
+; writing the PRP LIST of the above data (excluding 1st 32K) into memory
+; placed into address 4:2FCA7F00 (which is offset 0x1FFF00), size of file is 7 DWORDS
+; this file has 4 different orders of the same addresses
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x1FFF00
+	Size = 0xE0 ; each one is 0x38 * 4
+	LoadFrom = "BIN_FILES\PRP2_4x32K_Address_List.bin"
+}*/
+
+/*Repeat = Begin
+{
+	Count = 8
+	Counter = i	
+}
+
+	; NOW WRITING THE 32 COMMANDS (8 loops OF 4 COMMANDS) TO HOST MEMORY
+	; SQ#2 offset is 0x30000
+	
+	; Write Command ix5 to Submission Queue
+	Structure=NVMe 
+	{
+    	Location = Mem64
+    	Offset = ( 0x30000 + 0x40 * ( 0 + (4 * i) ) )
+    	NVMeStructType=NVMCommand
+    	OpcodeNvm = Write
+    	CID = ( 0 + ( 4 * i ) )
+    	NamespaceId = 1
+    	StartLBALow = 0x07f58000;
+    	PRP1_Low = 0x2FCA8000   ; 1st 32k DATA is on offset of 200000 from base memory
+    	PRP1_High = 0x4
+    	PRP2_Low = 0x2FCA7F00 ; PRP List #1 in 4:2FCA7F00 of 7x32K
+    	PRP2_High = 0x4
+    	NumLBlocks = 63  ; 32k write
+	}
+	
+	; Write Command i+1x5 to Submission Queue
+	Structure=NVMe 
+	{
+    	Location = Mem64
+    	Offset = ( 0x30000 + 0x40 * ( 1 + ( 4 * i ) ) )
+    	NVMeStructType=NVMCommand
+    	OpcodeNvm = Write
+    	CID = ( 1 + ( 4 * i ) )
+    	NamespaceId = 1
+    	StartLBALow = 0x00008000;
+    	PRP1_Low = 0x2FCAD000   ; 1st 32k DATA is on offset of 200000 from base memory
+    	PRP1_High = 0x4
+    	PRP2_Low = 0x2FCA7F38 ; PRP List #2 in 4:2FCA7F38 of 7x32K
+    	PRP2_High = 0x4
+    	NumLBlocks = 63  ; 32k write
+	}
+	
+	; Write Command ix5 to Submission Queue
+	Structure=NVMe 
+	{
+    	Location = Mem64
+    	Offset = ( 0x30000 + 0x40 * ( 2 + ( 4 * i ) ) )
+    	NVMeStructType=NVMCommand
+    	OpcodeNvm = Write
+    	CID = ( 2 + ( 4 * i ) )
+    	NamespaceId = 1
+    	StartLBALow = 0x07f58000;
+    	PRP1_Low = 0x2FCAA000   ; 1st 32k DATA is on offset of 200000 from base memory
+    	PRP1_High = 0x4
+    	PRP2_Low = 0x2FCA7F70 ; PRP List #3 in 4:2FCA7F70 of 7x32K
+    	PRP2_High = 0x4
+    	NumLBlocks = 63  ; 32k write
+	}
+	
+	; Write Command ix5 to Submission Queue
+	Structure=NVMe 
+	{
+    	Location = Mem64
+    	Offset = ( 0x30000 + 0x40 * ( 3 + ( 4 * i ) ) )
+    	NVMeStructType=NVMCommand
+    	OpcodeNvm = Write
+    	CID = ( 3 + ( 4 * i ) )
+    	NamespaceId = 1
+    	StartLBALow = 0x00008000;
+    	PRP1_Low = 0x2FCAE000   ; 1st 32k DATA is on offset of 200000 from base memory
+    	PRP1_High = 0x4
+    	PRP2_Low = 0x2FCA7FA8 ; PRP List #4 in 4:2FCA7FA8 of 7x32K
+    	PRP2_High = 0x4
+    	NumLBlocks = 63  ; 32k write
+	}
+
+Repeat = End
+
+/*; IO Command - 32x32K Writes
+AddressSpace = Read
+{
+	Location = Mem64
+	Offset = 0x30000	; Start address for Queue 2
+	Size = 0x800		; 32 commands * 64 bytes per command
+	SaveTo = "BIN_FILES\dump_write_random32x32k.bin"	
+}*/
+
+
+; performing 2000 loops =  loops which is ~1minute
+
+	Repeat = Begin
+	{
+		Count = 2000
+		Counter = CmdNum
+	}
+	
+	
+	; Send Submission Queue Tail Doorbell
+	Packet=TLP 
+	{
+    	TLPType=MWr64
+    	Length = 1
+    	LastDwBe = 0x0
+    	FirstDwBe = 0xF
+    	AddressHi = 0xffffffff  
+    	AddressLo = NVM_SQ2_DBL
+    	Payload = ( [ ( ( (CmdNum+1) & 0x1F )<<24 ) ] ) ; to remain cyclic to 32, and move to big endian
+	}
+	
+	; Wait for the Controller to process the command. The last thing would be the MSI-X interrupt at vector 1
+	wait=TLP
+	{
+    	TLPType = MWr32
+    	Address = 0xFEE0100C
+	}
+	
+	; Write Admin Completion Queue Head
+	Packet=TLP 
+	{
+    	TLPType=MWr64
+    	Length = 1
+    	LastDwBe = 0x0
+    	FirstDwBe = 0xF
+    	AddressHi = 0xffffffff  
+    	AddressLo = NVM_CQ2_DBL
+    	Payload = ( [ ( ( (CmdNum+1) & 0x1F )<<24 ) ] ) ; to remain cyclic to 32, and move to big endian
+	}
+	
+	Repeat = End
+
+
+
+

@@ -1,0 +1,56 @@
+/*
+; write the data to the host memory
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x100000
+	Size = 0x1000 ;4k
+	LoadFrom = Random
+}
+
+; Write Command to Submission Queue
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0x2040
+    NVMeStructType=NVMCommand
+    OpcodeNvm = Write
+    CID = 2
+    NamespaceId = 1
+    PRP1_Low = 0x2FBA8000   ; 4k command is on offset of 100000 from base memory
+    PRP1_High = 0x4
+    PRP2_Low = 0x2FBB8000
+    PRP2_High = 0x4
+    NumLBlocks = 7  ; 4k write
+}*/
+
+; Send Submission Queue Tail Doorbell
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_SQ1_DBL
+    Payload = ( 02000000 ) 
+}
+
+; Wait for the Controller to process the command. The last thing would be the MSI-X interrupt at vector 1
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_CQ1_DBL
+    Payload = ( 02000000 ) 
+}

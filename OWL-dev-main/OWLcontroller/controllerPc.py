@@ -46,7 +46,7 @@ class ControllerPc():
         return analyzerHandler
 
     def startRecordingWithAnalyzer(self,analyzerHandler,SavedTraceFullPathAndName,RecordOptionFilePath,hostPc,testLog):
-        analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPathAndName,hostPc,testLog)
+        return analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPathAndName,hostPc,testLog)
 
     def stopRecordingWithAnalyzer(self, analyzerHandler):
         analyzerHandler.stopRecording()
@@ -61,8 +61,11 @@ class ControllerPc():
     def dispatchThreads(self):
         logging.info("dispatching Threads")
         self.runtimeHostPcsData = {}
-        hostPcs = self.configs.defaultConfContent['hostPCs'] #TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
-        for hostPc in hostPcs:
+        if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            hosts = self.configs.defaultConfContent['hostPCs'] #TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
+        if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            hosts = self.configs.defaultConfContent["Exercisers"]
+        for hostPc in hosts:
             if hostPc["checked"]: #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
                 self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
@@ -121,12 +124,12 @@ class ControllerPc():
         self.app.exec_()
 
     def startExecution(self):
-        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
-            self.startExecutionForHostPcSystemMode()
+         #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
+        self.startExecutionForHostPcSystemMode()
 
     def stopExecution(self): #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
-        if self.currentSystemExecutionMode == systemExecutionModes.LEGACY_MODE_HOST_PC:  #TODO  look at this
-            self.stopExecutionForHostPcSystemMode()
+        #TODO  look at this
+        self.stopExecutionForHostPcSystemMode()
 
     def startExecutionForHostPcSystemMode(self): #TODO  look at this
         self.haltThreads = False

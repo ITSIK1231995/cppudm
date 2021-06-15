@@ -1,0 +1,1108 @@
+; This script performs basic initialization of an NVMe device:
+; -	Set up BARs;
+; -	Enable bus master, memory space, set interrupt disable;
+; -	Set Max payload and read request in Device Conrtol;
+; -	Write MSI-X table and enable MSI-X.
+
+
+;include="nvme_definitions.peg"
+
+; Set up BARs
+ 
+packet="Temp_ConfigWrite0"
+{	
+	Length=1
+    Tag = 0
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_BAR0_REG_ADDR
+	Payload=(0xffffffff)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+    Tag = 0
+}
+
+
+
+packet="Temp_ConfigRead0"
+{
+	Length=1
+    Tag = 1
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_BAR0_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+    Tag = 1
+}
+
+packet="Temp_ConfigWrite0"
+{    
+    Register = PCIE_CFGS_BAR0_REG_ADDR
+    Payload = ( BAR0_ADDRESS_FLIPPED )
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+packet="Temp_ConfigWrite0"
+{
+    Register = PCIE_CFGS_BAR1_REG_ADDR
+    Payload = ( 0 )
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+packet="Temp_ConfigWrite0"
+{
+    Register = PCIE_CFGS_BAR2_REG_ADDR
+    Payload = ( BAR2_ADDRESS_FLIPPED )
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+packet="Temp_ConfigWrite0"
+{
+    Register = 0x1C
+    Payload = ( 0 )
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+; Enable bus master, mem space, set interrupt disable
+packet="Temp_ConfigWrite0"
+{
+    FirstDwBe = 0x3
+    Register = 0x4
+    Payload = ( 0x46050000 )
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+
+; Set Max payload and read request in Device Conrtol
+; Not clear from the trace, keep at defaults
+
+
+; Set MSI-X table entries and enable MSI-X
+
+
+; Vector 0
+packet="Temp_OneDwordWrite"
+{
+    Address = MSI_X_TABLE_BASE
+    Payload = ( 0000E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 8 )
+    Payload = ( B0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0xC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 1
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x10 )
+    Payload = ( 0000E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x14 )
+    Payload = ( 0 ) ; 0x03000000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x18 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x1C )
+    Payload = ( 0 )
+}
+
+; Vector 2
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x20 )
+    Payload = ( 0010E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x24 )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x28 )
+    Payload = ( B0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x2C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 3
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x30 )
+    Payload = ( 0010E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x34 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x38 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x3C )
+    Payload = ( 0 )
+}
+
+; Vector 4
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x40 )
+    Payload = ( 0020E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x44 )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x48 )
+    Payload = ( B0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x4C )
+    Payload = ( 0 )
+}
+
+
+wait=10000
+
+; Vector 5
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x50 )
+    Payload = ( 0020E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x54 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x58 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x5C )
+    Payload = ( 0 )
+}
+
+
+; Vector 6
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x60 )
+    Payload = ( 0030E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x64 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x68 )
+    Payload = ( B0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x6C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 7
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x70 )
+    Payload = ( 0030E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x74 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x78 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x7C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 8
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x80 )
+    Payload = ( 0040E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x84 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x88 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x8C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 9
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x90 )
+    Payload = ( 0040E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x94 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x98 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x9C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 10
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0xA0 )
+    Payload = ( 0050E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0xA4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0xA8 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0xAC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 11
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0xB0 )
+    Payload = ( 0050E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0xB4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0xB8 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0xBC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 12
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0xC0 )
+    Payload = ( 0060E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0xC4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0xC8 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0xCC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 13
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0xD0 )
+    Payload = ( 0060E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0xD4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0xD8 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0xDC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 14
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0xE0 )
+    Payload = ( 0070E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0xE4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0xE8 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0xEC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 15
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0xF0 )
+    Payload = ( 0070E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0xF4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0xF8 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0xFC )
+    Payload = ( 0 )
+}
+wait=10000
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Vector 16
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x100 )
+    Payload = ( 0080E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x104 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x108 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x10C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 17
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x110 )
+    Payload = ( 0080E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x114 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x118 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x11C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 18
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x120 )
+    Payload = ( 0090E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x124 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x128 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x12C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 19
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x130 )
+    Payload = ( 0090E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x134 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x138 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x13C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 20
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x140 )
+    Payload = ( 00A0E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x144 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x148 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x14C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 21
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x150 )
+    Payload = ( 00A0E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x154 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x158 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x15C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 22
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x160 )
+    Payload = ( 00B0E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x164 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x618 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x16C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 23
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x170 )
+    Payload = ( 00B0E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x174 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x178 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x17C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 24
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x180 )
+    Payload = ( 00C0E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x184 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x188 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x18C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 25
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x190 )
+    Payload = ( 00C0E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x194 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x198 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x19C )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 26
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x1A0 )
+    Payload = ( 00D0E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x1A4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x1A8 )
+    Payload = ( 90400000 )
+}
+
+wait=10000
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x1AC )
+    Payload = ( 0 )
+}
+
+
+; Vector 27
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x1B0 )
+    Payload = ( 00D0E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x1B4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x1B8 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x1BC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 28
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x1C0 )
+    Payload = ( 00E0E0FE )
+}
+
+wait=10000
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x1C4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x1C8 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x1CC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 29
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x1D0 )
+    Payload = ( 00E0E2FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x1D4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x1D8 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x1DC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Vector 30
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x1E0 )
+    Payload = ( 00F0E0FE )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x1E4 )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x1E8 )
+    Payload = ( 90400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x1EC )
+    Payload = ( 0 )
+}
+
+
+; Vector 31
+packet="Temp_OneDwordWrite"
+{
+    Address = ( MSI_X_TABLE_BASE + 0x1F0 )
+    Payload = ( 00F0E2FE )
+}
+
+wait=10000
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( MSI_X_TABLE_BASE + 0x1F4 )
+    Payload = ( 0 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 2
+    Address = ( MSI_X_TABLE_BASE + 0x1F8 )
+    Payload = ( A0400000 )
+}
+
+packet="Temp_OneDwordWrite"
+{
+    Tag = 3
+    Address = ( MSI_X_TABLE_BASE + 0x1FC )
+    Payload = ( 0 )
+}
+
+wait=10000
+
+; Enable MSI-X
+packet="Temp_ConfigWrite0"
+{    
+    FirstDwBe = 0xC
+    Register = MSI_X_CAPABILITY_ADDRESS ; 0xA0 ;0x90    
+    Payload = ( 0x801F0080 )
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+
+; Read the config registers needed for automatic NVMe decoding of the trace
+
+packet="Temp_ConfigRead0"
+{    
+    Register = 0x8
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}
+
+packet="Temp_ConfigRead0"
+{    
+    Register = 0x10
+}
+
+wait=TLP
+{
+    TLPType = CplD
+}

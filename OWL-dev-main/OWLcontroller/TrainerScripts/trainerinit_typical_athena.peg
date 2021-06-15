@@ -1,0 +1,81 @@
+; Title: trainerinit.peg
+; Description: Trainer initialization script
+; Author: Madhur Jain
+; Date: 01/30/2018
+
+/* Initiate Trainer reset */
+Config=General 
+{
+    TrainerReset = Yes
+}
+
+include="Common_Files\linkdown.peg"
+
+; Admin Commands
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x0	; Start address for admin queue
+	Size = 0x480	; 18 commands (Idfy, Set Num Queue, 8 Queues) * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_idfyctrlr_create_8_queue.bin"
+}
+
+; IO Command - 4K Read
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x2000	; Start address for Queue 1
+	Size = 0x40		; 1 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_4k_read.bin"
+}
+
+; adding Create 2nd I/O Completion and Submittion Queue with new settings.
+;commands number are #5 and #6
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x100	; Start address for after #4 admin queue
+	Size = 0x80	; 2 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_create_2nd_queue_Athena.bin"
+}
+
+; adding Delete of 2 I/O Completion and Submittion Queues
+;commands numbers start at #7
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x180	; Start address for after #6 admin queue
+	Size = 0x200	; 4 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_delete_queues_Athena.bin"
+}
+
+; IO Command - 20x32K Writes
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x30000	; Start address for Queue 2
+	Size = 0x800		; 32 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_write_random32x32k.bin"	
+}
+
+; writing random 32K x 5 data into memory
+; 32K offests are: 0x200000, 0x208000, 0x210000, 0x218000, 0x220000
+; 32K data data is in 2FCA8000 (which is offest 0x200000), 0x208000, 0x210000, 0x218000, 0x220000
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x200000
+	Size = 0x28000
+	LoadFrom = "BIN_FILES\random_5x32KB.bin"
+}
+
+; writing the PRP LIST of the above data (excluding 1st 32K) into memory
+; placed into address 4:2FCA7F00 (which is offset 0x1FFF00), size of file is 7 DWORDS
+; this file has 4 different orders of the same addresses
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x1FFF00
+	Size = 0xE0 ; each one is 0x38 * 4
+	LoadFrom = "BIN_FILES\PRP2_4x32K_Address_List.bin"
+}

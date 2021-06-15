@@ -1,0 +1,77 @@
+; Title: power-on-ready-typical.peg
+; Description: Trainer script to measure typical power on ready time
+; Author: Madhur Jain
+; Date: 01/30/2018
+
+/* Initiate Trainer reset */
+
+;Link=PERST_Assert
+
+;Config=General 
+;{
+;    TrainerReset = Yes
+;}
+
+;include="Common_Files\linkup_calx.peg"
+Link=PERST_Deassert
+
+/* Init the link */
+Link=Detect
+wait=500
+Link=L0
+wait=500
+;wait=LinkCondition
+;{
+    ;Conditions = TS1
+;}
+Link=InitFC
+
+/* Wait for the first UpdateFC DLLP as an indication of the end of FC initialization */
+
+wait=DLLP
+{
+    DLLPType = UpdateFc_P
+}
+
+;wait=500000	; Required?
+link=8_0
+
+/* wait for 100 milliseconds before attempting any TLP transmission (as per spec) */
+/* wait=100000000 */
+wait = 10000000 /* 1ms */
+include="Common_Files\ex_scripts_defs_64.peg"
+;include="Common_Files\pcfgs_init.peg"
+include="Common_Files\pcfgs_init_64.peg"
+include="Common_Files\pciemsixtable_64.peg"
+
+include="Common_Files\nvme_init_64.peg"
+include="Common_Files\nvme_admin_cmd_idenitfy_controller_64.peg"
+Config=Definitions
+{
+	NUM_IO_QUEUES = 0x01
+}
+include="Common_Files\nvme_create_queues_64.peg"
+include="Common_Files\nvme_read_calx_64.peg"
+
+/*
+AddressSpace=Read 
+{
+    Location=Mem64
+    Offset = 0
+    Size =   0x480			; 18 commands (Idfy, Set Num Queues, 8 Queues) * 64 bytes per command
+    SaveTo = "BIN_FILES\Dump_IdfyCtrlr_Create_8_Queue.bin"
+}
+
+
+AddressSpace=Read 
+{
+    Location=Mem64
+    Offset = HOST_NVM_CMDS_SQ1
+    Size =   (0xC0)			; 1 command * 64 bytes per command
+    SaveTo = "BIN_FILES\dump_4k_read_calx.bin"
+}
+*/
+
+include="Common_Files\nvme_shutdown_64.peg"
+include="Common_Files\linkdown.peg"
+

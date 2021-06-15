@@ -1,0 +1,152 @@
+; Command will already written to host memory
+; Just send the doorbell
+;XBFS
+/*
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = HOST_NVM_CMDS_SQ1
+    NVMeStructType=NVMCommand
+    OpcodeNvm = Read
+    CID = 1
+    NamespaceId = 1
+    PRP1_Low = 0x2FAC0000
+	PRP1_High =0x4
+	PRP2_Low = 0x2FAC1000
+	PRP2_High =0x4
+    StartLBALow = 0
+    StartLBAHigh = 0
+    NumLBlocks = 0
+}
+*/
+
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_SQ1_DBL
+    Payload = ( 01000000 ) 
+}
+
+ ;Wait for the Controller to process the command. The last thing would be the MSI-X interrupt at vector 1
+wait=TLP
+{
+    TLPType = MWr64
+    ;Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_CQ1_DBL
+    Payload = ( 01000000 ) 
+}
+
+;USLC
+/*
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = (HOST_NVM_CMDS_SQ1+0x40)
+    NVMeStructType=NVMCommand
+    OpcodeNvm = Read
+    CID = 1
+    NamespaceId = 1
+    PRP1_Low = 0x2FAC0000
+	PRP1_High =0x4
+	PRP2_Low = 0x2FAC1000
+	PRP2_High =0x4
+    StartLBALow = 0x40000
+    StartLBAHigh = 0
+    NumLBlocks = 0
+}
+*/
+
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_SQ1_DBL
+    Payload = ( 02000000 ) 
+}
+
+ ;Wait for the Controller to process the command. The last thing would be the MSI-X interrupt at vector 1
+wait=TLP
+{
+    TLPType = MWr64
+    ;Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_CQ1_DBL
+    Payload = ( 02000000 ) 
+
+}
+
+;UTLC
+/*
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = (HOST_NVM_CMDS_SQ1+0x80)
+    NVMeStructType=NVMCommand
+    OpcodeNvm = Read
+    CID = 1
+    NamespaceId = 1
+    PRP1_Low = 0x2FAC0000
+	PRP1_High =0x4
+	PRP2_Low = 0x2FAC1000
+	PRP2_High =0x4
+    StartLBALow = 0x6C0000
+    StartLBAHigh = 0
+    NumLBlocks = 0
+}
+*/
+
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_SQ1_DBL
+    Payload = ( 03000000 ) 
+}
+
+ ;Wait for the Controller to process the command. The last thing would be the MSI-X interrupt at vector 1
+wait=TLP
+{
+    TLPType = MWr64
+    ;Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = NVM_CQ1_DBL
+    Payload = ( 03000000 ) 
+}

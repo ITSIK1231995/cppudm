@@ -1,0 +1,83 @@
+##################################################################################################
+#                                           Module info                                          #
+##################################################################################################
+set ModuleType  = "Verification Script";  # Should be set for all verification scripts
+set OutputType  = "VS";                   # Should be set for all verification scripts that
+                                          # output only Report string and Result.
+set InputType   = "VS";
+set DecoderDesc = "Verication script which looks for nvme get log page commands for smart data, and then reads / saves the gsd / ugsd counts for pass / fail logic";
+
+##################################################################################################
+
+
+%include  "VSTools.inc"         # must be included
+
+const SMART_PC_OFFSET = 112;
+const SMART_UGSD_OFFSET = 144;
+
+set state = 0;
+set smrt_pwr_cycle_initial = 0;
+set smrt_pwr_cycle_final = 0;
+set smrt_ugsd_initial = 0;
+set smrt_ugsd_final = 0;
+
+
+OnStartScript(){
+    state = 0;
+    smrt_pwr_cycle_initial = 0;
+    smrt_pwr_cycle_final = 0;
+    smrt_ugsd_initial = 0;
+    smrt_ugsd_final = 0;
+
+    SendAllChannels();
+    SendLevelOnly( _NVMC ); # only processing NVM Commands
+    SendAllTraceEvents();
+}
+
+OnFinishScript(){
+    ReportText(Format("smrt_pwr_cycle_initial: %d", smrt_pwr_cycle_initial));
+    ReportText(Format("smrt_pwr_cycle_final: %d", smrt_pwr_cycle_final));
+    ReportText(Format("smrt_ugsd_initial: %d", smrt_ugsd_initial));
+    ReportText(Format("smrt_ugsd_final: %d", smrt_ugsd_final));
+    diff_pc = smrt_pwr_cycle_final - smrt_pwr_cycle_initial;
+    diff_ugsd = smrt_ugsd_final - smrt_ugsd_initial;
+    ReportText(Format("Difference in SMART Power Cycle count: %d", diff_pc));
+    ReportText(Format("Difference in SMART UGSD count: %d", diff_ugsd));
+
+    if(diff_pc == 1 && diff_ugsd == 0 && state == 2){
+        ReportText(Format( "Test Passed!"));
+        ScriptPassed();
+    } else{
+        ReportText(Format( "Test Failed!"));
+        ScriptFailed();
+    }
+}
+
+getCount(offset){
+    temp = GetNBits( in.Payload, 8*offset, 8);
+    temp |= GetNBits( in.Payload, 8*offset+8, 8) << 8;
+    temp |= GetNBits( in.Payload, 8*offset+16, 8) << 16;
+    temp |= GetNBits( in.Payload, 8*offset+24, 8) << 24;
+    return temp;
+}
+
+ProcessEvent(){
+    if (state == 2) return Complete();
+    if (in.nvmcIsAdminCommand && in.nvmcCommandOpCode == _NVMC_OPCODE_GET_LOG_PAGE){
+        if (in.GetLogPage_LID == _NVMC_LID_SMART_HEALTH_INFORMATION ){
+            ReportText(Format("GET_LOG_PAGE command for SMART Log found at Index: %d", in.Index));
+            if (state == 0){
+                smrt_pwr_cycle_initial = getCount(SMART_PC_OFFSET);
+                # ReportText(Format("smrt_pwr_cycle_initial: %d", smrt_pwr_cycle_initial));
+                smrt_ugsd_initial = getCount(SMART_UGSD_OFFSET);
+                state = 1;
+            }
+            else if(state == 1){
+                smrt_pwr_cycle_final = getCount(SMART_PC_OFFSET);
+                smrt_ugsd_final = getCount(SMART_UGSD_OFFSET);
+                state = 2;
+            }
+        }
+    }
+    return Complete();
+}

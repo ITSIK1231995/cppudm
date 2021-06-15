@@ -1,0 +1,38 @@
+/************************************************************************************************
+*                                                                                               *
+*  Copyright (c) 2005, LeCroy Corporation - All Rights Reserved                                 *
+*                                                                                               *
+*  linkup_gen3.peg                                                                                   *
+*                                                                                               *
+*  Trainer script for PCI Express Compliance Testing                                            *
+*                                                                                               *
+*    Brief Description: Generic script for initiating link re-training (hot reset).             *
+*                                                                                               *
+************************************************************************************************/
+
+Link=PERST_Deassert
+
+/* Init the link */
+Link=Detect
+wait=500
+Link=L0
+wait=500
+;wait=LinkCondition
+;{
+    ;Conditions = TS1
+;}
+Link=InitFC
+
+/* Wait for the first UpdateFC DLLP as an indication of the end of FC initialization */
+
+wait=DLLP
+{
+    DLLPType = UpdateFc_P
+}
+
+wait=500000	; Required?
+link=8_0
+
+/* wait for 100 milliseconds before attempting any TLP transmission (as per spec) */
+/* wait=100000000 */
+wait = 1000000 /* 1ms */

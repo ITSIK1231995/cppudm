@@ -1,0 +1,122 @@
+
+; Create CQ
+; Each Queue Occupies 64bytes * 32 commands = 2048bytes (800h)
+; Submission Queue is followed by Completion Queue in Memory
+
+/*Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0x100
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_CREATE_CQ    
+    FUSE = Normal
+    CID = 0x4
+    PRP1_Low = 0x2FAD9000
+    PRP1_High = 0x00000004
+    PRP2_Low = 0
+    PRP2_High = 0
+    Queue_ID = 0x2
+    QueueSize = 0x1F ; size is 32 entries
+    PhysContig = Yes
+    IntEnable = Yes
+    IntVector = 2
+}*/
+
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( 05000000 )
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( 05000000 )
+}
+
+; Create SQ
+; Command will already written to host memory
+; Just send the doorbell
+
+/*Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0x140
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_CREATE_SQ
+    FUSE = Normal
+    CID = 5
+    PRP1_Low = 0x2FAD8000
+    PRP1_High = 0x00000004
+    PRP2_Low = 0
+    PRP2_High = 0
+    Queue_ID = 0x2
+    QueueSize = 0x1F ;  size is 32 entries
+    PhysContig = Yes
+    CQID = 0x2
+    QPriority = Low
+}*/
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( 06000000 )  
+}
+
+; Wait for the Controller to process the command. This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( 06000000 )     
+}
+
+/*; saving the commands into bin file
+AddressSpace = Read
+{
+	Location = Mem64
+	Offset = 0x100
+	Size = 0x80
+	SaveTo = "BIN_FILES\dump_create_2nd_queue_Athena.bin"
+}*/

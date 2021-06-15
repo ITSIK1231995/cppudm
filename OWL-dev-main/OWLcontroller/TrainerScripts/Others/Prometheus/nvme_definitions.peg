@@ -1,0 +1,68 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; This file incudes definitions and templates used by all of the NVMe Host
+; sample scripts
+;
+
+Config=Definitions
+{
+    DEVICE_CONTROL_STATUS_REG_ADDRESS  = 0x60
+    HOST_REQUESTER_ID                  = (64:2:0)
+    DEVICE_ID                          = (129:0:0)
+    
+    BAR0_ADDRESS                       = 0xEC030000
+    BAR0_ADDRESS_FLIPPED               = 0x3EC
+    
+    BAR2_ADDRESS                       = 0xEC020000
+    BAR2_ADDRESS_FLIPPED               = 0x2EC
+    
+    MSI_X_TABLE_BASE                   = 0xEC032000 ; 0xEC020000
+    MSI_X_CAPABILITY_ADDRESS           = 0xA0
+    
+    CONTROLLER_REGISTERS_BASE          = 0xEC030000
+    
+    ADMIN_INT_VECTOR_ADDRESS           = 0xFEE00000        
+}
+
+
+template = TLP 
+{
+    Name = "Temp_ConfigWrite0"
+    
+    TLPType=CfgWr0
+    Length = 1
+    RequesterId = HOST_REQUESTER_ID
+    FirstDwBe = 0xF
+    DeviceId = DEVICE_ID
+}
+
+template = TLP 
+{
+    Name = "Temp_OneDwordWrite"
+    
+    TLPType = MWr32
+    Length = 1
+    RequesterId = HOST_REQUESTER_ID
+    FirstDwBe = 0xF
+}
+
+template = TLP 
+{
+    Name = "Temp_ConfigRead0"
+    
+    TLPType=CfgRd0
+    Length = 1
+    RequesterId = HOST_REQUESTER_ID
+    FirstDwBe = 0xF
+    DeviceId = DEVICE_ID
+}
+
+template = TLP 
+{
+    Name = "Temp_OneDwordRead"
+    
+    TLPType = MRd32
+    Length = 1
+    RequesterId = HOST_REQUESTER_ID
+    FirstDwBe = 0xF
+}

@@ -1,0 +1,54 @@
+Repeat=Begin 
+{
+    Count=1023
+    Counter=i
+}
+
+; Write Command to Submission Queue
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = (HOST_NVM_CMDS_SQ1 + (i * 0x40))
+    NVMeStructType=NVMCommand
+    OpcodeNvm = Write
+    CID = (i + 1)
+    NamespaceId = 1
+    PRP1_Low = 0x2FAC0000
+	PRP1_High =0x4
+	PRP2_Low = 0x2FAC1000
+	PRP2_High =0x4
+    StartLBALow = i
+    StartLBAHigh = 0
+    NumLBlocks = 7
+}
+
+; Send Submission Queue Tail Doorbell
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x1008 )
+    Payload = ( [ (((((i) & 0xff)<<24) | (((i) & 0xff00)<<8) | (((i) & 0xff0000)>>8) | (((i)>>24) & 0xff))) ] ) 
+}
+
+; Wait for the Controller to process the command. The last thing would be the MSI-X interrupt at vector 1
+wait=TLP
+{
+    TLPType = MWr32
+    Address = 0xFEE0100C
+}
+
+; Write IO Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x100C )
+    Payload = ( [ (((((i) & 0xff)<<24) | (((i) & 0xff00)<<8) | (((i) & 0xff0000)>>8) | (((i)>>24) & 0xff))) ] )
+}
+
+Repeat=End

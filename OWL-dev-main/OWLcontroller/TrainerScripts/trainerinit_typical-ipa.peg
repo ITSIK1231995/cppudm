@@ -1,0 +1,32 @@
+; Title: trainerinit_typical-ipa.peg
+; Description: Trainer initialization script - IPA Specific
+; Author: Srinath P
+; Date: May 20, 2019
+
+/* Initiate Trainer reset */
+Config=General 
+{
+    TrainerReset = Yes
+}
+
+include="Common_Files\linkdown.peg"
+
+; Address space for the bin file that has the commands - Identify, Set Feature, Creating SQ, CQ 
+; Admin Commands
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x0	; Start address for admin queue
+	Size = 0x100	; 4 commands (Idfy, Set Num Queue, 1 SQ, 1 CQ) * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_idfyctrlr_create_1_queue.bin"
+}
+
+; ; Address space for the bin file that has 1 4K Read command
+; IO Command - 4K Read
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x2000	; Start address for Queue 1
+	Size = 0x40		; 1 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_4k_read.bin"
+}

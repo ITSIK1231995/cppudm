@@ -1,0 +1,56 @@
+; Enable L1.1
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 0
+	FirstDwBe=0xF
+	Register=L1_PM_Substates_Control_1_Register
+	;Payload=(0x04000A40)	; L1.2
+	Payload=(0x08000A40)	; L1.1
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 1
+	FirstDwBe=0xF
+	Register=L1_PM_Substates_Control_1_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Enable ASPM
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 2
+	FirstDwBe=0xF
+	Register=Link_Control_and_Status_Register
+	Payload=(0x02001100)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 3
+	FirstDwBe=0xF
+	Register=Link_Control_and_Status_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}

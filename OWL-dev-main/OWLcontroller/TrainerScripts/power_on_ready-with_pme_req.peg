@@ -1,0 +1,41 @@
+; Title: power-on-ready-typical.peg
+; Description: Trainer script to measure typical power on ready time
+; Author: Matan Raveh
+; Date: 04/2020
+;  *****************************************************************
+;  This script does the same as typical P.O.R,
+;  with the addition of sending a PME_Turn_Off request after initial load,
+;  to check the fix as required by CUSTOMER JIRA CSS-CUST3998 / work JIRA CSSD-17009
+;  *****************************************************************
+
+/* Initiate Trainer reset */
+
+;Link=PERST_Assert
+
+;Config=General 
+;{
+;    TrainerReset = Yes
+;}
+
+include="Common_Files\linkup.peg"
+include="Common_Files\pme_turn_off_link_detect.peg"
+include="Common_Files\ex_scripts_defs_64.peg"
+include="Common_Files\pcfgs_init_64.peg"
+include="Common_Files\pciemsixtable_64.peg"
+
+include="Common_Files\nvme_init_64.peg"
+include="Common_Files\nvme_admin_cmd_idenitfy_controller_64.peg"
+
+include="Common_Files\nvme_cpbl_ver_reg.peg"
+
+Config=Definitions
+{
+	NUM_IO_QUEUES = 0x01
+}
+include="Common_Files\nvme_create_queues_64.peg"
+include="Common_Files\nvme_read_64.peg"
+
+include="Common_Files\nvme_shutdown_64.peg"
+include="Common_Files\pcie_shutdown_64.peg"
+include="Common_Files\linkdown.peg"
+

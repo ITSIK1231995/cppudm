@@ -1,0 +1,117 @@
+#########################################################################
+#   Copyright (c) 2019, SanDisk                                         #
+#   File: pme_turn_off_ack.pevs                                         #
+#   Description: Verification script for PME_TO_Ack                     #
+#   Author: Akshay Naik <Akshay.Naik@sandisk.com>                       #
+#########################################################################
+set ModuleType  = "Verification Script";  # Should be set for all verification scripts
+set OutputType  = "VS";                   # Should be set for all verification scripts that
+                                          # output only Report string and Result.
+set InputType   = "VS";
+set DecoderDesc = "PME_Turn_Off ACK in D3Hot verification";
+
+%include  "VSTools.inc"         # must be included
+
+# const TLP_STEP = 1;
+set EventCount = 0;
+
+const MAX_MEDIA_COMMAND_LATENCY = Time(10,000 * MILLI_SECS);
+
+# State Machine
+const SM_RESET                              = 0;
+const SM_PME_TO_SENT                        = 1;
+const SM_PME_TO_ACKED                       = 2;
+const SM_LINK_L23                           = 3;
+
+set SM_State = SM_RESET;
+
+
+OnStartScript() {
+    #ScriptForDisplayOnly();     # Just prints out data, no Pass/Fail
+    ReportText( "Processing TLPs..." );
+    SendAllChannels();
+
+    SM_State = SM_RESET;
+
+    # By default only packet level events are sent to the script
+    # Instruct tha application to sent TLPs only.
+    SendTraceEventOnly( _PKT_TLP );
+
+    # SendTlpType( _ANY_TYPE );
+    SendTlpType   ( _PE_ALL_TYPES );
+    SendDllpType( _ANY_TYPE );
+
+    EventCount = 0;
+}
+
+ProcessEvent() {
+    if(SM_State == SM_LINK_L23){
+        return Complete();
+    }
+    #! In SM_RESET state find PME_Turn_Off msg from the host, change state to SM_PME_TO_SENT
+    if(in.MessageCode == TLP_MSGCODE_PM_TURNOFF && in.Channel == 0x2 && SM_State == SM_RESET) {
+        # PME_Turn_Off::Downstream
+        SM_State = SM_PME_TO_SENT;
+        ReportTlpEventInfo();
+        #MessageCode == 0x19 : PME_Turn_Off
+        #in.Type == 0x13
+        #ReportText( FormatEx( "TPL Type: %d\n", in.Type) );
+        str = FormatEx( "Index: %d\n", in.Index);
+        str += FormatEx( "MessageCode: PME_Turn_Off\n");
+        str += FormatEx( "Channel: Downstream\n");
+        ReportText( str );
+    }
+    #! In SM_PME_TO_SENT state find TLP_MSGCODE_PM_TOACK, change state to  SM_PME_TO_ACKED     
+    #! In SM_PME_TO_ACKED state find DLLP_TYPE_PM_ENTER_L23 DLLP, change state to SM_LINK_L23
+    else if(in.MessageCode == TLP_MSGCODE_PM_TOACK && in.Channel == 0x1 && SM_State == SM_PME_TO_SENT) {
+        # PME_TO_Ack::Upstream
+        SM_State = SM_PME_TO_ACKED;
+        ReportTlpEventInfo();
+        #MessageCode: 0x1B == PME_TO_Ack
+        #ReportText( FormatEx( "TLP Type: %d\n", in.Type) );
+        str = FormatEx( "Index: %d\n", in.Index);
+        str += FormatEx( "MessageCode: PME_TO_Ack\n");
+        str += FormatEx( "Channel: Upstream\n");
+        ReportText( str );
+    }
+
+    if(in.DLLPType == DLLP_TYPE_PM_ENTER_L23) {
+        if (SM_State == SM_PME_TO_ACKED){
+            SM_State = SM_LINK_L23;
+            str = FormatEx( "Index: %d\n", in.Index);
+            str += FormatEx( "L23 before PME_TO_ACK");
+            ReportText( str );
+            ReportDllpEventInfo();
+        }
+
+    }
+    EventCount++;
+    return Complete();
+}
+
+OnFinishScript() {
+    ReportText( Format("Processed %d Events" , EventCount) );
+    #! Fail the test if the state did not reach SM_LINK_L23, otherwise test Passed!
+    if(SM_State == SM_LINK_L23) {
+        ReportText( FormatEx( "Test Passed!\n") );
+        ScriptPassed();
+    } else {
+        ReportText( FormatEx( "State:%s\nTest Failed!\n",GetSM_stateName(SM_State)));
+        # ScriptFailed();
+    }
+}
+
+GetSM_stateName( state )
+{
+    set_name =
+    select
+    {
+        state == SM_RESET :             "SM_RESET";
+        state == SM_PME_TO_SENT :       "SM_PME_TO_SENT";
+        state == SM_LINK_L23 :          "SM_LINK_L23";
+        state == SM_PME_TO_ACKED :      "SM_PME_TO_ACKED";
+        default :                       Format( "Unknown(%d)", state );
+     };
+
+    return set_name;
+}

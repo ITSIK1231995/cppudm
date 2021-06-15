@@ -1,0 +1,32 @@
+
+;read the CTRL_CAP reg
+Packet=TLP 
+{
+    TLPType=MRd64
+    AddressHi = 0xffffffff  
+    AddressLo = HIM_BAR0_REGS_BASE_ADDR 
+    NVMeControllerReg = CAP_CtrllrCapabilities
+}
+
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+;read the NVME_VERSION reg
+Packet=TLP 
+{
+    TLPType=MRd64
+    NVMeControllerReg = VS_Version
+    AddressHi = 0xffffffff  
+    AddressLo = HIM_BAR0_REGS_BASE_ADDR 
+    
+}
+
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+
+

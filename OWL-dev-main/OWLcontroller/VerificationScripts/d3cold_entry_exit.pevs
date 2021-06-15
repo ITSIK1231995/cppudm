@@ -1,0 +1,411 @@
+#########################################################################
+#   Copyright (c) 2019, Western Digital                                 #
+#   File: D0_D3COLD_entry_exit_Calypso.pevs                             #
+#   Description: Verification script for D0, D3Hot and D3 COLD Entry and#
+#                Exit Latency                                           #
+#   Author: Matan Raveh <matan.raveh@wdc.com>                           #
+#   History:                                                            #
+#   Akshay Naik <Akshay.Naik@wdc.com>:                                  #
+#   - Fixed for Herme2                                                  #
+#   - Added State machine check                                         #
+#########################################################################
+
+set ModuleType  = "Verification Script";            # Should be set for all verification scripts
+set OutputType  = "VS";                             # Should be set for all verification scripts that
+                                                    # output only Report string and Result.
+set InputType   = "VS";
+set DecoderDesc = "Verification script for D0 and D3COLD Entry/Exit Latency\n\n";
+%include  "VSTools.inc"
+
+######################################################################################
+#                            Global Variables and Constants                          #
+######################################################################################
+
+const LINK_PERST_DEASSERTED = 4;
+const LINK_PERST_ASSERTED = 32;
+
+const ASSERTED = 1;
+const DEASSERTED = 0;
+
+const RD = 0;
+const WR = 1;
+
+const ENABLED = 1;
+const DISABLED = 0;
+
+#Status
+set CC_FLAG = 0;
+set CC_SHN_BITS = 999;
+set CSTS_FLAG = 0;
+set CSTS_SHST_BITS = 999;
+set CSTS_RDY_BIT = 999;
+
+# Timestamps
+set PERSTDeassertionTimestamp = 0;
+set FirstCFGRDTimestamp = 0;
+set TS_SHN_01 = 0;
+set TS_PME_TO_ACK = 0;
+
+#packet numbers
+set perst_packnum = 0;
+set d0_cfgrd_packnum = 0;
+set CSTS_RDY_packnum = 0;
+set SHN_00_packnum = 0;
+set SHN_01_packnum = 0;
+set SHSTN_00_packnum = " ";
+set SHSTN_01_packnum = " ";
+set SHSTN_10_packnum = 0;
+set d3hot_wr_packnum = 0;
+set d3hot_rd_packnum = 0;
+set d3hot_rd_cpld_packnum = 0;
+set d3cold_PME_Turn_Off_packnum = 0;
+set d3cold_PME_TO_ACK_packnum = 0;
+
+# Measurements
+set   EventCount = 0;
+
+# State Machine
+const SM_RESET                                = 0;
+const SM_PERST_DEASSERTED                     = 1;
+const SM_FIRST_CFG_RD                         = 2;
+const SM_CSTS_RDY                             = 3;
+const SM_CC_SHN_00                            = 4;
+const SM_CC_SHN_01                            = 5;
+const SM_CSTS_SHST_00_01                      = 6;
+const SM_CSTS_SHST_10                         = 7;
+const SM_CFG_D3HOT                            = 8;
+const SM_READ_D3HOT                           = 9;
+const SM_READ_D3HOT_CPLD                      = 10;
+const SM_PME_TURN_OFF                         = 11;
+const SM_PME_TO_ACK                           = 12;
+
+
+set SMState = SM_RESET;
+
+OnStartScript()
+{
+    ReportText("D0/D3 Latency Measurement Verification Script Starting...");
+    EventCount = 0;
+    
+    #flags
+    SMState = SM_RESET;
+        
+    #TimeStamps
+    PERSTDeassertionTimestamp = 0;
+    FirstCFGRDTimestamp = 0;
+    TS_SHN_01 = 0;
+    TS_PME_TO_ACK = 0;
+    
+    #packet numbers
+    perst_packnum = 0;
+    d0_cfgrd_packnum = 0;
+    CSTS_RDY_packnum = 0;
+    SHN_00_packnum = 0;
+    SHN_01_packnum = 0;
+    SHSTN_00_packnum = " ";
+    SHSTN_01_packnum = " ";
+    SHSTN_10_packnum = 0;
+    d3hot_wr_packnum = 0;
+    d3hot_rd_packnum = 0;
+    d3hot_rd_cpld_packnum = 0;
+    d3cold_PME_Turn_Off_packnum = 0;
+    d3cold_PME_TO_ACK_packnum = 0;
+
+    SendTlpType   ( _PE_ALL_TYPES );
+
+    SendAllChannels();
+    SendLevel(_NVME);
+    SendLevel(_SPLIT);
+    SendAllTraceEvents();
+    SendTraceEvent(_PKT_LINK_CONDITION);
+    SendTraceEvent(_PKT_TLP);
+    SendTraceEvent(_PKT_ORDERED_SET);
+    FilterOrderedSetType(_ORDSET_TYPE_TS1);
+    FilterOrderedSetType(_ORDSET_TYPE_TS2);
+    
+    FilterDllpType(_DLLP_TYPE_PM);
+}
+
+
+ProcessEvent()
+{   
+    # ReportText(Format("\nProcessing Event: %u",EventCount+1));
+    
+    #skipping search if process already done
+    if ( SMState == SM_PME_TO_ACK )
+    {
+        return Complete();
+    }
+    
+    if(in.TraceEvent == _PKT_LINK_CONDITION )
+    {   
+        if ( SMState == SM_RESET )
+        {
+            # looking for first PERST deassertion
+            if(in.LinkConditionType == LINK_PERST_DEASSERTED)
+            {
+                #text = Format ( ReportEventInfo() );
+                #ReportText( text );
+                #report = Format( "\nFound a PERST# DeAssertion at packet #%d", in.Index );
+                #ReportText( report );
+                PERSTDeassertionTimestamp = in.Time;
+                perst_packnum = in.Index;
+                SMState = SM_PERST_DEASSERTED;
+            }
+        }
+    }
+    
+    ### PACKET NVM Transaction - finding the CC_SHN events
+    if(in.nvmeType == _NVME_CC)
+    {       
+        #NVMePackNum = in.Index;
+        #text = FormatEx( "\n- NVMe packet %d:  ", NVMePackNum );
+        #ReportText( text );
+        #text = Format ( ReportEventInfo() );
+        #ReportText( text );
+        
+        if( in.PayloadLength ) {
+            #get the SHN bits
+            CC_SHN_BITS = GetNBits( in.Payload, 8, 2 );
+            #text = FormatEx( "- CC_SHN_BITS: %d", CC_SHN_BITS );
+            #ReportText( text );
+            CC_FLAG = 1;
+        }
+    }
+    ### PACKET NVM Transaction - finding the CSTS_SHST events
+    if(in.nvmeType == _NVME_CSTS)
+    {       
+        #NVMePackNum = in.Index;
+        #text = FormatEx( "\n- NVMe packet %d:  ", NVMePackNum );
+        #ReportText( text );
+        #text = Format ( ReportEventInfo() );
+        #ReportText( text );
+        
+        if( in.PayloadLength ) {
+            #get the SHST bits
+            CSTS_RDY_BIT   = GetNBits( in.Payload, 7, 1 );
+            CSTS_SHST_BITS = GetNBits( in.Payload, 4, 2 );
+            #text = FormatEx( "- CSTS_RDY_BIT: %d", CSTS_RDY_BIT );
+            #ReportText( text );
+            #text = FormatEx( "- CSTS_SHST_BITS: %d", CSTS_SHST_BITS );
+            #ReportText( text );
+            CSTS_FLAG = 1;
+        }
+    }
+    
+    # Now checking that what is the value of the CC / CSTS BITS and setting SM to correct value
+    if (CC_FLAG == 1 || CSTS_FLAG == 1)
+    {
+        
+        if(in.TraceEvent == _PKT_TLP)
+        {
+            #check if command is READ or WRITE
+            if      (in.TLPType == TLP_TYPE_ID_MWR32 || in.TLPType == TLP_TYPE_ID_MWR64) { READORWRITE = WR; }
+            else if (in.TLPType == TLP_TYPE_ID_MRD32 || in.TLPType == TLP_TYPE_ID_MRD64) { READORWRITE = RD;  }
+            
+            if (CC_FLAG == 1)
+            {
+                # CC Shutdown notification is 00
+                if ( (SMState == SM_CSTS_RDY && CC_SHN_BITS == 0) && ( READORWRITE == RD ) )
+                {
+                    SMState = SM_CC_SHN_00;
+                    SHN_00_packnum = in.Index;
+                }
+                # CC Shutdown notification is 01
+                else if ( (SMState == SM_CC_SHN_00 && CC_SHN_BITS == 1) && ( READORWRITE == WR ) )
+                {
+                    SMState = SM_CC_SHN_01;
+                    SHN_01_packnum = in.Index;
+                    TS_SHN_01 = in.Time;
+                }
+            }
+            if (CSTS_FLAG == 1)
+            {
+                # CSTS RDY BIT
+                if ( (SMState == SM_FIRST_CFG_RD && CSTS_RDY_BIT == 1) && ( READORWRITE == RD ) )
+                {
+                    SMState = SM_CSTS_RDY;
+                    CSTS_RDY_packnum = in.Index;
+                }
+                # CSTS Shutdown status turns to 00 or 01
+                if ( (SMState == SM_CC_SHN_01 && ( CSTS_SHST_BITS == 0 || CSTS_SHST_BITS == 1 ) && ( READORWRITE == RD ) ) )
+                {
+                    SMState = SM_CSTS_SHST_00_01;
+                }
+                ## CSTS Shutdown status turns to 01
+                #if ( (SMState == SM_CSTS_SHST_00 && CSTS_SHST_BITS == 1) && ( READORWRITE == RD ) )
+                #{
+                #   SMState = SM_CSTS_SHST_01;
+                #   SHSTN_01_packnum += FormatEx( " #%d , ", in.Index);
+                #}
+                # CSTS Shutdown status turns to 10
+                if ( (SMState == SM_CSTS_SHST_00_01 && CSTS_SHST_BITS == 2) && ( READORWRITE == RD ) )
+                {
+                    SMState = SM_CSTS_SHST_10;
+                    SHSTN_10_packnum = in.Index;
+                }
+            }
+            
+            #restart flags
+            CC_FLAG   = 0;
+            CSTS_FLAG = 0;
+            
+        }
+    }
+    
+    # finding the CFGWR / CFGRD commands
+    if (in.TraceEvent == _PKT_TLP)
+    {
+        #looking for very 1st cfg read for D0
+        if( in.TLPType == TLP_TYPE_ID_CFGRD_0 && ( SMState == SM_PERST_DEASSERTED ) )
+        {
+            #text = Format ( ReportEventInfo() );
+            #ReportText( text );
+            #report = Format( "Found the 1st CFG_RD at packet #%d", in.Index );
+            #ReportText( report );
+            FirstCFGRDTimestamp = in.Time;
+            d0_cfgrd_packnum = in.Index;
+            SMState = SM_FIRST_CFG_RD;
+        }
+        
+        #now looking for D3hot WR or RD
+        else if ( in.Register == 0x84 )
+        {
+            # D3 HOT Write command
+            if (in.TLPType == TLP_TYPE_ID_CFGWR_0)
+            {
+                # ReportText(Format("Register: %x", in.Register));
+                # ReportText(Format( "Index : %u,"  , in.Index ));
+                payload = GetNBits(in.Payload, 0, 8);
+                # ReportText(Format("wr payload %x ", payload));
+                #report = Format( "Found CfgWr0@0x84 : %u,"  , in.Index );
+                if(payload == 0xb && SMState == SM_CSTS_SHST_10)
+                {
+                    #report += Format( "Index : %u,"  , in.Index );
+                    #report += Format( "Time : %s, (D3HOT WRITE)"  , TimeToText(in.Time));
+                    d3hot_wr_packnum = in.Index;
+                    SMState = SM_CFG_D3HOT;
+                    #ReportText( report );
+                }
+            }
+            # D3 HOT read - data fetch
+            else if (in.TLPType == TLP_TYPE_ID_CFGRD_0)
+            {
+                #ReportText(Format("Register: %x", in.Register));
+                #ReportText(Format( "Index : %u,"  , in.Index ));
+                #ReportText = Format( "Found CfgWr0@0x84 : %u,"  , in.Index );
+                if( SMState == SM_CFG_D3HOT)
+                {
+                    #report += Format( "Index : %u,"  , in.Index );
+                    #report += Format( "Time : %s, (D3HOT READ)"  , TimeToText(in.Time));
+                    d3hot_rd_packnum = in.Index;
+                    SMState = SM_READ_D3HOT;
+                    #ReportText( report );
+                }
+            }
+        }
+        #D3 HOT read - getting payload
+        else if (in.TLPType == TLP_TYPE_ID_CPLD && SMState == SM_READ_D3HOT && in.PayloadLength == 4 )
+        {           
+            payload = GetNBits(in.Payload, 0, 8);
+            #ReportText(Format("rd payload %x ", payload));
+            if(payload == 0xb)
+            {
+                d3hot_rd_cpld_packnum = in.Index;
+                SMState = SM_READ_D3HOT_CPLD;
+            }
+        }
+        
+        # Looking for PME_Turn_OFF
+        else if( in.MessageCode == TLP_MSGCODE_PM_TURNOFF && in.Channel == _CHANNEL_2 && SMState == SM_READ_D3HOT_CPLD )
+        {
+            #MessageCode == 0x19 : PME_Turn_Off
+            #in.Type == 0x13
+            #text = Format ( ReportEventInfo() );
+            #ReportText( text );
+            SMState = SM_PME_TURN_OFF;
+            d3cold_PME_Turn_Off_packnum = in.Index;
+        }
+        
+        # Looking for PME_TO_ACK
+        else if( in.MessageCode == TLP_MSGCODE_PM_TOACK && in.Channel == 0x1 && SMState == SM_PME_TURN_OFF )
+        {
+            #MessageCode == 0x19 : PME_Turn_Off
+            #in.Type == 0x13
+            #text = Format ( ReportEventInfo() );
+            #ReportText( text );
+            SMState = SM_PME_TO_ACK;
+            TS_PME_TO_ACK = in.Time;
+            d3cold_PME_TO_ACK_packnum = in.Index;
+        }
+    }   
+    
+    EventCount++;
+    return Complete();
+}
+    
+ 
+
+
+OnFinishScript()
+{
+    FailureCount = 0;
+
+    ReportText( Format("\nProcessed %d Events" , EventCount) );
+    if (SMState != SM_PME_TO_ACK){
+        ReportText( Format("\nTest failed, State machine stuck in state : %s " , GetSMStateName(SMState)) );
+        ScriptFailed();
+        return 0;
+    }
+    result = SubtractTime(FirstCFGRDTimestamp, PERSTDeassertionTimestamp);
+    ReportText( FormatEx ("\n\nPower On D0 Entry Latency (PERST# De-Assertion to 1st CFG RD):\t %s", TimeToText(result) ) );
+    ReportText( FormatEx ("     PERST Deasserstion found at packet #%d , 1st CFG RD found at packet #%d", perst_packnum , d0_cfgrd_packnum ) );
+    
+    ReportText( FormatEx ("\n\nD3 COLD ENTRY LATENCY: " ) );
+    result = SubtractTime(TS_PME_TO_ACK, TS_SHN_01);
+    if ( d3cold_PME_TO_ACK_packnum == 0 )
+    {
+        ReportText( " *** FAILED TO FIND PME_TO_ACK MESSAGE BEFORE ENTRANCE TO SLEEP *** ");
+        result = 0;
+    }
+    ReportText( FormatEx ("\n     CSTS Ready               found at packet #%d", CSTS_RDY_packnum ) );  
+    ReportText( FormatEx ("     ShutDown Notification 01 found at packet #%d", SHN_01_packnum ) );
+    ReportText( FormatEx ("     ShutDown Status 10       found at packet #%d", SHSTN_10_packnum ) );
+    ReportText( FormatEx ("     D3 HOT CMD Write         found at packet #%d", d3hot_wr_packnum ) );
+    ReportText( FormatEx ("     D3 HOT CMD Read          found at packet #%d", d3hot_rd_packnum ) );
+    ReportText( FormatEx ("     D3 HOT CMD Read CPLD     found at packet #%d", d3hot_rd_cpld_packnum ) );
+    ReportText( FormatEx ("     PME_TURN_OFF             found at packet #%d", d3cold_PME_Turn_Off_packnum ) );
+    ReportText( FormatEx ("     PME_TO_ACK               found at packet #%d", d3cold_PME_TO_ACK_packnum ) );   
+    ReportText( FormatEx ("\nD3 COLD Entry Latency (Shutdown Notification to PME_TO_ACK) :\t %s", TimeToText(result) ) );   
+    
+    if(FailureCount == 0) {
+        ScriptPassed();
+    } else {
+        ScriptFailed();
+    }
+    return 0;
+    
+}
+
+
+GetSMStateName(input_sm_state)
+{
+    input_sm_state_name =
+    select {
+        input_sm_state == SM_RESET                  : "SM_RESET";
+        input_sm_state == SM_PERST_DEASSERTED       : "SM_PERST_DEASSERTED";
+        input_sm_state == SM_FIRST_CFG_RD           : "SM_FIRST_CFG_RD";
+        input_sm_state == SM_CSTS_RDY               : "SM_CSTS_RDY";
+        input_sm_state == SM_CC_SHN_00              : "SM_CC_SHN_00";
+        input_sm_state == SM_CC_SHN_01              : "SM_CC_SHN_01";
+        input_sm_state == SM_CSTS_SHST_00_01        : "SM_CSTS_SHST_00_01";
+        input_sm_state == SM_CSTS_SHST_10           : "SM_CSTS_SHST_10";
+        input_sm_state == SM_CFG_D3HOT              : "SM_CFG_D3HOT";
+        input_sm_state == SM_READ_D3HOT             : "SM_READ_D3HOT";
+        input_sm_state == SM_READ_D3HOT_CPLD        : "SM_READ_D3HOT_CPLD";
+        input_sm_state == SM_PME_TURN_OFF           : "SM_PME_TURN_OFF";
+        input_sm_state == SM_PME_TO_ACK             : "SM_PME_TO_ACK";
+        default                                     : Format( "Unknown state: (%d)", input_sm_state );
+    };
+    return input_sm_state_name;
+}

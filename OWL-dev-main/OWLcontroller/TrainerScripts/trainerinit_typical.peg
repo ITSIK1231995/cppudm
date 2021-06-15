@@ -1,0 +1,59 @@
+; Title: trainerinit.peg
+; Description: Trainer initialization script
+; Author: Madhur Jain
+; Date: 01/30/2018
+
+/* Initiate Trainer reset */
+Config=General 
+{
+    TrainerReset = Yes
+}
+
+include="Common_Files\linkdown.peg"
+
+; Admin Commands
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x0	; Start address for admin queue
+	Size = 0x480	; 18 commands (Idfy, Set Num Queue, 8 Queues) * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_idfyctrlr_create_8_queue.bin"
+}
+
+; IO Command - 4K Read
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x2000	; Start address for Queue 1
+	Size = 0x40		; 1 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_4k_read.bin"
+}
+
+; IO Command - 4K Write
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x2040	; Start address for Queue 1
+	Size = 0x40		; 1 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_write_random4k.bin"	
+}
+
+; writing random 4K data into memory
+AddressSpace = Write
+{
+	Location = Mem64
+	Offset = 0x100000
+	Size = 0x1000
+	LoadFrom = "BIN_FILES\random_4KB.bin"
+	;LoadFrom = Random
+}
+
+/*; saving the random data into file
+AddressSpace = Read
+{
+	Location = Mem64
+	Offset = 0x100000
+	Size = 0x1000
+	SaveTo = "BIN_FILES\random_4KB.bin"
+}*/
+

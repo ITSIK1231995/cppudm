@@ -1,0 +1,43 @@
+; Title: power-on-ready-typicalx100.peg
+; Description: Trainer script to measure typical power on ready time with 100 loops for backward compatibility
+; Authors: Shai Tayar & Matan Raveh
+; Date Edited: Dec 2020
+
+/* Initiate Trainer reset */
+
+;Link=PERST_Assert
+
+;Config=General 
+;{
+;    TrainerReset = Yes
+;}
+
+; Begin the 100x loop
+Loop=Begin
+{
+	Count=100
+}
+
+include="Common_Files\linkup.peg"
+include="Common_Files\ex_scripts_defs_64.peg"
+include="Common_Files\pcfgs_init_64.peg"
+include="Common_Files\pciemsixtable_64.peg"
+
+include="Common_Files\nvme_init_64.peg"
+include="Common_Files\nvme_admin_cmd_idenitfy_controller_64.peg"
+
+include="Common_Files\nvme_cpbl_ver_reg.peg"
+
+Config=Definitions
+{
+	NUM_IO_QUEUES = 0x01
+}
+include="Common_Files\nvme_create_queues_64.peg"
+include="Common_Files\nvme_read_64.peg"
+
+include="Common_Files\nvme_shutdown_64.peg"
+include="Common_Files\pcie_shutdown_64.peg"
+include="Common_Files\linkdown.peg"
+
+; End the 100x Loop
+Loop=End

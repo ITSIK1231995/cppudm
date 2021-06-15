@@ -1,0 +1,244 @@
+; Title: d3cold_entry_exit.peg
+; Description: Trainer script for D0-D3Cold(NVMe_Shutdown->D3Hot->PME_Turn_Off) sequence
+; Author: Akshay Naik, Edited by Matan Raveh and Shai Tayar
+; Date: June 30 2019
+; Test Spec:
+; - Initialize the DUT
+; - Perform Shutdown
+; - Issue D3HOT
+; - Send PME Turn Off
+; - Verification script checks Latency for D3Cold to D0 , and D3 Cold Entry Latency
+; History:
+;   12/10/2019, Akshay Naik
+;   - removed D0 before power down
+;   - removed downstream L23 request after PME_Turn_Off
+;   04/2020, Matan Raveh
+;   - moved PCIe shutdown to seperate file.
+;   - added reads prior to writes and after, also added waits for CplD and Cpl
+;   - corrected names of REGs
+
+
+
+include="Common_Files\linkup_gen3.peg"
+include="Common_Files\ex_scripts_defs_64.peg"
+include="Common_Files\pcfgs_init_64.peg"
+include="Common_Files\pciemsixtable_64.peg"
+
+include="Common_Files\nvme_init_64.peg"
+include="Common_Files\nvme_admin_cmd_idenitfy_controller_64.peg"
+
+
+;The following Configuration write TLPs
+;are generated to mimic host behaviour in HERMII-4606 JIRA
+
+;Disable ASPM
+Packet=TLP
+{
+    TLPType=CfgRd0    
+    FirstDwBe=0xF
+    Register = Link_Control_and_Status_Register    
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+Packet=TLP
+{
+    TLPType=CfgWr0
+    ;Tag = 0
+    FirstDwBe=0xF
+    Register = Link_Control_and_Status_Register
+    Payload = 0x0
+}
+wait=TLP
+{
+    TLPType = Cpl
+}
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=Link_Control_and_Status_Register
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+
+;set T_POWER_ON Value, both ASPM and PCI-PM L1.2 Enable bits must be clear before setting this
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=L1_PM_Substates_Control_2_Register
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+Packet=TLP
+{
+    TLPType=CfgWr0
+    ;Tag = 0
+    FirstDwBe=0xF
+    Register = L1_PM_Substates_Control_2_Register
+    Payload = 0xB0000000
+}
+wait=TLP
+{
+    TLPType = Cpl
+}
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=L1_PM_Substates_Control_2_Register
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+
+;enable L1.2
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=L1_PM_Substates_Control_1_Register
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+Packet=TLP
+{
+    TLPType=CfgWr0
+    ;Tag = 0
+    FirstDwBe=0xF
+    Register = L1_PM_Substates_Control_1_Register
+    Payload = 0x05005040
+}
+wait=TLP
+{
+    TLPType = Cpl
+}
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=L1_PM_Substates_Control_1_Register
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+
+; packet = TLP {
+    ; TLPType = CfgRd0
+    ; ;Tag = 1
+    ; FirstDwBe=0xF
+    ; Register=0x1BC
+; }
+; packet = TLP {
+    ; TLPType = CfgRd0
+    ; ;Tag = 1
+    ; FirstDwBe=0xF
+    ; Register=0xE8
+; }
+
+;set max snoop/no-snoop latency
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=LTR_SNOOP_REG
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+Packet=TLP
+{
+    TLPType=CfgWr0
+    ;Tag = 0
+    FirstDwBe=0xF
+    Register = LTR_SNOOP_REG
+    Payload = 0x03100310
+}
+wait=TLP
+{
+    TLPType = Cpl
+}
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=LTR_SNOOP_REG
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+
+;;enable LTR
+;Packet=TLP
+;{
+;    TLPType=CfgWr0
+;    ;Tag = 0
+;    FirstDwBe=0xF
+;    Register = 0xE8
+;}
+
+;Re-enable aspm after setting T_POWER_ON Value and both ASPM, PCI-PM L1.2 are enabled
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=Link_Control_and_Status_Register
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+Packet=TLP
+{
+    TLPType=CfgWr0
+    ;Tag = 0
+    FirstDwBe=0xF
+    Register = Link_Control_and_Status_Register
+    Payload = 0x42010000
+}
+wait=TLP
+{
+    TLPType = Cpl
+}
+Packet = TLP
+{
+    TLPType = CfgRd0
+    ;Tag = 1
+    FirstDwBe=0xF
+    Register=Link_Control_and_Status_Register
+}
+wait=TLP
+{
+    TLPType = CplD
+}
+
+include="Common_Files\nvme_shutdown_64.peg"
+include="Common_Files\pcie_shutdown_64.peg"
+
+include="Common_Files\nvme_set_d3_hot_cold_64.peg"
+
+wait=50000000
+
+include="Common_Files\linkdown.peg"
+
+

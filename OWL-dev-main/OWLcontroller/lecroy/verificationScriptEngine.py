@@ -57,6 +57,7 @@ class VSEventHandler(object):
 class verificationScriptEngine():
     def startVerificationScript(self, traceFullPathAndName, vScriptFullPathAndName, hostPc, testLog, controller):
         print("\nVerification Script Engine procedure has started")
+        os.system("TASKKILL /F /IM PETracer.exe")
         controller.updateRunTimeStateInTerminal(hostPc, testLog,"\nVerification Script Engine procedure has started")
         Analyzer = dispatchComObj.DispatchWithEventsAndParams("CATC.PETracer", PEEvent, [hostPc, testLog, controller])  # using dispatch with events
         Trace = Analyzer.OpenFile(traceFullPathAndName)

@@ -1,0 +1,84 @@
+; Set CC.SHN to 01 (Normal Shutdown)
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x14 )
+    Payload = ( 01404600 )
+}
+
+; Poll CSTS.SHST to be 10
+Loop=Begin
+
+Packet=TLP 
+{
+    TLPType=MRd32
+    Address = HIM_BAR0_REGS_BASE_ADDR 
+    NVMeControllerReg = CSTS_ControllerStatus
+    StoreData = ( FROM_MEM64, 0x0 )
+}
+
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+Loop=Break 
+{
+    Location = Mem64
+    Offset = 0 ;
+    FieldSize = Dword
+    Endian = Little
+    FieldAction = MaskAND
+    Mask = 0x0C
+    Result = 0x08;
+}
+
+Loop=End
+
+
+/*
+; turn-off controller
+; Disable NVM by writing to the Controller Configuration register
+packet="Temp_OneDwordWrite"
+{
+    Tag = 1
+    Address = ( HIM_BAR0_REGS_BASE_ADDR + 0x14 )
+    Payload = ( 00004600 )
+}
+
+Loop=Begin
+
+; CSTS Controller Status 
+; poling on csts_ready bit to be 0 
+
+Packet=TLP 
+{
+    TLPType=MRd32
+    Address = HIM_BAR0_REGS_BASE_ADDR 
+    NVMeControllerReg = CSTS_ControllerStatus
+    StoreData = ( FROM_MEM64, 0x0 )
+
+}
+
+Wait=TLP 
+{
+    TLPType=CplD
+}
+
+Loop=Break 
+{
+    Location = Mem64
+    Offset = 0 ;
+    FieldSize = Dword
+    Endian = Little
+    FieldAction = MaskAND
+    Mask = 0x1
+    Result = 0x0;
+}
+
+Loop=End
+*/
+
+
+
+/* wait=1000000 */

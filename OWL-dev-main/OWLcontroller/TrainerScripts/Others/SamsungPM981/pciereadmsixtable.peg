@@ -1,0 +1,48 @@
+Repeat=Begin 
+{
+    Count=MSIX_VECTORS_NUM
+    Counter = MsiXVectCntr
+}
+
+; Vector 0
+Packet=TLP 
+{
+    TLPType=MRd32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE) )
+}
+
+Packet=TLP 
+{
+    TLPType=MRd32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = (  (MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE)) + 0x4 )
+}
+
+
+Packet=TLP 
+{
+    TLPType=MRd32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( (MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE)) + 0x8 )
+}
+
+Packet=TLP 
+{
+    TLPType=MRd32
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    Address = ( (MSIX_DEVICE_BASE_ADDR + (MsiXVectCntr * MSIX_VECTOR_SIZE)) + 0xC )
+}
+
+wait = 10000
+
+Repeat=End
+

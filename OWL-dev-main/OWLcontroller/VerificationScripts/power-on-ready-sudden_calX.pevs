@@ -1,0 +1,326 @@
+#########################################################################
+#   Copyright (c) 2018, SanDisk                                         #
+#   File: power_on_ready_typical.pevs                                   #
+#   Description: Verification script for Power On Ready tests           #
+#   Author: Madhur Jain <Madhur.Jain@sandisk.com>                       #
+#########################################################################
+
+set ModuleType  = "Verification Script";            # Should be set for all verification scripts
+set OutputType  = "VS";                             # Should be set for all verification scripts that
+                                                    # output only Report string and Result.
+set InputType   = "VS";
+
+set DecoderDesc = "Power-On-Ready Latency Measurement Verification";
+
+# include main Verification Script Engine definitions
+%include  "VSTools.inc"
+
+######################################################################################
+#                            Global Variables and Constants                          #
+######################################################################################
+const LINK_PERST_DEASSERTED = 4;
+const LINK_PERST_ASSERTED = 32;
+
+#const _NVME_ADMIN_COMPLETION_CMD = 25;
+#const _NVME_NVM_COMPLETION_CMD = 24;
+
+const MAX_TRAINING_TIME         = Time(15 * MILLI_SECS);
+const MAX_BAR0_ACCESS_LATENCY   = Time(250 * MILLI_SECS);
+const MAX_ADMIN_COMMAND_LATENCY = Time(500 * MILLI_SECS);
+const MAX_MEDIA_COMMAND_LATENCY = Time(8,000 * MILLI_SECS);
+const MAX_CSTSRDY_IO_COMMAND_LATENCY = Time(1,000 * MILLI_SECS);
+
+set   EventCount = 0;
+
+set FirstPERSTDeassertionTimestamp = 0;
+set BAR0AccessTimestamp = 0;
+set NVMeIdentifyControllerTimestamp = 0;
+set NVMeReadTimestamp = 0;
+set CCENTimestamp = 0;
+set CSTSRDYTimestamp = 0;
+set CCSHNTimestamp = 0;
+set CSTSSHSTTimestamp = 0;
+set LinkTrainingGen3Timestamp = 0;
+
+set TS1Count = 0;
+set TS2Count = 0;
+set TimeToGen3 = 0;
+set BAR0AccessLatency = 0;
+set AdminCommandLatency = 0;
+set MediaCommandLatency = 0;
+set MediaCommandLatencyXBFS = 0;
+set MediaCommandLatencyUSLC = 0;
+set MediaCommandLatencyUTLC = 0;
+set PERSTToCSTSRDYLatency = 0;
+set CCENToCSTSRDYLatency = 0;
+set CCSHNToSHSTLatency = 0;
+set CSTSRDYtoIOLatency = 0;
+
+set ReadCmdCount = 0;
+
+set BAR0Val = 0x00;
+set FailureCount = 0;
+
+OnStartScript()
+{
+    ReportText("Power On Ready Verification Script Started..");
+    EventCount = 0;
+
+    FirstPERSTDeassertionTimestamp = 0;
+    BAR0AccessTimestamp = 0;
+    NVMeIdentifyControllerTimestamp = 0;
+    NVMeReadTimestamp = 0;
+
+    # Examples:
+    #SendAllChannels();
+    #DontSendTraceEvent( _PKT_ORDERED_SET );
+    #SendTlpType   ( _PE_ALL_TYPES );
+    #SendDllpType  ( _PE_ALL_TYPES );
+    #FilterDllpType( _DLLP_TYPE_INIT_FC );
+    #FilterDllpType( _DLLP_TYPE_UPDATE_FC );
+
+
+    # Uncomment the line below - if you want don't care about result of script running
+    #
+    #ScriptForDisplayOnly();
+
+
+    # Uncomment the line below - if you want to disable output from
+    # ReportText()-functions.
+    #
+    # DisableOutput();
+
+    SendAllChannels();
+    SendLevel(_NVME);
+    SendTraceEvent(_PKT_LINK_CONDITION);
+    SendTraceEvent(_PKT_ORDERED_SET);
+    SendTraceEvent(_NVME_CONTROLLER_REG);
+    SendTraceEvent(_NVME_ADMIN_COMPLETION_CMD);
+    SendTraceEvent(_NVME_NVM_COMPLETION_CMD);
+    SendTlpType(_TLP_TYPE_CFGWR_0);
+}
+
+ProcessEvent()
+{
+
+        #report  = Format("Event:# %u,", EventCount );
+        #report += Format( "Packet : %d,     "  , in.Index );
+        #report += Format( "Trace Event : %d,      "   , in.TraceEvent );
+        #report += Format( "Channel : %s,     "  , GetChannelName() );
+        #report += Format( "Event : %s,      "   , GetEventName() );
+        #report += Format( "Time  : %s,      "   , TimeToText( in.Time ) );
+        #ReportText( report );
+        
+        #! Find time stamp for 1st PERST# De-Assertion
+        if(in.LinkConditionType == LINK_PERST_DEASSERTED && FirstPERSTDeassertionTimestamp == 0) {
+            FirstPERSTDeassertionTimestamp = in.Time;
+            report = Format( "\nFound First PERST# DeAssertion at: %s", TimeToText(in.Time) );
+            ReportText( report );
+        }
+        else if(in.OrderedSetType == ORDSET_TYPE_SDS && LinkTrainingGen3Timestamp == 0) {
+            LinkTrainingGen3Timestamp = in.Time;
+            TimeToGen3 = SubtractTime(LinkTrainingGen3Timestamp, FirstPERSTDeassertionTimestamp);
+            report = Format( "\nTime to Link Training in Gen3: %s", TimeToText(TimeToGen3) );
+            report += Format( "\nPacket: %d", in.Index );
+            ReportText( report );
+        }
+        else if(in.TLPType == TLP_TYPE_ID_CFGWR_0) {
+            #! Find time stamp for BAR0 access
+            if(in.Register == 0x10) {
+                if(in.RegisterData != 0xFFFFFFFF && BAR0AccessTimestamp == 0) {
+                    BAR0AccessTimestamp = in.Time;
+                    BAR0Val = in.RegisterData;
+                    BAR0AccessLatency = SubtractTime(BAR0AccessTimestamp, FirstPERSTDeassertionTimestamp);
+                    report = Format( "\nBAR0 Access Latency: %s", TimeToText(BAR0AccessLatency) );
+                    if(IsLessTime(BAR0AccessLatency, MAX_BAR0_ACCESS_LATENCY)) {
+                        report += "\nPASS";
+                    } else {
+                        report += "\nFAIL";
+                        FailureCount += 1;
+                    }
+                    ReportText( report );
+                }
+            }
+        }
+        #! Find time stamp for Identify command completion
+        else if(in.TraceEvent == _NVME_ADMIN_COMPLETION_CMD && NVMeIdentifyControllerTimestamp == 0) {
+            #if ( in.nvmeOpcode == _NVME_ASC_IDENTIFY)
+            #{
+            #   ReportText( "NVME_ACQ_IDENTIFY" );
+            #}
+            NVMeIdentifyControllerTimestamp = in.Time;
+            # AdminCommandLatency = SubtractTime(NVMeIdentifyControllerTimestamp, FirstPERSTDeassertionTimestamp);
+            AdminCommandLatency = SubtractTime(NVMeIdentifyControllerTimestamp, CSTSRDYTimestamp);
+            report = Format( "\nAdmin Command Service Latency: %s", TimeToText(AdminCommandLatency) );
+            if(IsLessTime(AdminCommandLatency, MAX_ADMIN_COMMAND_LATENCY)) {
+                report += "\nPASS";
+            } else {
+                report += "\nFAIL";
+                FailureCount += 1;
+            }
+            ReportText( report );
+        }
+        #! Find time stamp for 4k Read command completion
+        else if(in.TraceEvent == _NVME_NVM_COMPLETION_CMD && NVMeReadTimestamp == 0 && ReadCmdCount ==0) {
+            #if ( in.nvmeOpcode == _NVME_NSC_READ)
+            #{
+            #   ReportText( "NVME_IOCQ_READ" );
+            #}
+            ReadCmdCount += 1;
+            NVMeReadTimestamp = in.Time;
+            MediaCommandLatencyXBFS = SubtractTime(NVMeReadTimestamp, FirstPERSTDeassertionTimestamp);
+            #CSTSRDYtoIOLatency
+            CSTSRDYtoIOLatency = SubtractTime(NVMeReadTimestamp, CSTSRDYTimestamp);
+            report = Format( "\nCSTS.RDY=1 to IO Command Service Latency: %s", TimeToText(MediaCommandLatency) );
+            if(IsLessTime(CSTSRDYtoIOLatency, MAX_CSTSRDY_IO_COMMAND_LATENCY)) {
+                report += "\nPASS";
+            } else {
+                report += "\nFAIL";
+                FailureCount += 1;
+            }
+            
+            report = Format( "\nMedia Command XBFS Service Latency: %s", TimeToText(MediaCommandLatencyXBFS) );
+            if(IsLessTime(MediaCommandLatencyXBFS, MAX_MEDIA_COMMAND_LATENCY)) {
+                report += "\nPASS";
+            } else {
+                report += "\nFAIL";
+                FailureCount += 1;
+            }
+            ReportText( report );
+        }else if(in.TraceEvent == _NVME_NVM_COMPLETION_CMD && ReadCmdCount ==1) {
+            #if ( in.nvmeOpcode == _NVME_NSC_READ)
+            #{
+            #   ReportText( "NVME_IOCQ_READ" );
+            #}
+            ReadCmdCount += 1;
+            NVMeReadTimestamp = in.Time;
+            MediaCommandLatencyUSLC = SubtractTime(NVMeReadTimestamp, FirstPERSTDeassertionTimestamp);
+            #CSTSRDYtoIOLatency
+            CSTSRDYtoIOLatency = SubtractTime(NVMeReadTimestamp, CSTSRDYTimestamp);
+            report = Format( "\nMedia Command USLC Service Latency: %s", TimeToText(MediaCommandLatencyUSLC) );
+            if(IsLessTime(MediaCommandLatencyUSLC, MAX_MEDIA_COMMAND_LATENCY)) {
+                report += "\nPASS";
+            } else {
+                report += "\nFAIL";
+                FailureCount += 1;
+            }
+            ReportText( report );
+        }else if(in.TraceEvent == _NVME_NVM_COMPLETION_CMD && ReadCmdCount ==2) {
+            #if ( in.nvmeOpcode == _NVME_NSC_READ)
+            #{
+            #   ReportText( "NVME_IOCQ_READ" );
+            #}
+            ReadCmdCount += 1;
+            NVMeReadTimestamp = in.Time;
+            MediaCommandLatencyUTLC = SubtractTime(NVMeReadTimestamp, FirstPERSTDeassertionTimestamp);
+            #CSTSRDYtoIOLatency
+            CSTSRDYtoIOLatency = SubtractTime(NVMeReadTimestamp, CSTSRDYTimestamp);
+            report = Format( "\nMedia Command UTLC Service Latency: %s", TimeToText(MediaCommandLatencyUTLC) );
+            if(IsLessTime(MediaCommandLatencyUTLC, MAX_MEDIA_COMMAND_LATENCY)) {
+                report += "\nPASS";
+            } else {
+                report += "\nFAIL";
+                FailureCount += 1;
+            }
+            ReportText( report );
+        } else if(in.TraceEvent == _NVME_CONTROLLER_REG) {
+            if(in.nvmeType == _NVME_CC) {
+                # Find Packet where CC.EN was set to 1
+                #! Find time stamp for packet where CC.EN was set to 1
+                if((in.nvmeRegisterValue & 0x01) == 0x01 && CCENTimestamp == 0) {
+                    CCENTimestamp = in.Time;
+                }
+                # Find Packet where CC.SHN was set to 01
+                #! Find time stamp for packet where CC.SHN was set to 01
+                if((in.nvmeRegisterValue & 0x00004000) > 0 && CCSHNTimestamp == 0) {
+                    CCSHNTimestamp = in.Time;
+                }
+                #ReportText( Format( "\nCC = %X", in.nvmeRegisterValue ) );
+            } else if(in.nvmeType == _NVME_CSTS) {
+                # Find Packet where CSTS.RDY was set to 1
+                #! Find time stamp for packet where CSTS.RDY was set to 1
+                if(CSTSRDYTimestamp == 0 && CCENTimestamp != 0 && (in.nvmeRegisterValue & 0x01) == 0x01) {
+                    CSTSRDYTimestamp = in.Time;
+                    PERSTToCSTSRDYLatency = SubtractTime(CSTSRDYTimestamp, FirstPERSTDeassertionTimestamp);
+                    CCENToCSTSRDYLatency = SubtractTime(CSTSRDYTimestamp, CCENTimestamp);
+                    report = Format( "\nCC EN to CSTS RDY Latency: %s", TimeToText(CCENToCSTSRDYLatency) );
+                    report += Format( "\nPERST# to CSTS RDY Latency: %s", TimeToText(PERSTToCSTSRDYLatency) );
+                    ReportText( report );
+                }
+                # Find Packet where CSTS.SHN was set to 10
+                #! Find time stamp for packet where CSTS.SHN was set to 10
+                if(CSTSSHSTTimestamp == 0 && CCSHNTimestamp != 0 && (in.nvmeRegisterValue & 0x08) > 0) {
+                    CSTSSHSTTimestamp = in.Time;
+                    CCSHNToSHSTLatency = SubtractTime(CSTSSHSTTimestamp, CCSHNTimestamp);
+                    report = Format( "\nCC SHN to CSTS SHST Latency: %s", TimeToText(CCSHNToSHSTLatency) );
+                    ReportText( report );
+                }
+                #ReportText( Format( "\nCSTS = %X", in.nvmeRegisterValue ) );
+            }
+        }
+        EventCount++;
+
+    return Complete();
+}
+
+OnFinishScript()
+{
+    ReportText( Format("Processed %d Events" , EventCount) );
+    if(FirstPERSTDeassertionTimestamp == 0) {
+        ReportText("PERST# De-Assertion Event Not Found");
+        FailureCount += 1;
+    }
+    if(BAR0AccessTimestamp == 0) {
+        ReportText("BAR0 Access Event Not Found");
+        FailureCount += 1;
+    }
+    if(NVMeIdentifyControllerTimestamp == 0) {
+        ReportText("Admin Command Event Not Found");
+        FailureCount += 1;
+    }
+    if(NVMeReadTimestamp == 0) {
+        ReportText("Media Command Event Not Found");
+        FailureCount += 1;
+    }
+
+    
+    ReportText( Format( "PERST# De-Assertion to Link Training Completed:\t\t %s", TimeToText(TimeToGen3) ) );
+    ReportText( Format( "PERST# De-Assertion to BAR0 Access Latency:\t\t %s", TimeToText(BAR0AccessLatency) ) );
+    ReportText( Format( "PERST# De-Assertion to CSTS RDY Latency:\t\t %s", TimeToText(PERSTToCSTSRDYLatency) ) );
+    #! Report POR Admin command latency as difference between PERST# De-Assertion to Identify command completion
+    ReportText( Format( "CSTS.RDY=1 to Admin Command Latency:\t\t\t %s", TimeToText(AdminCommandLatency) ) );
+    ReportText( Format( "CSTS.RDY=1 to Media Command Latency:\t\t\t %s", TimeToText(CSTSRDYtoIOLatency) ) );
+    #! Report POR Media command latency as difference between PERST# De-Assertion to 4k Read command completion
+    ReportText( Format( "PERST# De-Assertion to 4k READ XBFS Command Latency:\t %s", TimeToText(MediaCommandLatencyXBFS) ) );
+    ReportText( Format( "PERST# De-Assertion to 4k READ USLC Command Latency:\t %s", TimeToText(MediaCommandLatencyUSLC) ) );
+    ReportText( Format( "PERST# De-Assertion to 4k READ UTLC Command Latency:\t %s", TimeToText(MediaCommandLatencyUTLC) ) );
+    ReportText( Format( "CC EN to CSTS RDY Latency:\t\t\t\t %s", TimeToText(CCENToCSTSRDYLatency) ) );
+    ReportText( Format( "CC SHN to CSTS SHST Latency:\t\t\t\t %s", TimeToText(CCSHNToSHSTLatency) ) );
+
+    if(FailureCount == 0) {
+        ScriptPassed();
+    } else {
+        ScriptFailed();
+    }
+    return 0;
+}
+
+
+GetLinkConditionTypeName(link_condition_type)
+{
+    link_condition_type_name =
+    select {
+        link_condition_type == 0                        : "Link Condition Unknown";
+        link_condition_type == 1                        : "Link Down";
+        link_condition_type == 2                        : "Link Up";
+        link_condition_type == LINK_PERST_DEASSERTED    : "Link PERST# DeAsserted";
+        link_condition_type == 8                        : "Link WAKE# Asserted";
+        link_condition_type == 16                       : "Link WAKE# DeAsserted";
+        link_condition_type == LINK_PERST_ASSERTED      : "Link PERST# Asserted";
+        link_condition_type == 64                       : "Link Skew";
+        link_condition_type == 128                      : "Link CLQREQ# Asserted";
+        link_condition_type == 256                      : "Link CLQREQ# DeAsserted";
+        default                                         : Format( "Invalid link_condition_type: (%d)", link_condition_type );
+    };
+    return link_condition_type_name;
+}

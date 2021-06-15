@@ -1,0 +1,59 @@
+; Command will already written to host memory
+; Just send the doorbell
+/*
+Structure=NVMe 
+{
+    Location = Mem64
+    Offset = 0
+    NVMeStructType=AdminCommand
+    OpcodeAdmin = ADMIN_IDENTIFY
+    CID = 0
+    PRP1_Low = 0x3F25B190
+    PRP1_High = 0x8
+    PRP2_Low = 0x3F25C000
+    PRP2_High = 0x8
+    CNS = Controller
+}
+*/
+
+; Write Admin dorbell
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1000 )
+    Payload = ( 01000000 )   
+}
+
+; Wait for the Controller to process the command. 
+; This will include writing the Identify data,
+; writing the Admin completion Queue, and the last thing would be the MSI-X interrupt at vector zero
+wait=TLP
+{
+    TLPType = MWr32
+    ;AddressHi = 0xffffffff  
+    Address = 0xFEE0100C
+    ;Timeout = 1000000
+}
+/*
+wait=TLP
+{
+	TLPType =Msg
+	MessageCode=Assert_INTA
+}
+*/
+
+; Write Admin Completion Queue Head
+Packet=TLP 
+{
+    TLPType=MWr64
+    Length = 1
+    LastDwBe = 0x0
+    FirstDwBe = 0xF
+    AddressHi = 0xffffffff  
+    AddressLo = ( HIM_BAR0_REGS_BASE_ADDR + 0x1004 )
+    Payload = ( 01000000 )   
+}

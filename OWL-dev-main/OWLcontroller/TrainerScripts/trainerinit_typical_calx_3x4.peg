@@ -1,0 +1,31 @@
+; Title: trainerinit.peg
+; Description: Trainer initialization script
+; Author: Madhur Jain
+; Date: 01/30/2018
+
+/* Initiate Trainer reset */
+Config=General 
+{
+    LinkWidth = 4
+    TrainerReset = Yes
+}
+
+include="Common_Files\linkdown.peg"
+
+; Admin Commands
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x0	; Start address for admin queue
+	Size = 0x480	; 18 commands (Idfy, Set Num Queue, 8 Queues) * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_idfyctrlr_create_8_queue.bin"
+}
+
+; IO Command - 4K Read
+AddressSpace=Write
+{
+	Location = Mem64
+	Offset = 0x2000	; Start address for Queue 1
+	Size = 0xC0		; 1 commands * 64 bytes per command
+	LoadFrom = "BIN_FILES\dump_4k_read_calx.bin"
+}

@@ -1,0 +1,597 @@
+
+; read device PCIe class code
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag = 1
+	FirstDwBe=0xF
+	Register=0x008
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; --------------------------------------------------
+
+
+; Set BAR0 Base Address
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 0
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_BAR0_REG_ADDR
+	Payload=(0xffffffff)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 1
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_BAR0_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 0
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_BAR0_REG_ADDR
+	Payload=(PCIE_CFGS_BAR0_REG_VAL)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 1
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_BAR0_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; --------------------------------------------------
+
+
+; Set EROM Base Address
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 5
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_EROM_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 4
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_EROM_REG_ADDR
+	Payload=(PCIE_CFGS_EROM_REG_VAL)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 5
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_EROM_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+;-------------------------------------------------------------------------------------------------------------
+
+; enable MSI capability  
+/*
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 7
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_MSICAP_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 6
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_MSICAP_REG_ADDR
+	Payload=(PCIE_CFGS_MSICAP_REG_VAL)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 7
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_MSICAP_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+*/
+;---------------------------------------------------------------------------------
+; Enable Memory Address space
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 9
+	FirstDwBe=0x1
+	Register=PCIE_PCFG_STTCMD
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 8
+	FirstDwBe=0x1
+	Register=PCIE_PCFG_STTCMD
+	Payload=(PCIE_CFGS_CMD_REG_VAL)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 9
+	FirstDwBe=0x1
+	Register=PCIE_PCFG_STTCMD
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+;-----------------------------------------------------------------
+
+; Read Capabilites Pointer to find extended capabilities
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=1
+	FirstDwBe=0x0F
+	Register=PCIE_CAPABILITIES_PTR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 1
+	FirstDwBe=0x0F
+	Register=PCI_Power_Magament_Cap
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 1
+	FirstDwBe=0x0F
+	Register=PCIE_CFGS_MSICAP_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 0
+	FirstDwBe=0x0F
+	Register=MSI_X_CAPABILITY_ADDRESS
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 1
+	FirstDwBe=0x0F
+	Register=PCI_Express_Capability
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=1
+	FirstDwBe=0x0F
+	Register=ADVANCED_ERROR_REPORT_CAPABILITY_REG
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 7
+	FirstDwBe=0x0F
+	Register=DEVICE_SERIAL_NUM_CAPABILITY_REG
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 6
+	FirstDwBe=0x0F
+	Register=LTR_CAPABILITY_REG
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read Next Extended Capability
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 7
+	FirstDwBe=0x0F
+	Register=SECOND_PCIE_EXTNDD_CAPABILITY_REG
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+; Read L1_PM_Substates_Header_Register
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 7
+	FirstDwBe=0x0F
+	Register=L1_PM_Substates_Capabilities_Header
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+
+;-------------------------------------------------------------------
+
+; Set PCIE max payload sizes to maximum
+
+; reading the maxpayload bit[2:0] 
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 2
+	FirstDwBe=0xF
+	Register=PCI_Express_Device_Capabilities_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 7
+	FirstDwBe=0xF
+	Register=PCI_Express_Device_Control_and_Status_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+    ;Tag = 2
+	FirstDwBe=0xF
+	Register=PCI_Express_Device_Control_and_Status_Register
+	Payload=(PCIE_CFGS_EXPDEVSTTCTL_REG_VAL)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+    ;Tag = 7
+	FirstDwBe=0xF
+	Register=PCI_Express_Device_Control_and_Status_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+;---------------------------------------------------------------------------------------------
+
+; disable the MSI and enable the MSI-X 
+
+; disable msi
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=8
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_MSICAP_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+	;Tag=1
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_MSICAP_REG_ADDR
+	Payload=(0x00000000)
+}
+
+wait =TLP 
+{
+    TLPType=Cpl
+}
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=2
+	FirstDwBe=0xF
+	Register=PCIE_CFGS_MSICAP_REG_ADDR
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Enable MSI-X-bit[31]
+; reading MSIX-adress_offset [26:16]
+
+/*
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=3
+	FirstDwBe=0xF
+	Register=MSIX_Control_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+	;Tag=1
+	FirstDwBe=0xF
+	Register=MSIX_Control_Register
+	Payload=(0x11c00081)
+}
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+*/
+
+
+;-----------------------------------------------------------------
+
+; Enable LTR
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=4
+	FirstDwBe=0xF
+	Register=PCI_Express_Device_Control_and_Status_Register_2
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+
+packet = TLP {
+	TLPType=CfgWr0
+	Length=1
+	;Tag=2
+	FirstDwBe=0xF
+	Register=PCI_Express_Device_Control_and_Status_Register_2
+	Payload=(0x00040000)
+}
+
+
+
+wait=TLP
+{
+    TLPType = Cpl
+}
+
+
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=5
+	FirstDwBe=0xF
+	Register=PCI_Express_Device_Control_and_Status_Register_2
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+;-----------------------------------------------------------------
+
+;-----------------------------------------------------------------
+
+; Read Link_Control_and_Status_Register
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=6
+	FirstDwBe=0x0F
+	Register=Link_Control_and_Status_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; Read L1_PM_Substates_Capabilities_Register
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=7
+	FirstDwBe=0x0F
+	Register=L1_PM_Substates_Capabilities_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; L1_PM_Substates_Control_1_Register
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=7
+	FirstDwBe=0x0F
+	Register=L1_PM_Substates_Control_1_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
+; L1_PM_Substates_Control_2_Register
+packet = TLP {
+	TLPType = CfgRd0
+	Length=1
+	;Tag=8
+	FirstDwBe=0x0F
+	Register=L1_PM_Substates_Control_2_Register
+}
+
+wait =TLP 
+{
+    TLPType=CplD
+}
+
