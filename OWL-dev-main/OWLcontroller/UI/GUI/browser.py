@@ -39,10 +39,10 @@ class browser(QWidget):
         if files:
             print(files)
 
-    def saveFileDialog(self):
+    def saveFileDialog(self,name):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
+        fileName, _ = QFileDialog.getSaveFileName(self, name, "",
                                                   "All Files (*);;Text Files (*.txt)", options=options)
         if fileName:
             return fileName

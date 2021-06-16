@@ -38,10 +38,11 @@ class AddAndEditHostPc(QDialog):
         layout.addRow(QLabel("IP \ DNS:"),IPBox)
         aliasBox = QLineEdit()
         layout.addRow(QLabel("Alias:"), aliasBox)
-        COMBox = QLineEdit()
-        layout.addRow(QLabel("Clicker COM:"),COMBox)
-        chanelBox = QSpinBox()
-        layout.addRow(QLabel("Clicker Chanel:"),chanelBox)
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            COMBox = QLineEdit()
+            layout.addRow(QLabel("Clicker COM:"),COMBox)
+            chanelBox = QSpinBox()
+            layout.addRow(QLabel("Clicker Chanel:"),chanelBox)
         stopOnFailure = QCheckBox()
         layout.addRow(QLabel("Stop On Failure:"), stopOnFailure)
         postPingWaitTimeBox = QSpinBox()
@@ -51,17 +52,23 @@ class AddAndEditHostPc(QDialog):
         postPingWaitTimeBox.setMinimum(0)
         layout.addRow(postPingWait, postPingWaitTimeBox)
         self.formGroupBox.setLayout(layout)
-        formObjectsNamedTuple = namedtuple('formObjects', ['IPBox','aliasBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
-        self.formObjects = formObjectsNamedTuple(IPBox,aliasBox,COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
+        # TODO look at this:
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            formObjectsNamedTuple = namedtuple('formObjects', ['IPBox','aliasBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
+            self.formObjects = formObjectsNamedTuple(IPBox,aliasBox,COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+            formObjectsNamedTuple = namedtuple('formObjects',['IPBox', 'aliasBox', 'stopOnFailure','postPingWaitTimeBox'])
+            self.formObjects = formObjectsNamedTuple(IPBox, aliasBox, stopOnFailure,postPingWaitTimeBox)
 
     def fillWithData(self):
         self.formObjects.IPBox.setText(self.hostPc["IP"])
         self.formObjects.aliasBox.setText(self.hostPc["alias"])
-        if  "clicker" in self.hostPc.keys():
-            if "COM" in self.hostPc["clicker"]:
-                self.formObjects.COMBox.setText(self.hostPc["clicker"]["COM"])
-            if "chanel" in self.hostPc["clicker"]:
-                self.formObjects.chanelBox.setValue(int(self.hostPc["clicker"]["chanel"]))
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO look at this
+            if  "clicker" in self.hostPc.keys():
+                if "COM" in self.hostPc["clicker"]:
+                    self.formObjects.COMBox.setText(self.hostPc["clicker"]["COM"])
+                if "chanel" in self.hostPc["clicker"]:
+                    self.formObjects.chanelBox.setValue(int(self.hostPc["clicker"]["chanel"]))
         if "postPingWaitingTime" in self.hostPc.keys():
             self.formObjects.postPingWaitTimeBox.setValue(int(self.hostPc["postPingWaitingTime"]))
         self.formObjects.stopOnFailure.setChecked(self.hostPc["stopOnFailure"])
@@ -86,14 +93,15 @@ class AddAndEditHostPc(QDialog):
         return False
 
     def acceptEditMode(self):
-        if "clicker" in self.hostPc.keys():
-            self.hostPc["clicker"]["COM"] = self.formObjects.COMBox.text()
-            self.hostPc["clicker"]["chanel"] = int(self.formObjects.chanelBox.text())
-        else:
-            self.hostPc["clicker"] = {
-                "COM": self.formObjects.COMBox.text(),
-                "chanel": self.formObjects.stopOnFailure.isChecked()
-            }
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO look at this
+            if "clicker" in self.hostPc.keys():
+                self.hostPc["clicker"]["COM"] = self.formObjects.COMBox.text()
+                self.hostPc["clicker"]["chanel"] = int(self.formObjects.chanelBox.text())
+            else:
+                self.hostPc["clicker"] = {
+                    "COM": self.formObjects.COMBox.text(),
+                    "chanel": self.formObjects.stopOnFailure.isChecked()
+                }
         self.hostPc["stopOnFailure"] = self.formObjects.stopOnFailure.isChecked()
         self.hostPc["postPingWaitingTime"] = self.formObjects.postPingWaitTimeBox.value()
         self.hostPc["alias"] = self.formObjects.aliasBox.text()
@@ -133,11 +141,12 @@ class AddAndEditHostPc(QDialog):
                 "tests" : {},
                 "postPingWaitingTime" : self.formObjects.postPingWaitTimeBox.value()
             }
-            if self.formObjects.COMBox.text() != "":
-                newHostPc["clicker"] = {
-                    "COM" : self.formObjects.COMBox.text(),
-                    "chanel" : self.formObjects.stopOnFailure.isChecked()
-                }
+            if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: # TODO look at this
+                if self.formObjects.COMBox.text() != "":
+                    newHostPc["clicker"] = {
+                        "COM" : self.formObjects.COMBox.text(),
+                        "chanel" : self.formObjects.stopOnFailure.isChecked()
+                    }
             self.getHostsDictForCurrentSystemMode().append(newHostPc) #TODO Go over this
             self.mainWindowRef.hostExercisersGroupBox.addHostPcRow(newHostPc)
             self.mainWindowRef.hostExercisersGroupBox.retranslateUi()

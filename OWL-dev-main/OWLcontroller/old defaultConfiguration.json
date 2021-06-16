@@ -2,10 +2,10 @@
     "hostPcServerPort": 5000,
     "attempsToCreateSocket": 40,
     "defaultExecutionOptions": [
-        "Host Pc",
-        "Exerciser"
+        "Legacy Mode Host Pc",
+        "Legacy Mode Exerciser"
     ],
-    "defaultExecutionMode": "Exerciser",
+    "defaultExecutionMode": "Host Pc",
     "resultPath": "results",
     "legacyModePath": "TestConfigIni",
     "errinjModePath": "errinjModeConfigFiles\\experiment",
@@ -26,7 +26,7 @@
             "postPingWaitingTime": 0
         }
     ],
-    "Exercisers": [
+	"Exercisers": [
         {
             "IP": "10.0.131.112",
             "alias": "excerciser",
@@ -42,4 +42,5 @@
             "postPingWaitingTime": 0
         }
     ]
+	
 }

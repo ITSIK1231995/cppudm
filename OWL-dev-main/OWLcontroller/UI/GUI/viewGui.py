@@ -189,7 +189,7 @@ class mainWindow(object):
             self.controller.reload(fileChoosedPath)
 
     def getFileNameFromUser(self):
-        return browser("Save Configuration").saveFileDialog()
+        return browser("Save Configuration").saveFileDialog("Save Configuration")
 
     def saveConfBtnClicked(self):
         fileName = self.getFileNameFromUser()
@@ -224,9 +224,9 @@ class mainWindow(object):
         self.actionLoad_configuration.setText(_translate("skippedTestsNumber", "Load Configuration"))
         self.actionSettings.setText(_translate("skippedTestsNumber", "Settings"))
         self.actionPreferences.setText(_translate("skippedTestsNumber", "Preferences"))
-        self.actionLegacy_Mode_Host_PC.setText(_translate("skippedTestsNumber", "Legacy Mode - System Under Test"))
+        self.actionLegacy_Mode_Host_PC.setText(_translate("skippedTestsNumber", "System Under Test"))
         self.actionLegacy_Mode_Host_PC.triggered.connect(self.hostPcModeChoosed)
-        self.actionLegacy_Mode_Exerciser.setText(_translate("skippedTestsNumber", "Legacy Mode - Exerciser"))
+        self.actionLegacy_Mode_Exerciser.setText(_translate("skippedTestsNumber", "Exerciser"))
         self.actionLegacy_Mode_Exerciser.triggered.connect(self.exerciserModeChoosed)
         # self.actionErrinj_Mode.setText(_translate("skippedTestsNumber", "Errinj Mode"))  # disable Errinj Mode has it canceled for now
 
@@ -238,13 +238,13 @@ class mainWindow(object):
 
     def exerciserModeChoosed(self): #TODO go over this
         self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER
-        self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Legacy Mode Exerciser"
+        self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Exerciser"
         self.controller.firstGuiInit = False
         self.controller.GUIInit()
 
     def hostPcModeChoosed(self):#TODO go over this
         self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC
-        self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Legacy Mode Host Pc"
+        self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Host Pc"
         self.controller.firstGuiInit = False
         self.controller.GUIInit()
     # in this functions we create a stack of tests GroupBox, watch per group, in order to switch accordingly

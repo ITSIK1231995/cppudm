@@ -5,7 +5,7 @@
         "Host Pc",
         "Exerciser"
     ],
-    "defaultExecutionMode": "Exerciser",
+    "defaultExecutionMode": "Host Pc",
     "resultPath": "results",
     "legacyModePath": "TestConfigIni",
     "errinjModePath": "errinjModeConfigFiles\\experiment",
