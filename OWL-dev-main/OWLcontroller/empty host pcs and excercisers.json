@@ -5,7 +5,7 @@
         "Legacy Mode Host Pc",
         "Legacy Mode Exerciser"
     ],
-    "defaultExecutionMode": "Legacy Mode Exerciser",
+    "defaultExecutionMode": "Host Pc",
     "resultPath": "results",
     "legacyModePath": "TestConfigIni",
     "errinjModePath": "errinjModeConfigFiles\\experiment",

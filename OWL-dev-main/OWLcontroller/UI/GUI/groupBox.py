@@ -15,7 +15,7 @@ class groupBox(QtWidgets.QGroupBox):
         self.groupListSetup()
         self.scrollSetup()
 
-    def getDictOfTestByGroupsForCurrentSystemMode(self):  #TODO  look at this
+    def getDictOfTestByGroupsForCurrentSystemMode(self):  #TODO need to use here the isHostPC methood and also take this function to the utils because it also in more files in the GUI
         if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
             return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
         elif self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:

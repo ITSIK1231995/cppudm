@@ -37,13 +37,13 @@ class PreferencesEditor(QDialog):
         legacyModePathBox = QLineEdit()
         legacyModePathBox.setEnabled(False)
         layout.addRow(QLabel("Legacy Mode Path:"), legacyModePathBox)
-        # disable Errinj Mode has it canceled for now  #TODO  look at this
+        # disable Errinj Mode has it canceled for now
         # errinjModePathBox = QLineEdit()
         # layout.addRow(QLabel("Errinj Mode Path:"), errinjModePathBox)
         analyzerMinVersionBox = QLineEdit()
         layout.addRow(QLabel("Analyzer Min Version:"), analyzerMinVersionBox)
         self.formGroupBox.setLayout(layout)
-        # disable Errinj Mode has it canceled for now  #TODO  look at this
+        # disable Errinj Mode has it canceled for now
         # formObjectsNamedTuple = namedtuple('formObjects', ['portBox', 'conectionAttempsBox','defaultExecutionModeBox','resultPathBox','legacyModePathBox','errinjModePathBox','analyzerMinVersionBox'])
         # self.formObjects = formObjectsNamedTuple(portBox, conectionAttempsBox,defaultExecutionModeBox,resultPathBox,legacyModePathBox,errinjModePathBox,analyzerMinVersionBox)
         formObjectsNamedTuple = namedtuple('formObjects', ['portBox', 'conectionAttempsBox','defaultExecutionModeBox','resultPathBox','legacyModePathBox','analyzerMinVersionBox'])
@@ -80,7 +80,7 @@ class PreferencesEditor(QDialog):
             defaultConf["attempsToCreateSocket"] = self.formObjects.conectionAttempsBox.value()
             defaultConf["defaultExecutionMode"] = str(self.formObjects.defaultExecutionModeBox.currentText())
             defaultConf["resultPath"] = self.formObjects.resultPathBox.text()
-            defaultConf["legacyModePath"] = self.formObjects.legacyModePathBox.text() #disable Errinj Mode has it canceled for now #TODO  look at this
+            defaultConf["legacyModePath"] = self.formObjects.legacyModePathBox.text() #disable Errinj Mode has it canceled for now
             # defaultConf["errinjModePath"] = self.formObjects.errinjModePathBox.text()
             defaultConf["analyzerMinVersion"] = self.formObjects.analyzerMinVersionBox.text()
 

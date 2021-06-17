@@ -52,7 +52,7 @@ class AddAndEditHostPc(QDialog):
         postPingWaitTimeBox.setMinimum(0)
         layout.addRow(postPingWait, postPingWaitTimeBox)
         self.formGroupBox.setLayout(layout)
-        # TODO look at this:
+        # TODO  need to write a function taht called "isHostPcMode" this function will be placed on the controller and if its not host pc its exerciser mode
         if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
             formObjectsNamedTuple = namedtuple('formObjects', ['IPBox','aliasBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
             self.formObjects = formObjectsNamedTuple(IPBox,aliasBox,COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
@@ -63,7 +63,7 @@ class AddAndEditHostPc(QDialog):
     def fillWithData(self):
         self.formObjects.IPBox.setText(self.hostPc["IP"])
         self.formObjects.aliasBox.setText(self.hostPc["alias"])
-        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO look at this
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: # TODO  need to write a function taht called "isHostPcMode" this function will be placed on the controller and if its not host pc its exerciser mode
             if  "clicker" in self.hostPc.keys():
                 if "COM" in self.hostPc["clicker"]:
                     self.formObjects.COMBox.setText(self.hostPc["clicker"]["COM"])
@@ -72,15 +72,6 @@ class AddAndEditHostPc(QDialog):
         if "postPingWaitingTime" in self.hostPc.keys():
             self.formObjects.postPingWaitTimeBox.setValue(int(self.hostPc["postPingWaitingTime"]))
         self.formObjects.stopOnFailure.setChecked(self.hostPc["stopOnFailure"])
-    #  #TODO  look at this
-    # def validIP(self,IP):
-    #     try:
-    #         parts = IP.split('.')
-    #         return len(parts) == 4 and all(0 <= int(part) < 256 for part in parts)
-    #     except ValueError:
-    #         return False  # one of the 'parts' not convertible to integer
-    #     except (AttributeError, TypeError):
-    #         return False  # `ip` isn't even a string
 
     def validIP(self,IP):
         return not str(IP) == ""
@@ -93,7 +84,7 @@ class AddAndEditHostPc(QDialog):
         return False
 
     def acceptEditMode(self):
-        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO look at this
+        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: # TODO  need to write a function taht called "isHostPcMode" this function will be placed on the controller and if its not host pc its exerciser mode
             if "clicker" in self.hostPc.keys():
                 self.hostPc["clicker"]["COM"] = self.formObjects.COMBox.text()
                 self.hostPc["clicker"]["chanel"] = int(self.formObjects.chanelBox.text())
@@ -105,7 +96,6 @@ class AddAndEditHostPc(QDialog):
         self.hostPc["stopOnFailure"] = self.formObjects.stopOnFailure.isChecked()
         self.hostPc["postPingWaitingTime"] = self.formObjects.postPingWaitTimeBox.value()
         self.hostPc["alias"] = self.formObjects.aliasBox.text()
-        # TODO  look at this
         if self.formObjects.aliasBox.text() != "" and\
                 self.formObjects.aliasBox.text() != None:
             self.mainWindowRef.hostExercisersGroupBox.editSpecificHostPcCheckBoxLabel(self.hostPc["IP"], self.formObjects.aliasBox.text())
@@ -113,20 +103,20 @@ class AddAndEditHostPc(QDialog):
             self.mainWindowRef.hostExercisersGroupBox.editSpecificHostPcCheckBoxLabel(self.hostPc["IP"],self.hostPc["IP"])
         self.close()
 
-    def getTestsByGroupDictForCurrentSystemMode(self): #TODO Go over this
+    def getTestsByGroupDictForCurrentSystemMode(self): #TODO  need to write a function taht called "isHostPcMode" this function will be placed on the controller and if its not host pc its exerciser mode
         if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
             return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
         else:
             return self.mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
 
-    def getHostsDictForCurrentSystemMode(self):#TODO Go over this
+    def getHostsDictForCurrentSystemMode(self):#TODO  need to write a function taht called "isHostPcMode" this function will be placed on the controller and if its not host pc its exerciser mode
         if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
             return self.mainWindowRef.controller.configs.defaultConfContent["hostPCs"]
         else:
             return self.mainWindowRef.controller.configs.defaultConfContent["Exercisers"]
 
     def acceptAddMode(self):
-        newHostPCIP = self.formObjects.IPBox.text()
+        newHostPCIP = self.formObjects.IPBox.text() #TODO need to change the host pc name to host (becasue it can be host pc or exerciser
         if not self.validIP(newHostPCIP):
             GUIUtills.PopUpWarning("IP is not writen correctly")
         elif  self.IpExsists(newHostPCIP):
@@ -137,17 +127,17 @@ class AddAndEditHostPc(QDialog):
                 "alias" : self.formObjects.aliasBox.text(),
                 "stopOnFailure": self.formObjects.stopOnFailure.isChecked(),
                 "checked" : False,
-                "groupName": list(self.getTestsByGroupDictForCurrentSystemMode().keys())[0], # default is the first group #TODO Go over this
+                "groupName": list(self.getTestsByGroupDictForCurrentSystemMode().keys())[0], # default is the first group
                 "tests" : {},
                 "postPingWaitingTime" : self.formObjects.postPingWaitTimeBox.value()
             }
-            if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: # TODO look at this
+            if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: # TODO  need to write a function taht called "isHostPcMode" this function will be placed on the controller and if its not host pc its exerciser mode
                 if self.formObjects.COMBox.text() != "":
                     newHostPc["clicker"] = {
                         "COM" : self.formObjects.COMBox.text(),
                         "chanel" : self.formObjects.stopOnFailure.isChecked()
                     }
-            self.getHostsDictForCurrentSystemMode().append(newHostPc) #TODO Go over this
+            self.getHostsDictForCurrentSystemMode().append(newHostPc) #TODO need to change the host pc name to host (becasue it can be host pc or exerciser
             self.mainWindowRef.hostExercisersGroupBox.addHostPcRow(newHostPc)
             self.mainWindowRef.hostExercisersGroupBox.retranslateUi()
             self.close()

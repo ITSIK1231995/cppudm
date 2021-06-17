@@ -17,11 +17,11 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         self.vbox = QVBoxLayout()
         self.groupName = groupName
         self.tests = tests
-        HostsDictForCurrentSystemMode = self.getHostsDictForCurrentSystemMode()
-        if len(HostsDictForCurrentSystemMode) != 0: #TODO Go over this
+        HostsDictForCurrentSystemMode = self.getHostsDictForCurrentSystemMode() #TODO need to change the host pc to host becasue theres two modes
+        if len(HostsDictForCurrentSystemMode) != 0:
             self.myHostPc = HostsDictForCurrentSystemMode[0]
         else:
-            self.myHostPc = None #TODO  look at this
+            self.myHostPc = None
         self.testTableSetup()
         self.scrollSetup()
         self.checkAllSetup()
@@ -84,8 +84,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def scrollSetup(self):
         self.widget = QWidget()
         self.widget.setLayout(self.vbox)
-        self.scroll = QScrollArea(self)  # Scroll Area which contains the widgets, set as the centralWidget
-        # Scroll Area Properties
+        self.scroll = QScrollArea(self)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
@@ -141,7 +140,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def onCheckAllClicked(self):
         for testRow in self.testsRows.values():
             testRow.checkBox.setChecked(self.checkAllBox.isChecked())
-        if self.myHostPc is not None: #TODO  look at this
+        if self.myHostPc is not None:
             for test in self.tests:
                 if test.testname in self.myHostPc['tests'].keys():
                     self.myHostPc['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()

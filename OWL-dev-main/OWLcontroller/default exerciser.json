@@ -29,7 +29,7 @@
     "Exercisers": [
         {
             "IP": "10.0.131.112",
-            "alias": "excerciser",
+            "alias": "excerciser mode",
             "stopOnFailure": false,
             "checked": true,
             "groupName": "Hermes",

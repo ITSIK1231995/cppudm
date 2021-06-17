@@ -8,7 +8,7 @@ from win32com.universal import com_error
 from lecroy.dispatchComObj import dispatchComObj
 
 isTraceCreatedPerAnalyzer = []
-generationState = 0
+resetExerciserGenerationScriptState = 0
 class PEEvent(object):
     def __init__(self,SavedTraceFullPathAndName,traceReady,hostPc,testLog,controller):
         self.saveTraceFullPath = SavedTraceFullPathAndName
@@ -35,58 +35,64 @@ class PEEvent(object):
             print("PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
             self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
             if state == 400:
-                global generationState
-                generationState = 1
+                global resetExerciserGenerationScriptState
+                resetExerciserGenerationScriptState = 1
         except Exception as e:
             print("PEEvent::OnStatusReport failed with exception: %s" % e)
             self.controller.updateRunTimeStateInTerminal(self.hostPc, self.testLog,"PEEvent::OnStatusReport failed with exception: %s" % e)
 
-class analyzerHandler():
+class lecroyHandler():
     def __init__(self,controller):
         self.traceFileName = "data.pex"  # default trace file name used in recording options
         self.controller = controller
 
-    def startRecordingWithAnalyzer(self,recOptionsFullPath,SavedTraceFullPathAndName,hostPc,testLog):
-        # os.system("TASKKILL /F /IM PETracer.exe")
-        #
-        # os.startfile('C:\Program Files\LeCroy\PCIe Protocol Suite\PETracer.exe')
-        #time.sleep(20) #TODO go over this
-        global generationState
-        generationState = 0
+    def startRecordingWithAnalyzer(self,recOptionsFullPath,SavedTraceFullPathAndName,hostPc,testLog): #TODO change to lecroyHandler
+        global resetExerciserGenerationScriptState
+        resetExerciserGenerationScriptState = 0
         traceReady = 0 #TODO need to change the name of it to  analzyer index
         isTraceCreatedPerAnalyzer.insert(traceReady, False) # the "0" indicates a place in the traceCreatedPerAnalyzer list, each item in this list will represent analyzer
-        self.analyzerObj = dispatchComObj.DispatchWithEventsAndParams("CATC.PETracer", PEEvent, [SavedTraceFullPathAndName, traceReady, hostPc, testLog, self.controller])
+        self.lecroyObj = dispatchComObj.DispatchWithEventsAndParams("CATC.PETracer", PEEvent, [SavedTraceFullPathAndName, traceReady, hostPc, testLog, self.controller])
         time.sleep(5) # TODO need to replace with getdiscoveredDevice() to make sure that the app worked
-        self.rec_options = self.analyzerObj.GetRecordingOptions()
+        self.rec_options = self.lecroyObj.GetRecordingOptions()
         self.rec_options.SetTraceFileName(self.traceFileName)
         print("Start Analyzer record")
-        self.controller.updateRunTimeStateInTerminal(self.analyzerObj.hostPc, self.analyzerObj.testLog,"\n Start Analyzer record")  # TODO need to change the name of updateRunTimeStateInTerminal to updateTernimalAndLog
+        self.controller.updateRunTimeStateInTerminal(self.lecroyObj.hostPc, self.lecroyObj.testLog, "\n Start Analyzer record")  # TODO need to change the name of updateRunTimeStateInTerminal to updateTernimalAndLog
         try:
-            self.analyzerObj.StartRecording(recOptionsFullPath)
+            self.lecroyObj.StartRecording(recOptionsFullPath)
             time.sleep(5) #Start recording requires few seconds of waiting by spec
         except com_error as e:
             print(str(e))
-            self.controller.updateRunTimeStateInTerminal(self.analyzerObj.hostPc, self.analyzerObj.testLog,
-                                                         "\n While trying to start the Analzyer record, the following exception occured: " + str(e))
-        return self.analyzerObj
-    def stopRecording(self):
-        while generationState != 1:
-            sleep(0.2)
-            pythoncom.PumpWaitingMessages()
-            print("PumpWaitingMessages")
-        self.analyzerObj.StopRecording(False)
-        print("Stop Analyzer record")
-        self.controller.updateRunTimeStateInTerminal(self.analyzerObj.hostPc, self.analyzerObj.testLog, "\n Stop Analyzer record")
-        del self.rec_options  # delete recording options instance
-        while (isTraceCreatedPerAnalyzer[self.analyzerObj.traceReady] == False):
-            sleep(0.2)
-            pythoncom.PumpWaitingMessages()
-            print("PumpWaitingMessages")
-        del self.analyzerObj
+            self.controller.updateRunTimeStateInTerminal(self.lecroyObj.hostPc, self.lecroyObj.testLog,"\n While trying to start the Analzyer record, the following exception occured: " + str(e))
+        return self.lecroyObj
 
-    def generationStateToZero(self):
-        global generationState
-        generationState = 0
+    def stopAnalyzerRecording(self): #TODO need to do two  functions one of them stopRecording that checking if its exerciser Test Generation eneded and one of them doesnt check it if the function that checks if generation ended need to add time out for it
+            self.lecroyObj.StopRecording(False)
+            print("Stop Analyzer record")
+            self.controller.updateRunTimeStateInTerminal(self.lecroyObj.hostPc, self.lecroyObj.testLog, "\n Stop Analyzer record")
+            del self.rec_options  # delete recording options instance
+            while (isTraceCreatedPerAnalyzer[self.lecroyObj.traceReady] == False):
+                sleep(0.2)
+                pythoncom.PumpWaitingMessages()
+                print("PumpWaitingMessages")
+            del self.lecroyObj
+
+    def loadGenerationOptionToExerciser(self, lecroyObj,generationOptionFullPath):
+        lecroyObj.GetGenerationOptions().Load(generationOptionFullPath)
+
+    def startGenerationScriptOnExerciser(self,lecroyObj,generationScriptFullPathAndName):
+        lecroyObj.StartGeneration(generationScriptFullPathAndName, 0, 0)
+
+    def verifyExerciserGenerationScriptFinished(self):
+        while resetExerciserGenerationScriptState != 1:
+            sleep(0.2)
+            pythoncom.PumpWaitingMessages()
+            print("PumpWaitingMessages")
+        self.resetExerciserGenerationScriptState()
+        return True
+
+    def resetExerciserGenerationScriptState(self):
+        global resetExerciserGenerationScriptState
+        resetExerciserGenerationScriptState = 0
     def getGenerationState(self):
-        global generationState
-        return generationState
+        global resetExerciserGenerationScriptState
+        return resetExerciserGenerationScriptState

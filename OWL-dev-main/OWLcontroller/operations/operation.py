@@ -24,8 +24,8 @@ class operation(object):
         clientSocket = socket.socket()
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         maxMinutesToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket  # TODO GO over this
-        while time.time() < timeToStopTryingCreatingSocket: #TODO  look at this
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket
+        while time.time() < timeToStopTryingCreatingSocket:
             try:
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
@@ -40,8 +40,8 @@ class operation(object):
 #TODO the following two methoods reimplemnetd to be in minutes and not in connection attemps need to check them on a host pc
     def waitForPcToTurnOff(self,controllerPc,hostPc,testLog):
         maxMinutesToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
-        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket #TODO GO over this
-        while time.time() < timeToStopTryingCreatingSocket: #TODO  look at this
+        timeToStopTryingCreatingSocket = time.time() + 60 * maxMinutesToCreateSocket
+        while time.time() < timeToStopTryingCreatingSocket:
             # response = os.system("ping -n 4 " + hostPc["IP"])
             response = subprocess.run(["ping","-n","4",hostPc["IP"]], stdout=subprocess.PIPE).stdout.decode('utf-8')
             # and then check the response...

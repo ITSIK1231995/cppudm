@@ -2,8 +2,6 @@ import json
 import sys
 import traceback
 from PyQt5.uic.properties import QtWidgets
-
-from UI.GUI.systemModes import systemExecutionModes
 from configControl.confParser import confParser
 from hostPcTestsRunner import hostPcTestsRunner
 from UI.GUI.viewGui import *
@@ -21,11 +19,12 @@ class ControllerPc():
         logging.info("Parsing configs")
         self.runtimeHostPcsData = {}
         self.preRunValidationErorrs = {}
+        self.currentDefaultConfigurationLoadedName = conf[:-5] #TODO need to think about the .json things
         self.configs = confParser(self).parseAll(loadConf=conf)
         validator = Validator(self)
         self.haltThreads = False
-        self.currentSystemExecutionMode = self.getDefaultExeutionModeFromDefaultConfiguration()  #TODO  look at this
-        self.firstGuiInit = True # preRunValidationErorrs should be displayed only if its the first GUI init #TODO  look at this
+        self.currentSystemExecutionMode = self.getDefaultExeutionModeFromDefaultConfiguration()
+        self.firstGuiInit = True # preRunValidationErorrs should be displayed only if its the first GUI init
         logging.info("Initiating GUI")
         self.GUIInit()
 
@@ -41,17 +40,26 @@ class ControllerPc():
         logging.info("Initiating GUI")
         self.GUIInit()
 
-    def createAnalyzerInstance(self):  #TODO  look at this
-        analyzerHandler = lecroy.analyzer.analyzerHandler(self)
-        return analyzerHandler
+    def createLecroyHandlerInstance(self):  #TODO  look at this
+        lecroyHandler = lecroy.analyzer.lecroyHandler(self) #TODO need to change analyzer.py to lecroyMain.py
+        return lecroyHandler
 
-    def startRecordingWithAnalyzer(self,analyzerHandler,SavedTraceFullPathAndName,RecordOptionFilePath,hostPc,testLog):
-        return analyzerHandler.startRecordingWithAnalyzer(RecordOptionFilePath,SavedTraceFullPathAndName,hostPc,testLog)
+    def startRecordingWithAnalyzer(self, lecroyHandler, SavedTraceFullPathAndName, RecordOptionFilePath, hostPc, testLog):
+        return lecroyHandler.startRecordingWithAnalyzer(RecordOptionFilePath, SavedTraceFullPathAndName, hostPc, testLog)
 
-    def stopRecordingWithAnalyzer(self, analyzerHandler):
-        analyzerHandler.stopRecording()
+    def stopRecordingWithAnalyzer(self, lecroyHandler):
+        lecroyHandler.stopAnalyzerRecording()
 
-    def threadMain(self,hostPc): #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
+    def loadGenerationOptionsToExerciser(self, lecroyObj, generationOptionFullPath, lecroyHandler):
+        lecroyHandler.loadGenerationOptionToExerciser(lecroyObj, generationOptionFullPath)
+
+    def startGenerationScriptWithExerciser(self,lecroyHandler,lecroyObj,generationScriptFullPathAndName):
+        return lecroyHandler.startGenerationScriptOnExerciser(lecroyObj, generationScriptFullPathAndName)
+
+    def verifyGenerationScriptOnExerciserFinished(self,lecroyHandler):
+        return lecroyHandler.verifyExerciserGenerationScriptFinished()
+
+    def threadMain(self,hostPc):
         hostPcTestsRunner(self, hostPc).runAllTests()
 
     def startVSE(self,traceFullPathAndName, vScriptFullPathAndName, hostPc,testLog):
@@ -61,12 +69,12 @@ class ControllerPc():
     def dispatchThreads(self):
         logging.info("dispatching Threads")
         self.runtimeHostPcsData = {}
-        if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+        if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO this function duplicated need to put in a common place to all of this - some utils to all system
             hosts = self.configs.defaultConfContent['hostPCs'] #TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
         if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
             hosts = self.configs.defaultConfContent["Exercisers"]
         for hostPc in hosts:
-            if hostPc["checked"]: #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
+            if hostPc["checked"]:
                 self.runtimeHostPcsData[hostPc["IP"]] = {"terminal": ""}
                 _thread.start_new_thread(self.threadMain,(hostPc,))
 
@@ -78,7 +86,7 @@ class ControllerPc():
 
     def savedDefaultConfContentIntoJson(self,fileName):
         logging.info("Saving new Default Conf Content")
-        defaultConfName = fileName  + ".json"
+        defaultConfName = fileName  + ".json"  #TODO go over this after loading a file the currentfilename on the self has .json in the end so in that case we dont need to add a .json to the file name
         with open(defaultConfName, 'w+') as fout:
             json_dumps_str = json.dumps(self.configs.defaultConfContent, indent=4)
             print(json_dumps_str, file=fout)
@@ -98,9 +106,6 @@ class ControllerPc():
         if testLog is not None:
             testLog.write(terminalAddition)
             testLog.flush()
-
-    def getCurrentTimeFile(self): # TODO move to utils of the backend
-        return self.getCurrentTime().replace("-", "_").replace(":", "_")
 
     def getCurrentTime(self): # TODO move to utils of the backend
         now = datetime.datetime.now()
@@ -124,20 +129,18 @@ class ControllerPc():
         self.app.exec_()
 
     def startExecution(self):
-         #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
         self.startExecutionForHostPcSystemMode()
 
-    def stopExecution(self): #TODO  need to udnerstand when i seperate the modes here or in the dispatch thread
-        #TODO  look at this
+    def stopExecution(self):
         self.stopExecutionForHostPcSystemMode()
 
-    def startExecutionForHostPcSystemMode(self): #TODO  look at this
+    def startExecutionForHostPcSystemMode(self):
         self.haltThreads = False
         self.dispatchThreads()
         logging.info("Running tests")
         print("Running tests")
 
-    def stopExecutionForHostPcSystemMode(self):  #TODO  look at this
+    def stopExecutionForHostPcSystemMode(self):
         logging.info("Stop pressed, Halting threads")
         self.haltThreads = True
         print("Stopping tests")

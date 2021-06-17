@@ -15,11 +15,13 @@ from PyQt5.QtWidgets import (
     QWidget, QMessageBox,
     QPlainTextEdit, QMenu, QAction)
 from collections import OrderedDict
+import logging
 
 class mainWindow(object):
     def setupUi(self, skippedTestsNumber, controller):
         self.controller = controller
-        self.displayPreRunValidationErorrs() if controller.firstGuiInit else "" #TODO  look at this
+        self.displayPreRunValidationErorrs() if controller.firstGuiInit else "" #TODO  need to make this pretty and to work on top labels in the app
+
 
         skippedTestsNumber.setObjectName("skippedTestsNumber")
         skippedTestsNumber.resize(840, 666)
@@ -129,10 +131,17 @@ class mainWindow(object):
         skippedTestsNumber.setStatusBar(self.statusbar)
 
         self.menu = QMenu()
+
+        self.actionSaveConfigurationInsteadTheCurrentConfigurationFile = QAction(skippedTestsNumber)
+        self.actionSaveConfigurationInsteadTheCurrentConfigurationFile.setObjectName("actionSave_configuration")
+        self.menu.addAction(self.actionSaveConfigurationInsteadTheCurrentConfigurationFile)
+        self.actionSaveConfigurationInsteadTheCurrentConfigurationFile.triggered.connect(self.saveConfInsteadCurrentConfBtnClicked)
+
         self.actionSave_configuration = QAction(skippedTestsNumber)
         self.actionSave_configuration.setObjectName("actionSave_configuration")
         self.menu.addAction(self.actionSave_configuration)
         self.actionSave_configuration.triggered.connect(self.saveConfBtnClicked)
+
 
         self.actionLoad_configuration = QtWidgets.QAction(skippedTestsNumber)
         self.actionLoad_configuration.setObjectName("actionLoad_configuration")
@@ -152,6 +161,7 @@ class mainWindow(object):
         # disable Errinj Mode has it canceled for now
         # self.actionErrinj_Mode = QtWidgets.QAction(skippedTestsNumber)
         # self.actionErrinj_Mode.setObjectName("actionErrinj_Mode")
+        self.menufiles.addAction(self.actionSaveConfigurationInsteadTheCurrentConfigurationFile)
         self.menufiles.addAction(self.actionSave_configuration)
         self.menufiles.addAction(self.actionLoad_configuration)
         self.menuTools.addSeparator()
@@ -170,22 +180,26 @@ class mainWindow(object):
         # self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(skippedTestsNumber)
 
-    def displayPreRunValidationErorrs(self): #TODO  look at this
+    def displayPreRunValidationErorrs(self):
         if len(self.controller.preRunValidationErorrs) != 0:
             if 'corruptedSequenceFile' in self.controller.preRunValidationErorrs:
                 outPutcorruptedSequenceFile = ""
                 for curraptedSeqfile in self.controller.preRunValidationErorrs['corruptedSequenceFile']:
-                    for seqFileName, seqFileErr in curraptedSeqfile.items():
-                        outPutcorruptedSequenceFile += str(seqFileErr)
-                GUIUtills.PopUpWarning(outPutcorruptedSequenceFile)
+                    for sequenceFileName, sequenceFileError in curraptedSeqfile.items():
+                        outPutcorruptedSequenceFile += str(sequenceFileError)
+                #GUIUtills.PopUpWarning(outPutcorruptedSequenceFile) # The recommendation is to have this option not as a comment but the user required to erase this so it will be written in the log file
+                logging.warning(outPutcorruptedSequenceFile)
                 self.controller.exitSystem()
             for listOfErrors in self.controller.preRunValidationErorrs:
                 for Error in self.controller.preRunValidationErorrs[listOfErrors]:
-                    GUIUtills.PopUpWarning(Error)
+                    #GUIUtills.PopUpWarning(Error) The recommendation is to have this option not as a comment but the user required to erase this so it will be written in the log file
+                    logging.warning(Error)
+
 
     def loadConfBtnClicked(self):
         fileChoosedPath = browser("Load Configuration").getChoosedFolderName("Load Configuration","load")
         if fileChoosedPath is not "":
+            self.controller.currentDefaultConfigurationLoadedName = fileChoosedPath[:-5] # The split remove the .json from the file's name
             self.controller.reload(fileChoosedPath)
 
     def getFileNameFromUser(self):
@@ -194,7 +208,10 @@ class mainWindow(object):
     def saveConfBtnClicked(self):
         fileName = self.getFileNameFromUser()
         if fileName is not None:
-            self.controller.savedDefaultConfContentIntoJson(fileName)
+            self.controller.savedDefaultConfContentIntoJson(fileName) #TODO need to add to the save .json and than removing all the slcieing around the .json in the save configuration and load configruaion
+
+    def saveConfInsteadCurrentConfBtnClicked(self):
+        self.controller.savedDefaultConfContentIntoJson(self.controller.currentDefaultConfigurationLoadedName)
 
     def retranslateUi(self, skippedTestsNumber):
         _translate = QtCore.QCoreApplication.translate
@@ -220,8 +237,11 @@ class mainWindow(object):
         self.menuTools.setTitle(_translate("skippedTestsNumber", "Tools"))
         self.menuAbout.setTitle(_translate("skippedTestsNumber", "About"))
         self.menuMode.setTitle(_translate("skippedTestsNumber", "Mode"))
-        self.actionSave_configuration.setText(_translate("skippedTestsNumber", "Save Configuration"))
+
+        self.actionSaveConfigurationInsteadTheCurrentConfigurationFile.setText(_translate("skippedTestsNumber", "Save Configuration"))
+        self.actionSave_configuration.setText(_translate("skippedTestsNumber", "Save Configuration As"))
         self.actionLoad_configuration.setText(_translate("skippedTestsNumber", "Load Configuration"))
+
         self.actionSettings.setText(_translate("skippedTestsNumber", "Settings"))
         self.actionPreferences.setText(_translate("skippedTestsNumber", "Preferences"))
         self.actionLegacy_Mode_Host_PC.setText(_translate("skippedTestsNumber", "System Under Test"))
@@ -236,17 +256,18 @@ class mainWindow(object):
     def stopBtnPressed(self):
         self.controller.stopExecution()
 
-    def exerciserModeChoosed(self): #TODO go over this
+    def exerciserModeChoosed(self):
         self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER
         self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Exerciser"
         self.controller.firstGuiInit = False
         self.controller.GUIInit()
 
-    def hostPcModeChoosed(self):#TODO go over this
+    def hostPcModeChoosed(self):
         self.controller.currentSystemExecutionMode = systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC
         self.controller.configs.defaultConfContent['defaultExecutionMode'] = "Host Pc"
         self.controller.firstGuiInit = False
         self.controller.GUIInit()
+
     # in this functions we create a stack of tests GroupBox, watch per group, in order to switch accordingly
     def createTestScreens(self):
         self.widget = QWidget(self.centralwidget)
@@ -255,7 +276,7 @@ class mainWindow(object):
         self.testsGroupBoxWithLeveltuples = OrderedDict()
         TestsGroupBoxWithLeveltuple = namedtuple('TestRow', ['testsGroupBox', 'stackLevel'])
         stackLevel = 0
-        testsByGroupDictForCurrentSystemMode = self.getDictOfTestsByGroupForCurrentSystemMode() #TODO  look at this
+        testsByGroupDictForCurrentSystemMode = self.getDictOfTestsByGroupForCurrentSystemMode() #TODO  duplicate function need to put it in guiutils
         if self.controller.configs:
             for groupName, groupTests in testsByGroupDictForCurrentSystemMode.items():
                 self.testsGroupBoxWithLeveltuples[groupName] = TestsGroupBoxWithLeveltuple(
@@ -264,7 +285,7 @@ class mainWindow(object):
                 self.stackedLayout.addWidget(self.testsGroupBoxWithLeveltuples[groupName].testsGroupBox)
                 stackLevel += 1
 
-    def getDictOfTestsByGroupForCurrentSystemMode(self): #TODO  look at this
+    def getDictOfTestsByGroupForCurrentSystemMode(self): #TODO  duplicate function need to put it in guiutils
         if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
             return self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
         elif self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
@@ -275,11 +296,11 @@ class mainWindow(object):
             testsGroupBoxWithLevelTuple.testsGroupBox.retranslateUi()
         self.setDefultHostPc()
 
-    def setDefultHostPc(self): #TODO  look at this
-        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
-            hostLists = self.controller.configs.defaultConfContent['hostPCs']
-        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
-            hostLists = self.controller.configs.defaultConfContent['Exercisers']
+    def setDefultHostPc(self):
+        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO  duplicate function need to put it in guiutils
+            hostLists = self.controller.configs.defaultConfContent['hostPCs']#TODO  duplicate function need to put it in guiutils
+        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:#TODO  duplicate function need to put it in guiutils
+            hostLists = self.controller.configs.defaultConfContent['Exercisers']#TODO  duplicate function need to put it in guiutils
         if len(hostLists) != 0:
             defaultHostPC = hostLists[0]
             self.currentHostPc = defaultHostPC
@@ -291,7 +312,7 @@ class mainWindow(object):
 
     def setNewHostPC(self, hostPc):
         self.currentHostPc = hostPc
-        if self.currentHostPc is not None: #TODO  look at this
+        if self.currentHostPc is not None:  #TODO host pc need to be named host
             self.stackedLayout.setCurrentIndex(self.testsGroupBoxWithLeveltuples[hostPc['groupName']].stackLevel)
             self.selectGroupBox.cahngeSelected(hostPc['groupName'])
             testsGroupBoxWithLevelTuple = self.getCurrentTestsGroupBoxWithLevelTuple()
@@ -309,7 +330,7 @@ class mainWindow(object):
             self.terminalLbl.setText("")
 
     def updateCurrentTernimal(self, hostPc):
-        if self.currentHostPc == hostPc: #TODO  look at this
+        if self.currentHostPc == hostPc:
             self.terminalLbl.setText(self.controller.runtimeHostPcsData[hostPc["IP"]]['terminal'])
 
     def createTerminal(self, skippedTestsNumber):
@@ -320,7 +341,7 @@ class mainWindow(object):
         self.terminalLbl.setText("")
 
     def setDisplayedTestGroup(self, groupName):
-        if self.currentHostPc is not None: #TODO  look at this
+        if self.currentHostPc is not None:
                 self.currentHostPc['groupName'] = groupName
                 self.currentHostPc['tests'] = {}
                 self.setNewHostPC(self.currentHostPc)
