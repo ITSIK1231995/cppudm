@@ -34,18 +34,18 @@ class turnOnWithLan(operation):
         return hostPcMacAdress
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Turn on with lan command has started \n ")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Turn on with lan command has started \n ")
 
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Wake on lun magic packet has been sent ")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Wake on lun magic packet has been sent ")
         macAdress = turnOnWithLan.fetchMacAddress(hostPc["IP"])
                 # wake on lan
         send_magic_packet(macAdress,ip_address=hostPc["IP"],port= controllerPc.configs.defaultConfContent['hostPcServerPort'])
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Wake on lan has been sent, pinging the host for checking if it's on")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Wake on lan has been sent, pinging the host for checking if it's on")
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc,testLog)
         if hostPcIsOn:
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nWake on lun succeed and the PC is ON")
+            controllerPc.updateTerminalAndLog(hostPc, testLog, "\nWake on lun succeed and the PC is ON")
         else:
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nWake on lun Failed and the PC is still off")
+            controllerPc.updateTerminalAndLog(hostPc, testLog, "\nWake on lun Failed and the PC is still off")
         return hostPcIsOn
 
 

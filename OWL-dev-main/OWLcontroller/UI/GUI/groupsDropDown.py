@@ -1,65 +1,42 @@
 from PyQt5.QtCore import Qt, QSize
 from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtWidgets import QComboBox
 from UI.GUI import systemModes
 from UI.GUI.GUIUtills import *
 
-
-class groupBox(QtWidgets.QGroupBox):
+class groupsDropDown(QtWidgets.QGroupBox): #TODO need to look at this new drop down instead of group box
     def __init__(self, centralwidget, mainWindowRef):
-        super(groupBox, self).__init__(centralwidget)
+        super(groupsDropDown, self).__init__(centralwidget)
         self.mainWindowRef = mainWindowRef
         self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
         self.vbox = QVBoxLayout()
         self.groupNames = self.getDictOfTestByGroupsForCurrentSystemMode().keys()  #TODO  look at this
         self.groupListSetup()
-        self.scrollSetup()
 
     def getDictOfTestByGroupsForCurrentSystemMode(self):  #TODO need to use here the isHostPC methood and also take this function to the utils because it also in more files in the GUI
-        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+        if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
             return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
-        elif self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+        else:
             return self.mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
 
     def groupListSetup(self):
-        self.groupCheckBoxArr = {}
-        first = True
-        for groupName in self.groupNames:
-            self.groupCheckBoxArr[groupName] = QtWidgets.QCheckBox(self)
-            self.groupCheckBoxArr[groupName].setGeometry(QtCore.QRect(0, 0, 64, 18))
-            self.groupCheckBoxArr[groupName].setObjectName("groupCheckBox_" + groupName)
-            self.groupCheckBoxArr[groupName].clicked.connect(self.onChacked)
-            self.vbox.addWidget(self.groupCheckBoxArr[groupName])
+        self.comboBox = QComboBox(self)
+        self.comboBox.setGeometry(10, 50, 150, 18)
+        self.comboBox.addItems(self.groupNames)
+        self.comboBox.activated[str].connect(self.onSelected)
 
-            if first:  # set first option to be the default
-                first = False
-                self.groupCheckBoxArr[groupName].setChecked(True)
-                self.mainWindowRef.setDisplayedTestGroup(groupName)
-
-    def onChacked(self):
-        clickedCheckBox = self.sender()
-        if clickedCheckBox.isChecked():
+    def onSelected(self):
             if self.displaySwitchGroupWarningPopUp():
-                for checkBox in self.groupCheckBoxArr.values():
-                    if checkBox is not clickedCheckBox and checkBox.isChecked():
-                        checkBox.setChecked(False)
-                groupName = clickedCheckBox.objectName().split('_')[1]
+                groupName = self.comboBox.currentText()
                 self.mainWindowRef.setDisplayedTestGroup(groupName)
-            else:
-                clickedCheckBox.setChecked(False)
-        else:
-            clickedCheckBox.setChecked(True)
 
     def displaySwitchGroupWarningPopUp(self):
         return GUIUtills.PopUpWarning("Are you sure you want to switch group?\n "
                                       "Switching will delete all tests configured for current System Under Test")
 
-    def cahngeSelected(self, groupName):
-        for checkBox in self.groupCheckBoxArr.values():
-            if checkBox.objectName().split('_')[1] == groupName:
-                checkBox.setChecked(True)
-            else:
-                checkBox.setChecked(False)
+    def changeSelected(self, groupName):
+        self.comboBox.setCurrentText(groupName)
 
     def scrollSetup(self):
         self.widget = QWidget()
@@ -72,8 +49,7 @@ class groupBox(QtWidgets.QGroupBox):
         self.scroll.setGeometry(QtCore.QRect(0, 20, 260, 165))
 
     def retranslateUi(self):
-        self.setToolTip("Group list")
+        self.setToolTip("Group Drop Down")
         self.setTitle("Select Group")
         self.setStyleSheet("background-color:rgb(224,224,224)")
-        for groupName in self.groupNames:
-            self.groupCheckBoxArr[groupName].setText(groupName)
+

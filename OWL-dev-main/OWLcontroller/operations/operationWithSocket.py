@@ -17,13 +17,13 @@ class operationWithSocket(operation):
         pass
     
     def createCommunication(self,controllerPc,hostPc, testLog): #
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Create communication")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Create communication")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']  # socket server port number
         clientSocket = socket.socket()  # instantiate
         try:
             clientSocket.connect((hostPc["IP"], port))  # connect to the server
         except socket.error as e:
-            controllerPc.updateRunTimeStateInTerminal(hostPc,testLog, "\n " + str(e) + "\n ")
+            controllerPc.updateTerminalAndLog(hostPc, testLog, "\n " + str(e) + "\n ")
             return False
         return clientSocket
 

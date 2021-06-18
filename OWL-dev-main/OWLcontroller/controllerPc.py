@@ -11,7 +11,7 @@ from datetime import datetime
 import datetime
 from lecroy.verificationScriptEngine import verificationScriptEngine
 from validator import *
-import lecroy.analyzer
+import lecroy.lecroyMain
 
 class ControllerPc():
     def __init__(self,conf='defaultConfiguration.json'):
@@ -41,7 +41,7 @@ class ControllerPc():
         self.GUIInit()
 
     def createLecroyHandlerInstance(self):  #TODO  look at this
-        lecroyHandler = lecroy.analyzer.lecroyHandler(self) #TODO need to change analyzer.py to lecroyMain.py
+        lecroyHandler = lecroy.lecroyMain.lecroyHandler(self) #TODO need to change lecroyMain.py to lecroyMain.py
         return lecroyHandler
 
     def startRecordingWithAnalyzer(self, lecroyHandler, SavedTraceFullPathAndName, RecordOptionFilePath, hostPc, testLog):
@@ -69,9 +69,9 @@ class ControllerPc():
     def dispatchThreads(self):
         logging.info("dispatching Threads")
         self.runtimeHostPcsData = {}
-        if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC: #TODO this function duplicated need to put in a common place to all of this - some utils to all system
+        if self.isCurrentExecutionModeIsHostPcMode(): #TODO this function duplicated need to put in a common place to all of this - some utils to all system
             hosts = self.configs.defaultConfContent['hostPCs'] #TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
-        if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER:
+        else:
             hosts = self.configs.defaultConfContent["Exercisers"]
         for hostPc in hosts:
             if hostPc["checked"]:
@@ -97,12 +97,17 @@ class ControllerPc():
         elif "Exerciser" in self.configs.defaultConfContent['defaultExecutionMode']:
             return systemModes.systemExecutionModes.LEGACY_MODE_EXCERCISER
 
-    def updateRunTimeStateInTerminal(self, hostPc, testLog, update):
+    def isCurrentExecutionModeIsHostPcMode(self):
+        if self.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+            return True
+        return False
+
+    def updateTerminalAndLog(self, host, testLog, update):
         currentDatetime = self.getCurrentTime()
         terminalAddition = currentDatetime + "    " + update.strip() + "\n"
         print (terminalAddition)
-        self.runtimeHostPcsData[hostPc["IP"]]['terminal'] += terminalAddition
-        self.updateguiTerminal(hostPc)
+        self.runtimeHostPcsData[host["IP"]]['terminal'] += terminalAddition
+        self.updateguiTerminal(host)
         if testLog is not None:
             testLog.write(terminalAddition)
             testLog.flush()

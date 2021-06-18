@@ -18,21 +18,21 @@ class hibernate(operationWithSocket):
 
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, " \n Hibernate operation has started \n ")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, " \n Hibernate operation has started \n ")
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         socket = operationWithSocket.createCommunication(self,controllerPc,hostPc,testLog)
         if not socket:
             #controllerPc.updateRunTimeState(hostPc, "\nhibernate could not being made as socket creating has failed")
             return False
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Communication has been created")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Communication has been created")
         messegeToServer = {"operation": "hibernate"}
         socket.sendall(json.dumps(messegeToServer).encode('utf-8'))  # encode the dict to JSON
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Hibernate request has been sent to server")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Hibernate request has been sent to server")
         socket.close()
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Communication has been closed")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Communication has been closed")
         hostPcIsOff = operation.waitForPcToTurnOff(self, controllerPc, hostPc, testLog) # Verify the host is down
         if hostPcIsOff:
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Hibernate done successfully")
+            controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Hibernate done successfully")
         else:
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Hibernate operation has failed")
+            controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Hibernate operation has failed")
         return hostPcIsOff

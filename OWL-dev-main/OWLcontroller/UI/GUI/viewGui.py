@@ -1,7 +1,7 @@
 from UI.GUI import browser
 from UI.GUI.ScrollLabel import ScrollLabel
 from UI.GUI.exerHostGroupBox import exerHostGroupBox
-from UI.GUI.groupBox import *
+from UI.GUI.groupsDropDown import *
 from UI.GUI.browser import browser
 from UI.GUI.TestsGroupBox import *
 from UI.GUI.preferencesEditor import *
@@ -34,7 +34,7 @@ class mainWindow(object):
         self.createTerminal(skippedTestsNumber)
 
         self.hostExercisersGroupBox = exerHostGroupBox(self.centralwidget, self)
-        self.selectGroupBox = groupBox(self.centralwidget, self)
+        self.selectGroupBox = groupsDropDown(self.centralwidget, self)
 
         self.scrollArea_2 = QtWidgets.QScrollArea(self.centralwidget)
         self.scrollArea_2.setGeometry(QtCore.QRect(10, 30, 815, 111))
@@ -314,7 +314,7 @@ class mainWindow(object):
         self.currentHostPc = hostPc
         if self.currentHostPc is not None:  #TODO host pc need to be named host
             self.stackedLayout.setCurrentIndex(self.testsGroupBoxWithLeveltuples[hostPc['groupName']].stackLevel)
-            self.selectGroupBox.cahngeSelected(hostPc['groupName'])
+            self.selectGroupBox.changeSelected(hostPc['groupName'])
             testsGroupBoxWithLevelTuple = self.getCurrentTestsGroupBoxWithLevelTuple()
             testsGroupBoxWithLevelTuple.testsGroupBox.loadHostPCSTestParams(hostPc)
             self.setTerminal(hostPc)

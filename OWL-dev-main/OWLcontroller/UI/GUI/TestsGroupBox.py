@@ -19,16 +19,16 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         self.tests = tests
         HostsDictForCurrentSystemMode = self.getHostsDictForCurrentSystemMode() #TODO need to change the host pc to host becasue theres two modes
         if len(HostsDictForCurrentSystemMode) != 0:
-            self.myHostPc = HostsDictForCurrentSystemMode[0]
+            self.myHost = HostsDictForCurrentSystemMode[0]
         else:
-            self.myHostPc = None
+            self.myHost = None
         self.testTableSetup()
         self.scrollSetup()
         self.checkAllSetup()
 
 
     def getHostsDictForCurrentSystemMode(self):#TODO Go over this and put this in Utils because its duplicate code
-        if self.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+        if self.controller.isCurrentExecutionModeIsHostPcMode():
             return self.controller.configs.defaultConfContent["hostPCs"]
         else:
             return self.controller.configs.defaultConfContent["Exercisers"]
@@ -66,20 +66,20 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def repeatTestBoxChanged(self):
         repeatTestBox = self.sender()
         testName = repeatTestBox.objectName().split('_')[1]
-        if self.myHostPc is not None:
-            if testName in self.myHostPc['tests'].keys():
-                self.myHostPc['tests'][testName]['repeatAmount'] = repeatTestBox.value()
+        if self.myHost is not None:
+            if testName in self.myHost['tests'].keys():
+                self.myHost['tests'][testName]['repeatAmount'] = repeatTestBox.value()
             else:
-                self.myHostPc['tests'][testName] = {"repeatAmount" : repeatTestBox.value(), "checked" : False}
+                self.myHost['tests'][testName] = {"repeatAmount" : repeatTestBox.value(), "checked" : False}
 
     def onCheckBoxClicked(self):
         clickedCheckBox = self.sender()
         testName = clickedCheckBox.objectName().split('_')[1]
-        if self.myHostPc is not None:
-            if testName in self.myHostPc['tests'].keys():
-                self.myHostPc['tests'][testName]['checked'] = clickedCheckBox.isChecked()
+        if self.myHost is not None:
+            if testName in self.myHost['tests'].keys():
+                self.myHost['tests'][testName]['checked'] = clickedCheckBox.isChecked()
             else:
-                self.myHostPc['tests'][testName] = {"repeatAmount" : 0, "checked" : clickedCheckBox.isChecked()}
+                self.myHost['tests'][testName] = {"repeatAmount" : 0, "checked" : clickedCheckBox.isChecked()}
 
     def scrollSetup(self):
         self.widget = QWidget()
@@ -117,19 +117,18 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             return parsedTestRepeatsSummary(testState.PASSED, " Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]))
 
     def loadHostPCSTestParams(self, hostPc):
-
-        self.myHostPc = hostPc
-        self.setTitle(self.groupName + " Tests,   For " + self.myHostPc['IP'])
+        self.myHost = hostPc
+        self.setTitle(self.groupName + " Tests,   For " + self.myHost['IP'])
         for test in self.tests:
-            if test.testname in self.myHostPc['tests']:
-                savedTestParmsPerHostPc = self.myHostPc['tests'][test.testname]
+            if test.testname in self.myHost['tests']:
+                savedTestParmsPerHostPc = self.myHost['tests'][test.testname]
                 self.testsRows[test.testname].checkBox.setChecked(savedTestParmsPerHostPc['checked'])
                 self.testsRows[test.testname].repeatTestBox.setValue(savedTestParmsPerHostPc['repeatAmount'])
             else:
                 self.testsRows[test.testname].checkBox.setChecked(False)
                 self.testsRows[test.testname].repeatTestBox.setValue(0)
 
-            if self.myHostPc["IP"] in self.controller.runtimeHostPcsData.keys() and test.testname in self.controller.runtimeHostPcsData[self.myHostPc["IP"]].keys():
+            if self.myHost["IP"] in self.controller.runtimeHostPcsData.keys() and test.testname in self.controller.runtimeHostPcsData[self.myHost["IP"]].keys():
                 parsedTestRepeatsSummary = self.prepareTestRepeatsSummary(hostPc, test.testname)
                 self.testsRows[test.testname].statusLbl.setText(parsedTestRepeatsSummary.resultsStr)
                 self.testsRows[test.testname].statusLbl.setStyleSheet(COLOR_CONVERTER[parsedTestRepeatsSummary.stateForColor])
@@ -140,12 +139,12 @@ class TestsGroupBox(QtWidgets.QGroupBox):
     def onCheckAllClicked(self):
         for testRow in self.testsRows.values():
             testRow.checkBox.setChecked(self.checkAllBox.isChecked())
-        if self.myHostPc is not None:
+        if self.myHost is not None:
             for test in self.tests:
-                if test.testname in self.myHostPc['tests'].keys():
-                    self.myHostPc['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()
+                if test.testname in self.myHost['tests'].keys():
+                    self.myHost['tests'][test.testname]['checked'] = self.checkAllBox.isChecked()
                 else:
-                    self.myHostPc['tests'][test.testname] = {"repeatAmount": 0, "checked": self.checkAllBox.isChecked()}
+                    self.myHost['tests'][test.testname] = {"repeatAmount": 0, "checked": self.checkAllBox.isChecked()}
 
     def clearAll(self):
         self.setTitle(self.groupName + " tests")

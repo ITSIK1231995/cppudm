@@ -46,7 +46,7 @@ class lecroyHandler():
         self.traceFileName = "data.pex"  # default trace file name used in recording options
         self.controller = controller
 
-    def startRecordingWithAnalyzer(self,recOptionsFullPath,SavedTraceFullPathAndName,hostPc,testLog): #TODO change to lecroyHandler
+    def startRecordingWithAnalyzer(self,recOptionsFullPath,SavedTraceFullPathAndName,hostPc,testLog): #TODO change to lecroy
         global resetExerciserGenerationScriptState
         resetExerciserGenerationScriptState = 0
         traceReady = 0 #TODO need to change the name of it to  analzyer index

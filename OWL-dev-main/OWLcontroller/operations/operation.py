@@ -20,7 +20,7 @@ class operation(object):
         pass
 
     def waitForPcToTurnOn(self,controllerPc,hostPc,testLog): # when PC is ON output is True
-        controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, " \n Pinging Host until it's On  \n ")
+        controllerPc.updateTerminalAndLog(hostPc, testLog, " \n Pinging Host until it's On  \n ")
         clientSocket = socket.socket()
         port = controllerPc.configs.defaultConfContent['hostPcServerPort']
         maxMinutesToCreateSocket = controllerPc.configs.defaultConfContent['attempsToCreateSocket']
@@ -30,10 +30,10 @@ class operation(object):
                 clientSocket.connect((hostPc["IP"], port))  # connect to the server
                 clientSocket.send("Test".encode())
                 clientSocket.close()
-                controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOn - PC is ON")
+                controllerPc.updateTerminalAndLog(hostPc, testLog, "\nwaitForPcToTurnOn - PC is ON")
                 return True
             except socket.error as e:
-                controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOn - PC is OFF More "+ str(int(timeToStopTryingCreatingSocket -  time.time()) //60) + " minutes left to get a TO")
+                controllerPc.updateTerminalAndLog(hostPc, testLog, "\nwaitForPcToTurnOn - PC is OFF More " + str(int(timeToStopTryingCreatingSocket - time.time()) // 60) + " minutes left to get a TO")
                 pass
         return False
 
@@ -50,11 +50,11 @@ class operation(object):
                     len(re.findall("timed out", response)) == 4:
             # if "unreachable" in response or "timed out" in response:
                 if 'postPingWaitingTime' in hostPc:
-                    controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\n Awaiting for " + str(hostPc['postPingWaitingTime']) + " seconds")
+                    controllerPc.updateTerminalAndLog(hostPc, testLog, "\n Awaiting for " + str(hostPc['postPingWaitingTime']) + " seconds")
                     time.sleep(hostPc['postPingWaitingTime'])
-                controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOff - PC is OFF")
+                controllerPc.updateTerminalAndLog(hostPc, testLog, "\nwaitForPcToTurnOff - PC is OFF")
                 return True
-            controllerPc.updateRunTimeStateInTerminal(hostPc, testLog, "\nwaitForPcToTurnOff - PC is ON: More "+ str(int(timeToStopTryingCreatingSocket -  time.time()) //60) + " minutes left to get a TO") #TODO GO over this
+            controllerPc.updateTerminalAndLog(hostPc, testLog, "\nwaitForPcToTurnOff - PC is ON: More " + str(int(timeToStopTryingCreatingSocket - time.time()) // 60) + " minutes left to get a TO") #TODO GO over this
         return False
 
     def checkIfPcisOn(self,controllerPc,hostPc):
