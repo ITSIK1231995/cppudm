@@ -1,7 +1,6 @@
-from PyQt5.QtCore import Qt, QSize
-from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtCore import Qt
+from PyQt5 import QtWidgets, QtCore
 
-from UI.GUI import systemModes
 from UI.GUI.AddAndEditHostPc import *
 from UI.GUI.colorConvertor import *
 
@@ -17,11 +16,8 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.vbox = QVBoxLayout()
         self.controller = mainWindowRef.controller
         if self.controller.configs:
-            if self.controller.isCurrentExecutionModeIsHostPcMode():
-                self.hosts = self.controller.configs.defaultConfContent['hostPCs'] #TODO need to change4 all the hostPC to Host with CTRL Shit F
-            else:
-                self.hosts = self.controller.configs.defaultConfContent['Exercisers']
-            self.hostPCTableSetup()
+            self.hosts = getHostsDictFromDefaultConfigurationForCurrentExecutionMode(self.controller)
+            self.hostTableSetup()
             self.scrollSetup()
             self.addHostBtnSetup()
             if len(self.hosts) != 0:
@@ -41,12 +37,12 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         self.addHostPcBtn.setStyleSheet("background-color:rgb(255,178,102)");
         self.addHostPcBtn.clicked.connect(self.addHostPcBtnClicked)
 
-    def hostPCTableSetup(self):
+    def hostTableSetup(self):
         self.hostPcRows = {}
-        for hostPc in self.hosts:
-            self.addHostPcRow(hostPc)
+        for host in self.hosts:
+            self.addHostRow(host)
 
-    def addHostPcRow(self, hostPc):
+    def addHostRow(self, hostPc):
         groupBox = QtWidgets.QGroupBox()
         groupBox.setObjectName("GroupBox_" + hostPc['IP'])
 
@@ -105,11 +101,11 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
         hostPc = self.getHostPCFromBtnName(self.sender())
         AddAndEditHostPc(True, hostPc, self.mainWindowRef).exec()
 
-    def editSpecificHostPcCheckBoxLabel(self, IP, newAliasForHostPc):
-        self.hostPcRows[IP].checkBox.setText(newAliasForHostPc)
+    def editSpecificHostPcCheckBoxLabel(self, IP, newAliasForHost):
+        self.hostPcRows[IP].checkBox.setText(newAliasForHost)
 
     def userIsSureHeWantsTODel(self, IP):
-        return GUIUtills.PopUpWarning("Are you sure you want to delete System Under Test " + str(IP) + " ?\n " "This will delete all tests and data configured")
+        return GUIUtills.PopUpWarning("Are you sure you want to delete host: " + str(IP) + " ?\n " "This will delete all tests and data configured")
 
     def delBtnClicked(self):
         hostPc = self.getHostPCFromBtnName(self.sender())
@@ -118,7 +114,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
             self.hostPcRows[hostPc["IP"]].containingGroupBox.deleteLater()
             self.hosts.remove(hostPc)
             # if current displayed host pc is deleted then swap for another one
-            if self.mainWindowRef.currentHostPc["IP"] == oldHostPCIP:
+            if self.currHost["IP"] == oldHostPCIP:
                 if len(self.hosts) == 0:
                     self.mainWindowRef.setNewHostPC(None)
                 else:
@@ -150,7 +146,7 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
 
     def retranslateUi(self):
         self.setToolTip("System Under Test list")
-        self.setTitle("Exercisers / SUTs")
+        self.setTitle("System Under Test") if self.controller.isCurrentExecutionModeIsHostPcMode() else  self.setTitle("Exerciser")
         self.setStyleSheet("background-color:rgb(224,224,224)")
 
         for hostPc in self.hosts:
@@ -162,4 +158,4 @@ class exerHostGroupBox(QtWidgets.QGroupBox):
             self.hostPcRows[hostPc['IP']].editButton.setText("Edit")
             self.hostPcRows[hostPc['IP']].showButton.setText("Show")
             self.hostPcRows[hostPc['IP']].delButton.setText("Delete")
-        self.addHostPcBtn.setText("Add System Under Test")
+        self.addHostPcBtn.setText("Add Host")

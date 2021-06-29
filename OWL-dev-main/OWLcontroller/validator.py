@@ -1,3 +1,4 @@
+from Utils import getOperationObject
 from operations.allOperations import allOperations
 from collections import namedtuple
 import logging
@@ -8,21 +9,13 @@ class Validator:
         self.validateflowOps()
         self.validateAndFixHostPcSavedTestData()
 
-    def getOprationObject(self,operation):
-        opraion = namedtuple('opraion', ['name', 'opraionObj'])
-        mappedOperations = allOperations()
-        if isinstance(operation, dict):
-            return opraion(operation['name'], mappedOperations.operationsImplementation[operation['name']])
-        if isinstance(operation, str):
-            return opraion(operation, mappedOperations.operationsImplementation[operation])
-
     def validateflowOps(self):
         outputText = ""
         for groupName,groupTests in self.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups.items():
             for test in groupTests:
                 for x in range(len(test.flowoperations)-1):
-                    leadingOp = self.getOprationObject(test.flowoperations[x])
-                    tralingOp = self.getOprationObject(test.flowoperations[x+1])
+                    leadingOp = getOperationObject(test.flowoperations[x])
+                    tralingOp = getOperationObject(test.flowoperations[x + 1])
                     if not leadingOp.opraionObj.PCOnAfterTest() and tralingOp.opraionObj.asumesPcOnBeforeTest():
                         outputText +="At group= "+groupName+",test= "+test.testname+\
                                      "\nThe operation "+leadingOp.name+" can not be followed by "+tralingOp.name+"\n"

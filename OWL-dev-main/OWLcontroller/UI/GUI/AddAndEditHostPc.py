@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog,
-                             QDialogButtonBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
-                             QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
-                             QVBoxLayout,QCheckBox,QRadioButton)
+from PyQt5.QtWidgets import (QDialog,
+                             QDialogButtonBox, QFormLayout, QGroupBox, QSpinBox, QCheckBox)
 from collections import namedtuple
 
-from UI.GUI import systemModes
+import systemModes
 from UI.GUI.GUIUtills import *
+from Utils import getHostsDictFromDefaultConfigurationForCurrentExecutionMode, getTestsByGroupDictForCurrentSystemExecutionMode
+
 
 class AddAndEditHostPc(QDialog):
     def __init__(self,editMode,hostPc,mainWindowRef):
@@ -24,21 +24,21 @@ class AddAndEditHostPc(QDialog):
         mainLayout.addWidget(buttonBox)
         self.setLayout(mainLayout)
         if editMode:
-            self.setWindowTitle("Edit System Under Test")
+            self.setWindowTitle("Edit Host")
             self.fillWithData()
         else:
-            self.setWindowTitle("Add System Under Test")
+            self.setWindowTitle("Add Host")
 
     def createFormGroupBox(self):
-        self.formGroupBox = QGroupBox("System Under Test Settings")
+        self.formGroupBox = QGroupBox("Host Settings")
         layout = QFormLayout()
-        IPBox = QLineEdit()
+        hostIdentifierBox = QLineEdit()
         if self.editMode:
-            IPBox.setReadOnly(True)
-        layout.addRow(QLabel("IP \ DNS:"),IPBox)
+            hostIdentifierBox.setReadOnly(True)
+        layout.addRow(QLabel("IP \ DNS:"),hostIdentifierBox) if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode() else  layout.addRow(QLabel("Exerciser Serial Number"),hostIdentifierBox)
         aliasBox = QLineEdit()
         layout.addRow(QLabel("Alias:"), aliasBox)
-        if self.mainWindowRef.controller.currentSystemExecutionMode == systemModes.systemExecutionModes.LEGACY_MODE_HOST_PC:
+        if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
             COMBox = QLineEdit()
             layout.addRow(QLabel("Clicker COM:"),COMBox)
             chanelBox = QSpinBox()
@@ -53,14 +53,14 @@ class AddAndEditHostPc(QDialog):
         layout.addRow(postPingWait, postPingWaitTimeBox)
         self.formGroupBox.setLayout(layout)
         if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
-            formObjectsNamedTuple = namedtuple('formObjects', ['IPBox','aliasBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
-            self.formObjects = formObjectsNamedTuple(IPBox,aliasBox,COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
+            formObjectsNamedTuple = namedtuple('formObjects', ['hostIdentifierBox','aliasBox', 'COMBox','chanelBox','stopOnFailure','postPingWaitTimeBox'])
+            self.formObjects = formObjectsNamedTuple(hostIdentifierBox,aliasBox,COMBox,chanelBox,stopOnFailure,postPingWaitTimeBox)
         else:  # Current execution mode is Excercier mode
-            formObjectsNamedTuple = namedtuple('formObjects',['IPBox', 'aliasBox', 'stopOnFailure','postPingWaitTimeBox'])
-            self.formObjects = formObjectsNamedTuple(IPBox, aliasBox, stopOnFailure,postPingWaitTimeBox)
+            formObjectsNamedTuple = namedtuple('formObjects',['hostIdentifierBox', 'aliasBox', 'stopOnFailure','postPingWaitTimeBox'])
+            self.formObjects = formObjectsNamedTuple(hostIdentifierBox, aliasBox, stopOnFailure,postPingWaitTimeBox)
 
     def fillWithData(self):
-        self.formObjects.IPBox.setText(self.hostPc["IP"])
+        self.formObjects.hostIdentifierBox.setText(self.hostPc["IP"])
         self.formObjects.aliasBox.setText(self.hostPc["alias"])
         if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
             if  "clicker" in self.hostPc.keys():
@@ -76,22 +76,24 @@ class AddAndEditHostPc(QDialog):
         return not str(IP) == ""
 
     def IpExsists(self,IP):
-        allHostPcs = self.getHostsDictForCurrentSystemMode()
-        for hostPC in allHostPcs:
-            if hostPC["IP"] == IP:
+        allHost = getHostsDictFromDefaultConfigurationForCurrentExecutionMode(self.mainWindowRef.controller)
+        for host in allHost:
+            if host["IP"] == IP:
                 return True
         return False
 
     def acceptEditMode(self):
         if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
-            if "clicker" in self.hostPc.keys():
-                self.hostPc["clicker"]["COM"] = self.formObjects.COMBox.text()
-                self.hostPc["clicker"]["chanel"] = int(self.formObjects.chanelBox.text())
-            else:
-                self.hostPc["clicker"] = {
-                    "COM": self.formObjects.COMBox.text(),
-                    "chanel": self.formObjects.stopOnFailure.isChecked()
-                }
+            if self.formObjects.COMBox.text() != "":
+                if "clicker" in self.hostPc.keys():
+                    self.hostPc["clicker"]["COM"] = self.formObjects.COMBox.text()
+                    self.hostPc["clicker"]["chanel"] = int(self.formObjects.chanelBox.text())
+                else:
+                    self.hostPc["clicker"] = {
+                        "COM": self.formObjects.COMBox.text(),
+                        #"chanel": self.formObjects.stopOnFailure.isChecked() #TODO need to understand why i wrote it in this way
+                        "chanel": self.formObjects.chanelBox.text()
+                    }
         self.hostPc["stopOnFailure"] = self.formObjects.stopOnFailure.isChecked()
         self.hostPc["postPingWaitingTime"] = self.formObjects.postPingWaitTimeBox.value()
         self.hostPc["alias"] = self.formObjects.aliasBox.text()
@@ -102,20 +104,8 @@ class AddAndEditHostPc(QDialog):
             self.mainWindowRef.hostExercisersGroupBox.editSpecificHostPcCheckBoxLabel(self.hostPc["IP"],self.hostPc["IP"])
         self.close()
 
-    def getTestsByGroupDictForCurrentSystemMode(self):
-        if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
-            return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
-        else:
-            return self.mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
-
-    def getHostsDictForCurrentSystemMode(self):
-        if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
-            return self.mainWindowRef.controller.configs.defaultConfContent["hostPCs"]
-        else:
-            return self.mainWindowRef.controller.configs.defaultConfContent["Exercisers"]
-
     def acceptAddMode(self):
-        newHostIP = self.formObjects.IPBox.text()
+        newHostIP = self.formObjects.hostIdentifierBox.text()
         if not self.validIP(newHostIP):
             GUIUtills.PopUpWarning("IP is not writen correctly")
         elif  self.IpExsists(newHostIP):
@@ -126,7 +116,7 @@ class AddAndEditHostPc(QDialog):
                 "alias" : self.formObjects.aliasBox.text(),
                 "stopOnFailure": self.formObjects.stopOnFailure.isChecked(),
                 "checked" : False,
-                "groupName": list(self.getTestsByGroupDictForCurrentSystemMode().keys())[0], # default is the first group
+                "groupName": list(getTestsByGroupDictForCurrentSystemExecutionMode(self.mainWindowRef.controller).keys())[0], # default is the first group
                 "tests" : {},
                 "postPingWaitingTime" : self.formObjects.postPingWaitTimeBox.value()
             }
@@ -134,10 +124,11 @@ class AddAndEditHostPc(QDialog):
                 if self.formObjects.COMBox.text() != "":
                     host["clicker"] = {
                         "COM" : self.formObjects.COMBox.text(),
-                        "chanel" : self.formObjects.stopOnFailure.isChecked()
+                        # "chanel" : self.formObjects.stopOnFailure.isChecked()#TODO need to understand why i wrote it in this way
+                        "chanel": self.formObjects.chanelBox.text()
                     }
-            self.getHostsDictForCurrentSystemMode().append(host)
-            self.mainWindowRef.hostExercisersGroupBox.addHostPcRow(host)
+            getHostsDictFromDefaultConfigurationForCurrentExecutionMode(self.mainWindowRef.controller).append(host)
+            self.mainWindowRef.hostExercisersGroupBox.addHostRow(host)
             self.mainWindowRef.hostExercisersGroupBox.retranslateUi()
             self.close()
 

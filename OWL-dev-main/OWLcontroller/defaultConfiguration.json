@@ -12,19 +12,92 @@
     "analyzerMinVersion": "VERSION",
     "hostPCs": [
         {
-            "IP": "123456",
+            "IP": "as",
+            "alias": "",
+            "stopOnFailure": false,
+            "checked": false,
+            "groupName": "Hermes",
+            "tests": {
+                "Hermes - Power On Ready drive master": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Hermes - Power On Ready 2 reboot": {
+                    "repeatAmount": 1,
+                    "checked": true
+                }
+            },
+            "postPingWaitingTime": 0,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": 1
+            }
+        },
+        {
+            "IP": "10.45.150.187",
             "alias": "",
             "stopOnFailure": false,
             "checked": true,
             "groupName": "Hermes",
             "tests": {
-                "Hermes - Power On Ready drive master": {
+                "Hermes - Power On Ready 2 reboot": {
                     "repeatAmount": 1,
                     "checked": true
                 }
             },
-            "postPingWaitingTime": 0
+            "postPingWaitingTime": 0,
+            "clicker": {
+                "COM": "COM4",
+                "chanel": "1"
+            }
         }
     ],
-    "Exercisers": []
+    "Exercisers": [
+        {
+            "IP": "asdasd",
+            "alias": "",
+            "stopOnFailure": false,
+            "checked": true,
+            "groupName": "Calypso",
+            "tests": {
+                "Calypso - Gen3X2 Backward Compatibility": {
+                    "repeatAmount": 1,
+                    "checked": true
+                },
+                "Calypso - D3 COLD Entry/Exit Latency": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Calypso - Power On Ready (Typical - Sudden need precondition)": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Calypso - Power On Ready (Sudden ONLY verfication script is different)": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Calypso - Gen2X2 Backward Compatibility": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Calypso - Gen3X1 Backward Compatibility": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Calypso - Gen3X4 Compatibility": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Calypso - MICROSOFT Power On Ready": {
+                    "repeatAmount": 1,
+                    "checked": false
+                },
+                "Calypso - Power On Ready with PME_Turn_Off": {
+                    "repeatAmount": 1,
+                    "checked": false
+                }
+            },
+            "postPingWaitingTime": 0
+        }
+    ]
 }

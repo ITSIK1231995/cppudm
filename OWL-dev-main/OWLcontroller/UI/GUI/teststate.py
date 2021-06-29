@@ -1,5 +1,5 @@
 from enum import Enum
-class testState(Enum): #TODO  look at this
+class testState(Enum):
     PASSED = 1
     FAILED = 2
     RUNNING = 3

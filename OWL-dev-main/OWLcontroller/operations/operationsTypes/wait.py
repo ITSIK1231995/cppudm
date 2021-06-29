@@ -6,11 +6,11 @@ class wait(operation):
         pass
 
     @staticmethod
-    def PCOnAfterTest():#well the pc be on after test finishes
+    def PCOnAfterTest():# wwill the pc be on after test finishes
         return True
 
     @staticmethod
-    def asumesPcOnBeforeTest():#does the test asumes the pc well be on before runing
+    def asumesPcOnBeforeTest():#does the test asumes the pc will be on before running
         return True
 
     def runOp(self,controllerPc,hostPc,testLog,opParams):

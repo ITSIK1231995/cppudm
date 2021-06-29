@@ -1,8 +1,9 @@
-from PyQt5.QtCore import Qt, QSize
-from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtCore import Qt
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QComboBox
-from UI.GUI import systemModes
 from UI.GUI.GUIUtills import *
+from Utils import getTestsByGroupDictForCurrentSystemExecutionMode
+
 
 class groupsDropDown(QtWidgets.QGroupBox): #TODO need to look at this new drop down instead of group box
     def __init__(self, centralwidget, mainWindowRef):
@@ -11,14 +12,8 @@ class groupsDropDown(QtWidgets.QGroupBox): #TODO need to look at this new drop d
         self.setGeometry(QtCore.QRect(10, 440, 260, 185))
         self.setObjectName("selectGroupBox")
         self.vbox = QVBoxLayout()
-        self.groupNames = self.getDictOfTestByGroupsForCurrentSystemMode().keys()  #TODO  look at this
+        self.groupNames = getTestsByGroupDictForCurrentSystemExecutionMode(self.mainWindowRef.controller).keys()  #TODO  look at this
         self.groupListSetup()
-
-    def getDictOfTestByGroupsForCurrentSystemMode(self):  #TODO need to use here the isHostPC methood and also take this function to the utils because it also in more files in the GUI
-        if self.mainWindowRef.controller.isCurrentExecutionModeIsHostPcMode():
-            return self.mainWindowRef.controller.configs.legacyMode.legacyFlowOperationsTestsByGroups
-        else:
-            return self.mainWindowRef.controller.configs.legacyMode.legacyTestsByGroup
 
     def groupListSetup(self):
         self.comboBox = QComboBox(self)

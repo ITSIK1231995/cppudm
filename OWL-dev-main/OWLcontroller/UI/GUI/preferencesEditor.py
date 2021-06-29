@@ -56,15 +56,15 @@ class PreferencesEditor(QDialog):
         self.formObjects.defaultExecutionModeBox.addItems(defaultConf["defaultExecutionOptions"])
         self.formObjects.defaultExecutionModeBox.setCurrentText(defaultConf["defaultExecutionMode"])
         self.formObjects.resultPathBox.setText(defaultConf["resultPath"])
-        self.formObjects.legacyModePathBox.setText(defaultConf["legacyModePath"]) #disable Errinj Mode has it canceled for now
-        # self.formObjects.errinjModePathBox.setText(defaultConf["errinjModePath"])  #TODO  look at this
+        self.formObjects.legacyModePathBox.setText(defaultConf["legacyModePath"])
+        # self.formObjects.errinjModePathBox.setText(defaultConf["errinjModePath"])  #disable Errinj Mode has it removed from SRS (at the moment)
         self.formObjects.analyzerMinVersionBox.setText(defaultConf["analyzerMinVersion"])
 
     def isFormValid(self):
         if self.formObjects.resultPathBox.text() == "" \
             or self.formObjects.legacyModePathBox.text() == ""\
             or self.formObjects.analyzerMinVersionBox.text() == "":
-            # or self.formObjects.errinjModePathBox.text() == "" \ #disable Errinj Mode has it canceled for now
+            # or self.formObjects.errinjModePathBox.text() == "" \  #disable Errinj Mode has it removed from SRS (at the moment)
 
             GUIUtills.PopUpWarning("Please make sure that all the fields are filled")
             return False

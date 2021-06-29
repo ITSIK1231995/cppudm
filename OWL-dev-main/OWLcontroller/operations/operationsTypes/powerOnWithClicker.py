@@ -25,11 +25,16 @@ class powerOnWithClicker(operation):
         # hostPcIsOFf = operation.waitForPcToTurnOff(self,controllerPc,hostPc,testLog)
         # if hostPcIsOFf:
         controllerPc.updateTerminalAndLog(hostPc, testLog, "\nActivate Clicker")
-        os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
-        os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
-                      " > " + hostPc['clicker']['COM'])
-        os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][1] +
-                      " > " + hostPc['clicker']['COM'])
+        try:#TODO look at this
+            os.system("mode " + hostPc['clicker']['COM'] + " BAUD=9600 PARITY=n DATA=8")
+            os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][0] +
+                          " > " + hostPc['clicker']['COM'])
+            os.system("echo " + powerOnWithClicker.CLICKER_CHANNEL_COMMANDS[hostPc['clicker']['chanel']][1] +
+                          " > " + hostPc['clicker']['COM'])
+        except Exception as e:#TODO look at this
+            print ("\n Exception occurred while handling the values provided for Clicker/chanel, Exception message: " + str(e) ) #TODO look at this
+            controllerPc.updateTerminalAndLog(hostPc, testLog,"\n Exception occurred while handling the values provided for Clicker/chanel, Exception message: " + str(e))
+            return False
         hostPcIsOn = operation.waitForPcToTurnOn(self,controllerPc,hostPc,testLog)
         if hostPcIsOn:
             controllerPc.updateTerminalAndLog(hostPc, testLog, "\n System Under Test is On")

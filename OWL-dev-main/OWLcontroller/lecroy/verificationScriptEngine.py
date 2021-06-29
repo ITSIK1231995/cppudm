@@ -3,25 +3,25 @@ from lecroy.dispatchComObj import dispatchComObj
 
 class PEEvent(object):
     def __init__(self,hostPc,testLog,controller):
-        self.hostPc = hostPc
+        self.host = hostPc
         self.testLog = testLog
         self.controller = controller
 
     def OnTraceCreated(self, trace):
         try:
             print("PEEvent::OnTraceCreated - %s" % trace)
-            self.controller.updateTerminalAndLog(self.hostPc, self.testLog, "\nPEEvent::OnTraceCreated - %s" % trace)
+            self.controller.updateTerminalAndLog(self.host, self.testLog, "\nPEEvent::OnTraceCreated - %s" % trace)
         except Exception as e:
             print("PEEvent::OnTraceCreated failed with exception: %s" % e)
-            self.controller.updateTerminalAndLog(self.hostPc, self.testLog, "\nPEEvent::OnTraceCreated failed with exception: %s" % e)
+            self.controller.updateTerminalAndLog(self.host, self.testLog, "\nPEEvent::OnTraceCreated failed with exception: %s" % e)
 
     def OnStatusReport(self, subsystem, state, percent_done):
         try:
             print("PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state,percent_done))
-            self.controller.updateTerminalAndLog(self.hostPc, self.testLog, "PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state, percent_done))
+            self.controller.updateTerminalAndLog(self.host, self.testLog, "PEEvent::OnStatusReport - subsystem:{0}, state:{1}, progress:{2}".format(subsystem, state, percent_done))
         except Exception as e:
             print("PEEvent::OnStatusReport failed with exception: %s" % e)
-            self.controller.updateTerminalAndLog(self.hostPc, self.testLog, "PEEvent::OnStatusReport failed with exception: %s" % e)
+            self.controller.updateTerminalAndLog(self.host, self.testLog, "PEEvent::OnStatusReport failed with exception: %s" % e)
 
 # class for for handling VSE events
 class VSEventHandler(object):

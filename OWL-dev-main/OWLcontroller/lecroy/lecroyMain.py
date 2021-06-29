@@ -45,6 +45,7 @@ class lecroyHandler():
     def __init__(self,controller):
         self.traceFileName = "data.pex"  # default trace file name used in recording options
         self.controller = controller
+        os.system("TASKKILL /F /IM PETracer.exe")
 
     def startRecordingWithAnalyzer(self,recOptionsFullPath,SavedTraceFullPathAndName,hostPc,testLog):
         global resetExerciserGenerationScriptState
@@ -62,7 +63,7 @@ class lecroyHandler():
             time.sleep(5) #Start recording requires few seconds of waiting by spec
         except com_error as e:
             print(str(e))
-            self.controller.updateTerminalAndLog(self.lecroyObj.hostPc, self.lecroyObj.testLog, "\n While trying to start the Analzyer record, the following exception occured: " + str(e))
+            self.controller.updateTerminalAndLog(self.lecroyObj.hostPc, self.lecroyObj.testLog, "\n Start Recording failed with the following exception:  " + str(e))
         return self.lecroyObj
 
     def stopAnalyzerRecording(self):
@@ -79,8 +80,12 @@ class lecroyHandler():
     def loadGenerationOptionToExerciser(self, lecroyObj,generationOptionFullPath):
         lecroyObj.GetGenerationOptions().Load(generationOptionFullPath)
 
-    def startGenerationScriptOnExerciser(self,lecroyObj,generationScriptFullPathAndName):
-        lecroyObj.StartGeneration(generationScriptFullPathAndName, 0, 0)
+    def startGenerationScriptOnExerciser(self,lecroyObj,generationScriptFullPathAndName,host,testLog,controllerPc):
+        try:
+            lecroyObj.StartGeneration(generationScriptFullPathAndName, 0, 0)
+        except com_error as e:
+            print(str(e))
+            self.controller.updateTerminalAndLog(self.lecroyObj.hostPc, self.lecroyObj.testLog,"\n Start Generation failed with the following exception: " + str(e))
 
     def verifyExerciserGenerationScriptFinished(self): #TODO need to add time out
         while resetExerciserGenerationScriptState != 1:

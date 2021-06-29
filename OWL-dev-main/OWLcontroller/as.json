@@ -1,0 +1,40 @@
+{
+    "hostPcServerPort": 5000,
+    "attempsToCreateSocket": 40,
+    "defaultExecutionOptions": [
+        "Legacy Mode Host Pc",
+        "Legacy Mode Exerciser"
+    ],
+    "defaultExecutionMode": "Exerciser",
+    "resultPath": "results",
+    "legacyModePath": "TestConfigIni",
+    "errinjModePath": "errinjModeConfigFiles\\experiment",
+    "analyzerMinVersion": "VERSION",
+    "hostPCs": [
+        {
+            "IP": "123456",
+            "alias": "",
+            "stopOnFailure": false,
+            "checked": true,
+            "groupName": "Hermes",
+            "tests": {
+                "Hermes - Power On Ready drive master": {
+                    "repeatAmount": 1,
+                    "checked": true
+                }
+            },
+            "postPingWaitingTime": 0
+        }
+    ],
+    "Exercisers": [
+        {
+            "IP": "13",
+            "alias": "12",
+            "stopOnFailure": false,
+            "checked": false,
+            "groupName": "Hermes",
+            "tests": {},
+            "postPingWaitingTime": 0
+        }
+    ]
+}
