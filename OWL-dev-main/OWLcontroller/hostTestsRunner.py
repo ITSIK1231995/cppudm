@@ -1,23 +1,20 @@
 import datetime
 import os
 import threading
-from collections import namedtuple
-
 from Utils import getOperationObject, getTestsByGroupDictForCurrentSystemExecutionMode
-from systemModes import systemExecutionModes
 from UI.GUI.teststate import testState
-from operations.allOperations import allOperations
 import logging
-#TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
-class hostPcTestsRunner():
-    def __init__(self, controllerPc, hostPc):
-        self.controllerPc = controllerPc
-        self.host = hostPc
-        self.testToRun = self.getRelevantTestForHostPc()  #TODO  look at this
-        self.threadLock = threading.Lock()
-        logging.info("HostPc worker thread " + hostPc["IP"] + " started")
 
-    def getRelevantTestForHostPc(self):  #TODO  look at this
+#TODO when adding the execciser mode - need to add here an if statement to check which mode i am now, and than to send to the threadMain instead of hostPc , need to send generic host and instead of "IP" to te host need to send identifier the identifier will include IP when its host pc mdoe and maybe ID or serial number when it is excerciser mode , after that in the "hostPcTestRunner" i will get in the _init__ function the host and the indetifeir and will use it in the hostPcTestRunner, in addition in the hostPcTestRunner i will add a function that calls the controller and ask him to activate the xcerciser instead of activationg the sequcne of operation that way the class of HostPcTestRunner will support both execiser and host pc
+class hostTestsRunner():
+    def __init__(self, controllerPc, host):
+        self.controllerPc = controllerPc
+        self.host = host
+        self.testToRun = self.getRelevantTestForHost()
+        self.threadLock = threading.Lock()
+        logging.info("Host worker thread " + host["IP"] + " started")
+
+    def getRelevantTestForHost(self):
         allTests = getTestsByGroupDictForCurrentSystemExecutionMode(self.controllerPc)[self.host["groupName"]]
         relevantTests = []
         for test in allTests:
@@ -55,7 +52,6 @@ class hostPcTestsRunner():
     def replaceSpecialCharactersWithSpaces(self, testName):
         return testName.translate ({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
 
-
     def updateUiAndControllerWithTestStatuses(self,test,numOfPass,numOfFails):
         self.controllerPc.runtimeHostPcsData[self.host["IP"]][test.testname] = \
             {"testRepeatsCurrStatus": testState.RUNNING,
@@ -76,10 +72,10 @@ class hostPcTestsRunner():
     def getRecordOptionFilePath(self,test):
         return os.getcwd() + "\\" + test.recordingoptions
 
-    def getTrainerInitScriptFullPathAndNameForExerciser(self,test):
+    def getTrainerInitScriptFullPathForExerciserFromTestConf(self, test):
         return os.getcwd() + "\\" + test.trainerinitscript
 
-    def getTrainerScriptForExerciser(self,test):
+    def getTrainerScriptPathForExerciserFromTestConf(self, test):
         return os.getcwd() + "\\" + test.trainerscript
 
     def getSavedTraceFullPath(self):
@@ -133,11 +129,12 @@ class hostPcTestsRunner():
             self.controllerPc.updateTerminalAndLog(self.host, None, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(numOfFails) + "\n")
             self.printToLog("finished test= " + test.testname)
             if self.controllerPc.haltThreads:
-                self.controllerPc.updateTerminalAndLog(self.host, None, "Testing stopped")
+                self.controllerPc.updateTerminalAndLog(self.host, None, "Testing Stopped")
                 self.printToLog("Halting")
                 break
         self.updateUiAndContollerWithHostdata(hostFinalStatus)
-        self.printToLog("Finished running tests")
+        del self.controllerPc.runtimeHostPcsData[self.host["IP"]] #TODO this deletion need to be moved from here to other place because if its here , when the test endes the data deletes from the runtimHostPcDAta dict and than when i switch modes (exerciser or Host mode) the data doesnt apear in the guiso we need to delete the host only in 2 conditions: 1) the host finished to run 2) we are starting a new run on the choosen hosts
+        self.printToLog("Finished Running Tests")
 
 
     def runTestOnExcerciser(self, lecroyObj, test, lecroyHandler,testLog):
@@ -145,11 +142,11 @@ class hostPcTestsRunner():
         self.controllerPc.loadGenerationOptionsToExerciser(lecroyObj,os.getcwd() + "\\" + test.generationoptions,lecroyHandler)
         self.controllerPc.updateTerminalAndLog(self.host, testLog, test.generationoptions + " has been loaded")
         self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Init Script Started")
-        result = self.controllerPc.startGenerationScriptWithExerciser(lecroyHandler,lecroyObj,self.getTrainerInitScriptFullPathAndNameForExerciser(test), self.host,testLog,self.controllerPc)
+        result = self.controllerPc.startGenerationScriptWithExerciser(lecroyHandler, lecroyObj, self.getTrainerInitScriptFullPathForExerciserFromTestConf(test), self.host, testLog, self.controllerPc)
         if self.controllerPc.verifyGenerationScriptOnExerciserFinished(lecroyHandler):
             self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Init Script Finished")
             self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Script Started")
-            self.controllerPc.startGenerationScriptWithExerciser(lecroyHandler, lecroyObj, self.getTrainerScriptForExerciser(test),self.host,testLog,self.controllerPc)
+            self.controllerPc.startGenerationScriptWithExerciser(lecroyHandler, lecroyObj, self.getTrainerScriptPathForExerciserFromTestConf(test), self.host, testLog, self.controllerPc)
             if self.controllerPc.verifyGenerationScriptOnExerciserFinished(lecroyHandler):
                 self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Script Finished")
                 return True
