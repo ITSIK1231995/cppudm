@@ -211,47 +211,47 @@ class mainWindow(object): #TODO  need to make this pretty and to work on top lab
     def saveConfAsBtnClicked(self):
         fileName = self.getFileNameFromUser()
         if fileName is not None:
-            self.controller.savedDefaultConfContentIntoJson(fileName)
+            self.controller.savedDefaultConfContentIntoJson(fileName + '.json')
 
     def saveConfBtnClicked(self):
         self.controller.savedDefaultConfContentIntoJson(self.controller.currentDefaultConfigurationLoadedName)
 
     def retranslateUi(self, skippedTestsNumber):
-        _translate = QtCore.QCoreApplication.translate
-        skippedTestsNumber.setWindowTitle(_translate("skippedTestsNumber", "O.W.L"))
+        self._translate = QtCore.QCoreApplication.translate
+        skippedTestsNumber.setWindowTitle(self._translate("skippedTestsNumber", "O.W.L"))
         self.selectGroupBox.retranslateUi()
         self.hostExercisersGroupBox.retranslateUi()
         self.retranslateUiTestsGroupBoxs()
-        self.runTests.setText(_translate("skippedTestsNumber", "Run"))
-        self.stopButton.setText(_translate("skippedTestsNumber", "Stop"))
-        self.totalTestsNumber_2.setText(_translate("skippedTestsNumber", "0"))
-        self.totalTestsLabel.setText(_translate("skippedTestsNumber", "Total"))
-        self.passedTestsLabel.setText(_translate("skippedTestsNumber", "Passed"))
+        self.runTests.setText(self._translate("skippedTestsNumber", "Run"))
+        self.stopButton.setText(self._translate("skippedTestsNumber", "Stop"))
+        self.totalTestsNumber_2.setText(self._translate("skippedTestsNumber", "0"))
+        self.totalTestsLabel.setText(self._translate("skippedTestsNumber", "Total"))
+        self.passedTestsLabel.setText(self._translate("skippedTestsNumber", "Passed"))
         self.passedTestsLabel.setStyleSheet("background-color:rgb(0,255,0)")
-        self.passedTestsNumber.setText(_translate("skippedTestsNumber", "0"))
-        self.failedTestsNumber.setText(_translate("skippedTestsNumber", "0"))
-        self.failedTestsLabel.setText(_translate("skippedTestsNumber", "Failed"))
+        self.passedTestsNumber.setText(self._translate("skippedTestsNumber", "0"))
+        self.failedTestsNumber.setText(self._translate("skippedTestsNumber", "0"))
+        self.failedTestsLabel.setText(self._translate("skippedTestsNumber", "Failed"))
         self.failedTestsLabel.setStyleSheet("background-color:rgb(255,102,102)")
-        self.skippedTestsLabel.setText(_translate("skippedTestsNumber", "Skipped"))
+        self.skippedTestsLabel.setText(self._translate("skippedTestsNumber", "Skipped"))
         self.skippedTestsLabel.setStyleSheet("background-color:rgb(255,178,102)")
-        self.skippedTestsNumber_2.setText(_translate("skippedTestsNumber", "0"))
-        self.menufiles.setTitle(_translate("skippedTestsNumber", "Files"))
-        self.menuHelp.setTitle(_translate("skippedTestsNumber", "Help"))
-        self.menuTools.setTitle(_translate("skippedTestsNumber", "Tools"))
-        self.menuAbout.setTitle(_translate("skippedTestsNumber", "About"))
-        self.menuMode.setTitle(_translate("skippedTestsNumber", "Mode"))
+        self.skippedTestsNumber_2.setText(self._translate("skippedTestsNumber", "0"))
+        self.menufiles.setTitle(self._translate("skippedTestsNumber", "Files"))
+        self.menuHelp.setTitle(self._translate("skippedTestsNumber", "Help"))
+        self.menuTools.setTitle(self._translate("skippedTestsNumber", "Tools"))
+        self.menuAbout.setTitle(self._translate("skippedTestsNumber", "About"))
+        self.menuMode.setTitle(self._translate("skippedTestsNumber", "Mode"))
 
-        self.actionSaveConfigurationInsteadTheCurrentConfigurationFile.setText(_translate("skippedTestsNumber", "Save Configuration"))
-        self.actionSave_configuration.setText(_translate("skippedTestsNumber", "Save Configuration As"))
-        self.actionLoad_configuration.setText(_translate("skippedTestsNumber", "Load Configuration"))
+        self.actionSaveConfigurationInsteadTheCurrentConfigurationFile.setText(self._translate("skippedTestsNumber", "Save Configuration"))
+        self.actionSave_configuration.setText(self._translate("skippedTestsNumber", "Save Configuration As"))
+        self.actionLoad_configuration.setText(self._translate("skippedTestsNumber", "Load Configuration"))
 
-        self.actionSettings.setText(_translate("skippedTestsNumber", "Settings"))
-        self.actionPreferences.setText(_translate("skippedTestsNumber", "Preferences"))
-        self.actionLegacy_Mode_Host_PC.setText(_translate("skippedTestsNumber", "System Under Test"))
+        self.actionSettings.setText(self._translate("skippedTestsNumber", "Settings"))
+        self.actionPreferences.setText(self._translate("skippedTestsNumber", "Preferences"))
+        self.actionLegacy_Mode_Host_PC.setText(self._translate("skippedTestsNumber", "System Under Test"))
         self.actionLegacy_Mode_Host_PC.triggered.connect(self.hostPcModeChoosed)
-        self.actionLegacy_Mode_Exerciser.setText(_translate("skippedTestsNumber", "Exerciser"))
+        self.actionLegacy_Mode_Exerciser.setText(self._translate("skippedTestsNumber", "Exerciser"))
         self.actionLegacy_Mode_Exerciser.triggered.connect(self.exerciserModeChoosed)
-        # self.actionErrinj_Mode.setText(_translate("skippedTestsNumber", "Errinj Mode"))  # disable Errinj Mode has it canceled for now
+        # self.actionErrinj_Mode.setText(self._translate("skippedTestsNumber", "Errinj Mode"))  # disable Errinj Mode has it canceled for now
 
     def runBtnPressed(self):
         self.controller.startExecution()
@@ -295,7 +295,6 @@ class mainWindow(object): #TODO  need to make this pretty and to work on top lab
 
     def removeTestStatusLblFromPreviousExecution(self, groupName): #TODO look at this
         self.testsGroupBoxWithLeveltuples[groupName].testsGroupBox.retranslateUi()
-
 
     def setDefultHostPc(self):
         hostLists = getHostsDictFromDefaultConfigurationForCurrentExecutionMode(self.controller)
@@ -346,10 +345,14 @@ class mainWindow(object): #TODO  need to make this pretty and to work on top lab
         else:
             self.stackedLayout.setCurrentIndex(self.testsGroupBoxWithLeveltuples[groupName].stackLevel)
 
-    def updateTestStatusLblInRunTime(self, hostPc, test):
-        if self.currentHost == hostPc:
-            self.getCurrentTestsGroupBoxWithLevelTuple().testsGroupBox.updateTestStatusLbl(hostPc, test.testname)
+    def updateTestStatusLblInRunTime(self, host, test):
+        if self.currentHost == host:
+            self.getCurrentTestsGroupBoxWithLevelTuple().testsGroupBox.updateTestStatusLbl(host, test.testname)
 
+    def updateUiSummerizeBox(self,numOfPassTests,numOffailedTests,numOfTestToRun): #TODO look at this
+        self.passedTestsNumber.setText(self._translate("skippedTestsNumber", str(numOfPassTests)))
+        self.failedTestsNumber.setText(self._translate("skippedTestsNumber", str(numOffailedTests)))
+        self.totalTestsNumber_2.setText(self._translate("skippedTestsNumber", str(numOfTestToRun)))
     def updateHostPcLabels(self, hostPcWithNewStatus):
         self.hostExercisersGroupBox.hostPcRows[hostPcWithNewStatus["IP"]].checkBox.setStyleSheet(
             COLOR_CONVERTER[self.controller.runtimeHostPcsData[hostPcWithNewStatus["IP"]]["hostPcLblColor"]])

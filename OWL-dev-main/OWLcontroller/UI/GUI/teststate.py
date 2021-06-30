@@ -5,3 +5,4 @@ class testState(Enum):
     RUNNING = 3
     FINISHED = 4
     NOTSTARTED = 5
+    TESTREPEATISZERO = 6 #TODO look at this

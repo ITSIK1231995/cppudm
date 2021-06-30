@@ -70,7 +70,7 @@ class TestsGroupBox(QtWidgets.QGroupBox):
             if testName in self.myHost['tests'].keys():
                 self.myHost['tests'][testName]['checked'] = clickedCheckBox.isChecked()
             else:
-                self.myHost['tests'][testName] = {"repeatAmount" : 0, "checked" : clickedCheckBox.isChecked()}
+                self.myHost['tests'][testName] = {"repeatAmount" : 1, "checked" : clickedCheckBox.isChecked()}
 
     def scrollSetup(self):
         self.widget = QWidget()
@@ -101,14 +101,16 @@ class TestsGroupBox(QtWidgets.QGroupBox):
         self.testsRows[testName].statusLbl.setText(_translate("skippedTestsNumber", parsingTestRepeatsSummary.resultsStr))
         self.testsRows[testName].statusLbl.setStyleSheet(COLOR_CONVERTER[parsingTestRepeatsSummary.stateForColor])
 
-    def prepareTestRepeatsSummary(self, hostPc, testName):
+    def prepareTestRepeatsSummary(self, host, testName): #TODO to many ifs maybe need here a dict
         parsedTestRepeatsSummary = namedtuple('parsedTestRepeatsSummary', ['stateForColor', 'resultsStr'])
-        if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]["testRepeatsCurrStatus"].name == testState.RUNNING.name:
-            return parsedTestRepeatsSummary(testState.RUNNING, "Running (Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED]) + ")")
-        if self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED] > 0:
-            return parsedTestRepeatsSummary(testState.FAILED, " Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.FAILED]))
-        elif self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED] > 0:
-            return parsedTestRepeatsSummary(testState.PASSED, " Passed: " + str(self.controller.runtimeHostPcsData[hostPc["IP"]][testName]['testRepeatsSummary'][testState.PASSED]))
+        if self.controller.runtimeHostPcsData[host["IP"]][testName]["testRepeatsCurrStatus"] == testState.TESTREPEATISZERO:
+            return parsedTestRepeatsSummary(testState.PASSED, "No Repeats") #TODO look at this
+        if self.controller.runtimeHostPcsData[host["IP"]][testName]["testRepeatsCurrStatus"] == testState.RUNNING:
+            return parsedTestRepeatsSummary(testState.RUNNING, "Running (Passed: " + str(self.controller.runtimeHostPcsData[host["IP"]][testName]['testRepeatsSummary'][testState.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[host["IP"]][testName]['testRepeatsSummary'][testState.FAILED]) + ")")
+        if self.controller.runtimeHostPcsData[host["IP"]][testName]['testRepeatsSummary'][testState.FAILED] > 0:
+            return parsedTestRepeatsSummary(testState.FAILED, " Passed: " + str(self.controller.runtimeHostPcsData[host["IP"]][testName]['testRepeatsSummary'][testState.PASSED]) + " Failed: " + str(self.controller.runtimeHostPcsData[host["IP"]][testName]['testRepeatsSummary'][testState.FAILED]))
+        elif self.controller.runtimeHostPcsData[host["IP"]][testName]['testRepeatsSummary'][testState.PASSED] > 0:
+            return parsedTestRepeatsSummary(testState.PASSED, " Passed: " + str(self.controller.runtimeHostPcsData[host["IP"]][testName]['testRepeatsSummary'][testState.PASSED]))
 
     def loadHostPCSTestParams(self, host):
         self.myHost = host

@@ -52,7 +52,13 @@ class lecroyHandler():
         resetExerciserGenerationScriptState = 0
         traceReady = 0 #TODO need to change the name of it to  analzyer index
         isTraceCreatedPerAnalyzer.insert(traceReady, False) # the "0" indicates a place in the traceCreatedPerAnalyzer list, each item in this list will represent analyzer
-        self.lecroyObj = dispatchComObj.DispatchWithEventsAndParams("CATC.PETracer", PEEvent, [SavedTraceFullPathAndName, traceReady, hostPc, testLog, self.controller])
+        try: #TODO look at this
+            self.lecroyObj = dispatchComObj.DispatchWithEventsAndParams("CATC.PETracer", PEEvent, [SavedTraceFullPathAndName, traceReady, hostPc, testLog, self.controller])
+        except com_error as e:
+            print(str(e))
+            self.controller.updateTerminalAndLog(self.lecroyObj.hostPc, self.lecroyObj.testLog,
+                                                 "\n Lecroy Obj dispatch failed with the following exception:  " + str(e))
+            return None#TODO Look at tihs
         time.sleep(5) # TODO need to replace with getdiscoveredDevice() to make sure that the app worked
         self.rec_options = self.lecroyObj.GetRecordingOptions()
         self.rec_options.SetTraceFileName(self.traceFileName)
@@ -64,6 +70,7 @@ class lecroyHandler():
         except com_error as e:
             print(str(e))
             self.controller.updateTerminalAndLog(self.lecroyObj.hostPc, self.lecroyObj.testLog, "\n Start Recording failed with the following exception:  " + str(e))
+            return None#TODO Look at tihs
         return self.lecroyObj
 
     def stopAnalyzerRecording(self):
@@ -83,9 +90,11 @@ class lecroyHandler():
     def startGenerationScriptOnExerciser(self,lecroyObj,generationScriptFullPathAndName,host,testLog,controllerPc):
         try:
             lecroyObj.StartGeneration(generationScriptFullPathAndName, 0, 0)
+            return True #TODO look at this
         except com_error as e:
             print(str(e))
             self.controller.updateTerminalAndLog(self.lecroyObj.hostPc, self.lecroyObj.testLog,"\n Start Generation failed with the following exception: " + str(e))
+            return False #TODO look at this
 
     def verifyExerciserGenerationScriptFinished(self): #TODO need to add time out
         while resetExerciserGenerationScriptState != 1:

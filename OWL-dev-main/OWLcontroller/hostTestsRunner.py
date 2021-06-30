@@ -52,9 +52,9 @@ class hostTestsRunner():
     def replaceSpecialCharactersWithSpaces(self, testName):
         return testName.translate ({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
 
-    def updateUiAndControllerWithTestStatuses(self,test,numOfPass,numOfFails):
+    def updateUiAndControllerWithTestStatus(self, test, numOfPass, numOfFails,repeatAmount):
         self.controllerPc.runtimeHostPcsData[self.host["IP"]][test.testname] = \
-            {"testRepeatsCurrStatus": testState.RUNNING,
+            {"testRepeatsCurrStatus": testState.RUNNING if repeatAmount > 0 else testState.TESTREPEATISZERO,
              "testRepeatsSummary": {testState.PASSED: numOfPass, testState.FAILED: numOfFails}}
         self.controllerPc.updateTestStatusInRunTime(self.host, test)
 
@@ -68,6 +68,9 @@ class hostTestsRunner():
     def updateUiAndContollerWithHostdata(self,hostCurrState):
         self.controllerPc.runtimeHostPcsData[self.host["IP"]]["hostPcLblColor"] = hostCurrState
         self.controllerPc.updateUiWithHostNewStatus(self.host)
+
+    def updateUiSummerizeBox(self,numOfPassTests,numOffailedTests,numOfTestToRun):
+        self.controllerPc.updateUiSummerizeBox(numOfPassTests,numOffailedTests,numOfTestToRun)
 
     def getRecordOptionFilePath(self,test):
         return os.getcwd() + "\\" + test.recordingoptions
@@ -87,37 +90,58 @@ class hostTestsRunner():
     def getVSEFullPathAndName(self,test):
         return os.getcwd() + "\\" + test.verificationscript
 
+    def getTotalNumOfTestsToRun(self): #TODO look at this
+        TotalNumberOfTests = 0
+        for test in self.testToRun:
+            TotalNumberOfTests += self.host["tests"][test.testname]['repeatAmount']
+        return TotalNumberOfTests
+
     def runAllTests(self): #TODO go over this refactor
         self.printToLog("starting running tests")
         stopOnFailure = self.host['stopOnFailure']
+        totalTests = self.getTotalNumOfTestsToRun() #TODO look at this
+        totalPassedTests = 0
+        totalFailedTests = 0
         hostFinalStatus = testState.PASSED  # if True host final session status is pass , otherwise host final session status is fail
         for test in self.testToRun:
             numOfPass = 0
             numOfFails = 0
-            self.updateUiAndControllerWithTestStatuses(test,numOfPass,numOfFails)
+            repeatAmount = self.host["tests"][test.testname]['repeatAmount']
+            self.updateUiAndControllerWithTestStatus(test, numOfPass, numOfFails,repeatAmount) #TODO LOOK at this repat amount addition
             self.updateUiAndContollerWithHostdata(testState.RUNNING)
             self.printToLog("starting test= " + test.testname)
-            for repeat in range(self.host["tests"][test.testname]['repeatAmount']):  # repeat tests according to repeatAmount
+            for repeat in range(repeatAmount):  # repeat tests according to repeatAmount
+                self.updateUiSummerizeBox(totalPassedTests, totalFailedTests, totalTests)
                 testLog = self.createLog(test)
                 self.controllerPc.updateTerminalAndLog(self.host, testLog, "\n" + test.testname + " Has started ")
                 lecroyHandler = self.controllerPc.createLecroyHandlerInstance()
                 self.controllerPc.updateTerminalAndLog(self.host, testLog, "\n Lecroy's Analyzer recording procedure has started")
                 traceFullPathAndName = self.getTraceFullPathAndName(test)
                 lecroyObj = self.controllerPc.startRecordingWithAnalyzer(lecroyHandler, traceFullPathAndName, self.getRecordOptionFilePath(test), self.host, testLog)
-                if self.controllerPc.isCurrentExecutionModeIsHostPcMode():
-                    isTestEnded = self.runSequanceOfOperations(test, testLog)
-                else:
-                    isTestEnded = self.runTestOnExcerciser(lecroyObj,test,lecroyHandler,testLog)
-                self.controllerPc.stopRecordingWithAnalyzer(lecroyHandler)
-                self.controllerPc.updateTerminalAndLog(self.host, testLog, "\n Lecroy's Analyzer recording procedure has finished")
-                del lecroyHandler
-                del lecroyObj
-                verificationScriptResult = self.controllerPc.startVSE(traceFullPathAndName, self.getVSEFullPathAndName(test), self.host, testLog)
-                if isTestEnded and verificationScriptResult == 1: # verificationScriptResult == 1 is the value that Lecroy's API returns from VSE when the VSE has passed.
-                    numOfPass += 1
+                if lecroyObj is not None: #TODO Look at tihs
+                    if self.controllerPc.isCurrentExecutionModeIsHostPcMode():
+                        isTestExecuted = self.runSequanceOfOperations(test, testLog)
+                    else:
+                        isTestExecuted = self.runTestOnExcerciser(lecroyObj,test,lecroyHandler,testLog)
+                    self.controllerPc.stopRecordingWithAnalyzer(lecroyHandler)
+                    self.controllerPc.updateTerminalAndLog(self.host, testLog, "\n Lecroy's Analyzer recording procedure has finished")
+                    del lecroyHandler
+                    del lecroyObj
+                    verificationScriptResult = self.controllerPc.startVSE(traceFullPathAndName, self.getVSEFullPathAndName(test), self.host, testLog)
+                else:#TODO Look at tihs
+                    isTestExecuted = False#TODO Look at tihs
+                    verificationScriptResult = None#TODO Look at tihs
+                    self.controllerPc.updateTerminalAndLog(self.host, testLog, #TODO Look at tihs
+                                                           "\n Test execution canceled since start recording has failed")
+                if isTestExecuted and verificationScriptResult == 1: # verificationScriptResult == 1 is the value that Lecroy's API returns from VSE when the VSE has passed.
+                    numOfPass += 1 #TODO look at this
+                    totalPassedTests += 1 #TODO look at this if i add numOfPass in each iterate it will be multiple number of pass
+                    self.updateUiSummerizeBox(totalPassedTests, totalFailedTests, totalTests) #TODO look at this if i add numOfPass in each iterate it will be multiple number of pass
                     self.controllerPc.updateTerminalAndLog(self.host, testLog, "\n" + test.testname + " Has Passed")
-                else:
+                else: #TODO look at this
                     numOfFails += 1
+                    totalFailedTests += 1  #TODO look at this if i add numOfPass in each iterate it will be multiple number of pass
+                    self.updateUiSummerizeBox(totalPassedTests, totalFailedTests, totalTests)  #TODO look at this if i add numOfPass in each iterate it will be multiple number of pass
                     hostFinalStatus = testState.FAILED  # if one test has failed in the Host's session of tests its enough to mark this session for this host has a session that failed
                     self.controllerPc.updateTerminalAndLog(self.host, testLog, "\n" + test.testname + " Has Failed")
                 testLog.close()
@@ -127,7 +151,7 @@ class hostTestsRunner():
             if stopOnFailure and numOfFails >= 1:  # Stop on failure is on
                 break
             self.controllerPc.updateTerminalAndLog(self.host, None, "\n >>> Passed: " + str(numOfPass) + " Failed:" + str(numOfFails) + "\n")
-            self.printToLog("finished test= " + test.testname)
+            self.printToLog("Finished test= " + test.testname)
             if self.controllerPc.haltThreads:
                 self.controllerPc.updateTerminalAndLog(self.host, None, "Testing Stopped")
                 self.printToLog("Halting")
@@ -143,10 +167,14 @@ class hostTestsRunner():
         self.controllerPc.updateTerminalAndLog(self.host, testLog, test.generationoptions + " has been loaded")
         self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Init Script Started")
         result = self.controllerPc.startGenerationScriptWithExerciser(lecroyHandler, lecroyObj, self.getTrainerInitScriptFullPathForExerciserFromTestConf(test), self.host, testLog, self.controllerPc)
+        if not result: #TODO look at this
+            return False
         if self.controllerPc.verifyGenerationScriptOnExerciserFinished(lecroyHandler):
             self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Init Script Finished")
             self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Script Started")
-            self.controllerPc.startGenerationScriptWithExerciser(lecroyHandler, lecroyObj, self.getTrainerScriptPathForExerciserFromTestConf(test), self.host, testLog, self.controllerPc)
+            result = self.controllerPc.startGenerationScriptWithExerciser(lecroyHandler, lecroyObj, self.getTrainerScriptPathForExerciserFromTestConf(test), self.host, testLog, self.controllerPc)
+            if not result: #TODO look at this
+                return False
             if self.controllerPc.verifyGenerationScriptOnExerciserFinished(lecroyHandler):
                 self.controllerPc.updateTerminalAndLog(self.host, testLog, "Trainer Script Finished")
                 return True

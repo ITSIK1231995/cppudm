@@ -107,13 +107,16 @@ class ControllerPc():
         terminalAddition = currentDatetime + "    " + update.strip() + "\n"
         print (terminalAddition)
         self.runtimeHostPcsData[host["IP"]]['terminal'] += terminalAddition
-        self.updateguiTerminal(host)
+        self.updateGUITerminal(host)
         if testLog is not None:
             testLog.write(terminalAddition)
             testLog.flush()
 
-    def updateguiTerminal(self,hostPc):
+    def updateGUITerminal(self, hostPc):
         self.view.updateCurrentTernimal(hostPc)
+
+    def updateUiSummerizeBox(self,numOfPassTests,numOffailedTests,numOfTestToRun): #TODO look at this
+        self.view.updateUiSummerizeBox(numOfPassTests,numOffailedTests,numOfTestToRun)
 
     def GUIInit(self):
         self.app = QtWidgets.QApplication.instance()
